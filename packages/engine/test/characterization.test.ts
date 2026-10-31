@@ -14,6 +14,7 @@ import {
   newRogueRun,
   scorePuzzle,
   validateAnswer,
+  webStorage,
   type Puzzle,
   type RogueRun,
   type Storage,
@@ -171,6 +172,29 @@ test('Daily sélectionne le même puzzle pour une date UTC donnée', () => {
   const entries = [puzzle(15, '3+3+3+3+3', 5, 2)];
   const date = new Date('2026-10-31T12:00:00Z');
   assert.deepEqual(dailyPuzzle(entries, date), dailyPuzzle(entries, date));
+});
+
+test('webStorage conserve l’API historique et la sérialisation JSON', async () => {
+  const values = new Map<string, string>();
+  const originalStorage = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+  Object.defineProperty(globalThis, 'localStorage', {
+    configurable: true,
+    value: {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => values.set(key, value),
+      removeItem: (key: string) => values.delete(key),
+    },
+  });
+
+  try {
+    await webStorage.set('sample', { score: 12 });
+    assert.deepEqual(await webStorage.get('sample'), { score: 12 });
+    await webStorage.remove('sample');
+    assert.equal(await webStorage.get('sample'), null);
+  } finally {
+    if (originalStorage) Object.defineProperty(globalThis, 'localStorage', originalStorage);
+    else delete (globalThis as typeof globalThis & { localStorage?: unknown }).localStorage;
+  }
 });
 
 test('BUG CARACTÉRISÉ : need_7 + only_35 rend Rogue insoluble', () => {
