@@ -12,6 +12,7 @@
   },
   "scripts": {
     "build:puzzles": "tsx scripts/build-puzzles.ts",
+    "test": "node --import tsx --input-type=module -e \"await import('./test/characterization.test.ts')\"",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

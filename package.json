@@ -9,6 +9,7 @@
     "puzzles": "npm run build:puzzles -w @shortest/engine",
     "web": "npm run dev -w @shortest/web",
     "mobile": "npm run start -w @shortest/mobile",
+    "test": "npm run test -w @shortest/engine",
     "typecheck": "npm run typecheck -w @shortest/engine && npm run typecheck -w @shortest/web",
     "music": "node tools/gen-music.cjs",
     "assets": "node apps/mobile/scripts/gen-sfx.cjs && node tools/gen-music.cjs"

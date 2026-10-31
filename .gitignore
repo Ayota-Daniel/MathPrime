@@ -3,3 +3,26 @@ dist/
 .expo/
 *.log
 .DS_Store
+*.tsbuildinfo
+
+# Local configuration and credentials. Keep checked-in *.env.example templates.
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Signing material, certificates, and private keys.
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.mobileprovision
+*.provisionprofile
+*.pem
+*.key
+
+# Common cloud and local credential files.
+credentials.json
+service-account*.json
+secrets.*
+*.secret
