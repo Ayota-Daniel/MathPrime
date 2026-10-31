@@ -1,0 +1,5 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": { "jsx": "react-jsx", "lib": ["ES2020"], "noEmit": true, "types": [], "moduleResolution": "bundler" },
+  "include": ["App.tsx", "index.ts", "src", "nativewind-env.d.ts"]
+}

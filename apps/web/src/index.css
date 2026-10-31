@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---- CSS natif : réservé aux ANIMATIONS (Tailwind ne les gère pas finement) ---- */
+html, body, #root { height: 100%; margin: 0; background: theme('colors.bg'); }
+
+@keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.anim-sheet-up { animation: sheet-up .22s ease; }
+
+@keyframes shake { 10%,90%{transform:translateX(-2px)} 30%,70%{transform:translateX(4px)} 50%{transform:translateX(-5px)} }
+.anim-shake { animation: shake .35s; }
+
+@keyframes time-pulse { 0%,100%{opacity:1} 50%{opacity:.55} }
+.anim-time-pulse { animation: time-pulse .9s ease-in-out infinite; }
+
+/* bouton tactile "Duolingo" : ombre qui s'enfonce */
+.btn-3d { box-shadow: 0 4px 0 theme('colors.pri-d'); transition: transform .06s, box-shadow .06s; }
+.btn-3d:active { transform: translateY(3px); box-shadow: 0 1px 0 theme('colors.pri-d'); }
+
+.reduce-motion * { animation: none !important; transition: none !important; }
+
+/* apparition "pop" de la bannière record */
+@keyframes pop { 0%{transform:scale(.8);opacity:0} 60%{transform:scale(1.05)} 100%{transform:scale(1);opacity:1} }
+.anim-pop { animation: pop .4s ease; }

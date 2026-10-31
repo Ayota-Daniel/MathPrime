@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Shortest",
+    "slug": "shortest",
+    "scheme": "shortest",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "backgroundColor": "#5B5BD6"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.shortest.app"
+    },
+    "android": {
+      "package": "com.shortest.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#5B5BD6"
+      }
+    },
+    "web": {
+      "favicon": "./assets/icon.png"
+    },
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-audio"
+    ]
+  }
+}

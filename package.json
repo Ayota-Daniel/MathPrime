@@ -1,0 +1,16 @@
+{
+  "name": "shortest",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "puzzles": "npm run build:puzzles -w @shortest/engine",
+    "web": "npm run dev -w @shortest/web",
+    "mobile": "npm run start -w @shortest/mobile",
+    "typecheck": "npm run typecheck -w @shortest/engine && npm run typecheck -w @shortest/web",
+    "music": "node tools/gen-music.cjs",
+    "assets": "node apps/mobile/scripts/gen-sfx.cjs && node tools/gen-music.cjs"
+  }
+}

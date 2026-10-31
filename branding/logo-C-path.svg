@@ -1,0 +1,9 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" font-family="'Space Grotesk',sans-serif">
+  <rect x="6" y="6" width="108" height="108" rx="26" fill="#5B5BD6"/>
+  <!-- chemin en S reliant 3 noeuds -->
+  <path d="M84 36 C84 26 36 26 36 44 C36 62 84 58 84 76 C84 94 36 94 36 84"
+        fill="none" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="84" cy="36" r="9" fill="#E8A317"/>
+  <circle cx="36" cy="60" r="9" fill="#FFFFFF"/>
+  <circle cx="84" cy="84" r="9" fill="#E8A317"/>
+</svg>

@@ -1,0 +1,6 @@
+<svg width="300" height="120" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg" font-family="'Space Grotesk',sans-serif">
+  <!-- grand ≤ : "au plus court" -->
+  <path d="M96 24 L40 60 L96 96" fill="none" stroke="#5B5BD6" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M40 104 L104 104" fill="none" stroke="#E8A317" stroke-width="10" stroke-linecap="round"/>
+  <text x="150" y="74" font-size="44" font-weight="700" fill="#16202C">3·5·7</text>
+</svg>

@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "numbers": [
+    3,
+    5,
+    7
+  ],
+  "operations": [
+    "+",
+    "-",
+    "*"
+  ],
+  "maxTarget": 1000,
+  "tables": [
+    "base",
+    "big3",
+    "big5",
+    "big7"
+  ],
+  "generatedAt": "2026-10-17T23:14:18.139Z"
+}
