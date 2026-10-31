@@ -3,6 +3,7 @@ export * from './evaluate';
 export * from './difficulty';
 export * from './game-engine';
 export * from './persistence';
+export * from './web-storage-compat';
 export * from './puzzles';
 export * from './solve-one';
 export * from './leaderboard';

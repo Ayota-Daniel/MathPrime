@@ -7,12 +7,7 @@ export interface Storage {
   remove(key: string): Promise<void>;
 }
 
-export const webStorage: Storage = {
-  async get<T>(key: string) { try { const v = localStorage.getItem(key); return v ? (JSON.parse(v) as T) : null; } catch { return null; } },
-  async set<T>(key: string, value: T) { localStorage.setItem(key, JSON.stringify(value)); },
-  async remove(key: string) { localStorage.removeItem(key); },
-};
-/** Adaptateur natif : voir apps/mobile/src/storage.ts (AsyncStorage). */
+/** Les adaptateurs de stockage vivent dans les applications web et mobile. */
 
 export interface SaveState {
   version: number;
