@@ -5,6 +5,9 @@
     "packages/*",
     "apps/*"
   ],
+  "overrides": {
+    "postcss-selector-parser": "^6.1.5"
+  },
   "scripts": {
     "puzzles": "npm run build:puzzles -w @shortest/engine",
     "web": "npm run dev -w @shortest/web",
