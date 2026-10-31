@@ -1,18 +1,8 @@
-// Monorepo + NativeWind. watchFolders pointe la racine pour résoudre @shortest/*.
 const { getDefaultConfig } = require('expo/metro-config');
 const { withNativeWind } = require('nativewind/metro');
-const path = require('path');
 
-const projectRoot = __dirname;
-const workspaceRoot = path.resolve(projectRoot, '../..');
-
-const config = getDefaultConfig(projectRoot);
-config.watchFolders = [workspaceRoot];
-config.resolver.nodeModulesPaths = [
-  path.resolve(projectRoot, 'node_modules'),
-  path.resolve(workspaceRoot, 'node_modules'),
-];
-config.resolver.disableHierarchicalLookup = false;
+// Expo configure la résolution des workspaces et ses dossiers surveillés.
+const config = getDefaultConfig(__dirname);
 // s'assurer que les .wav (bruitages) sont empaquetés comme assets
 if (!config.resolver.assetExts.includes('wav')) config.resolver.assetExts.push('wav');
 
