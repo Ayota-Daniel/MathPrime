@@ -7,9 +7,6 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "icon": "./assets/icon.png",
-    "splash": {
-      "backgroundColor": "#5B5BD6"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -28,7 +25,8 @@
       "favicon": "./assets/icon.png"
     },
     "plugins": [
-      "expo-audio"
+      "expo-audio",
+      "expo-status-bar"
     ]
   }
 }

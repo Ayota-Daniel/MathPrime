@@ -20,3 +20,6 @@ local.properties
 
 # Bundle artifacts
 *.jsbundle
+
+# Generated Expo inline modules
+app/src/main/java/inline/
