@@ -209,14 +209,23 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
         set({ session: updatedSession });
         void persistQueued(snapshot).then(() => {
           pendingDailyRewards.delete(today);
+          const activeSession = get().session;
+          let completedSession = activeSession;
+          if (activeSession === updatedSession) {
+            completedSession = { ...updatedSession, dailySaving: false, feedback };
+          } else if (activeSession?.dailySaving && activeSession.dailyDate === today) {
+            completedSession = { ...activeSession, dailySaving: false, dailyTraining: true };
+          }
           set({ xp: newXp, streakByMode: newStreaks, bestStreakByMode: newBestStreaks, bestByMode: newBests, classicStars, stats: newStats, dailyDone: newDailyDone,
-            session: get().session?.dailySaving ? { ...get().session!, dailySaving: false, feedback } : get().session });
+            session: completedSession });
           submitLeaderboard();
         }).catch(() => {
           pendingDailyRewards.delete(today);
           const currentSession = get().session;
-          if (currentSession?.dailySaving && currentSession.dailyDate === today) {
+          if (currentSession === updatedSession) {
             set({ session: { ...currentSession, dailySaving: false, streak: s.streak, score: s.score, prShown: s.prShown, rogue: s.rogue, feedback: { ok: false, soft: true, reason: 'save_failed', optimal: currentSession.puzzle.expr, target: currentSession.puzzle.target } } });
+          } else if (currentSession?.dailySaving && currentSession.dailyDate === today) {
+            set({ session: { ...currentSession, dailySaving: false, dailyTraining: get().dailyDone === today } });
           }
         });
         return;

@@ -343,6 +343,34 @@ test('Daily récompensé reste bloqué après sortie et rechargement du profil',
   assert.equal(reloadedStore.getState().xp, rewardedXp);
 });
 
+test('une nouvelle session Daily pendant une sauvegarde ne réutilise pas son ancien feedback', async () => {
+  let finishWrite = () => {};
+  const storage: Storage = {
+    async get<T>() { return null as T | null; },
+    set() { return new Promise<void>((resolve) => { finishWrite = resolve; }); },
+    async remove() {},
+  };
+  const today = new Date('2026-10-31T12:00:00Z');
+  const table = [puzzle(15, '3+3+3+3+3', 5, 2)];
+  const store = createGameStore(storage, undefined, () => today);
+  store.getState().start('daily', table);
+  enterExpression(store, table[0].expr);
+  assert.equal(store.getState().session!.dailySaving, true);
+  await Promise.resolve();
+
+  store.getState().quit();
+  store.getState().start('daily', table);
+  assert.equal(store.getState().session!.dailyTraining, true);
+  assert.equal(store.getState().session!.dailySaving, true);
+  finishWrite();
+  await new Promise<void>((resolve) => setImmediate(resolve));
+
+  assert.equal(store.getState().session!.dailySaving, false);
+  assert.equal(store.getState().session!.dailyTraining, true);
+  assert.equal(store.getState().session!.feedback, null);
+  assert.ok(store.getState().xp > 0);
+});
+
 test('Daily ouvre la récompense du nouveau jour UTC pendant une session active', async () => {
   const storage = createMemoryStorage();
   let now = new Date('2026-10-31T23:59:00Z');
