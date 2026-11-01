@@ -6,5 +6,6 @@ export * from './persistence';
 export * from './web-storage-compat';
 export * from './puzzles';
 export * from './solve-one';
+export * from './rogue-puzzles';
 export * from './leaderboard';
 export * from './store';

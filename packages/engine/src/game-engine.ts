@@ -17,6 +17,8 @@ export function validateAnswer(input: string, target: number, optimalOperands: n
   const expr = input.replace(/\s+/g, '');
   if (!expr) return fail('empty');
   if (/[()]/.test(expr)) return fail('has_parens');
+  // Cover the entire input, including the unfinished final operator.
+  if (!/^\d+(?:[+\-*]\d+)*[+\-*]?$/.test(expr)) return fail('bad_token');
   if (/[+\-*]$/.test(expr)) return fail('incomplete');
   const tokens = expr.match(/\d+|[+\-*]/g);
   if (!tokens) return fail('bad_token');
@@ -95,8 +97,20 @@ export const ROGUE_POOL: RogueModifier[] = [
   { id: 'add_1', label: 'Ajoute le chiffre 1', kind: 'boon', apply: (r) => ({ ...r, numbers: [...new Set([1, ...r.numbers])] }), scoreMult: 0.8 },
   { id: 'heal', label: 'Récupère une vie', kind: 'boon', apply: (r) => r, scoreMult: 1.0, restoreLife: true },
 ];
-export function draftModifiers(rng: () => number = Math.random, n = 3): RogueModifier[] {
-  const pool = [...ROGUE_POOL], out: RogueModifier[] = [];
+/** Necessary consistency checks; bounded puzzle selection checks reachability separately. */
+export function areRulesCompatible(rules: Rules): boolean {
+  if (rules.numbers.length === 0) return false;
+  if (!rules.required.every((number) => rules.numbers.includes(number))) return false;
+  return rules.operations.length > 0 || new Set(rules.required).size <= 1;
+}
+
+export function isModifierCompatible(rules: Rules, modifier: RogueModifier): boolean {
+  return areRulesCompatible(modifier.apply(rules));
+}
+
+export function draftModifiers(rng: () => number = Math.random, n = 3, rules: Rules = BASE_RULES): RogueModifier[] {
+  const pool = ROGUE_POOL.filter((modifier) => isModifierCompatible(rules, modifier));
+  const out: RogueModifier[] = [];
   while (out.length < n && pool.length) out.push(pool.splice(Math.floor(rng() * pool.length), 1)[0]);
   return out;
 }
@@ -107,10 +121,13 @@ export function rogueOnSolve(run: RogueRun, gained: number): { run: RogueRun; sh
   return { run: { ...run, solved, score: run.score + gained }, shouldDraft: solved % DRAFT_EVERY === 0 && !run.over };
 }
 export const rogueOnFail = (run: RogueRun): RogueRun => { const lives = run.lives - 1; return { ...run, lives, over: lives <= 0 }; };
-export const applyModifier = (run: RogueRun, mod: RogueModifier): RogueRun => ({
-  ...run, rules: mod.apply(run.rules), mods: [...run.mods, mod], scoreMult: run.scoreMult * mod.scoreMult,
-  lives: mod.restoreLife ? Math.min(MAX_LIVES, run.lives + 1) : run.lives,
-});
+export function applyModifier(run: RogueRun, mod: RogueModifier): RogueRun {
+  if (!isModifierCompatible(run.rules, mod)) return run;
+  return {
+    ...run, rules: mod.apply(run.rules), mods: [...run.mods, mod], scoreMult: run.scoreMult * mod.scoreMult,
+    lives: mod.restoreLife ? Math.min(MAX_LIVES, run.lives + 1) : run.lives,
+  };
+}
 
 
 /* ---------- HINTS ---------- */
