@@ -18,7 +18,7 @@ export function Play() {
   const { mode } = useParams({ from: '/play/$mode' });
   const table = useLoaderData({ from: '/play/$mode' }) as Puzzle[];
   const nav = useNavigate();
-  const { session, start, press, del, clear, submit, next, tick, hint, chooseModifier, clearSoftFeedback, quit } = useGame();
+  const { session, rogueSelectionFailed, start, press, del, clear, submit, next, tick, hint, chooseModifier, clearSoftFeedback, quit } = useGame();
   const shakeRef = useRef<HTMLDivElement>(null);
   const lastWrong = useRef(0);
 
@@ -52,6 +52,25 @@ export function Play() {
     return () => window.removeEventListener('keydown', onKey);
   }, [press, del, clear, submit]);
 
+  // ---- écran de fin Rogue ----
+  if (rogueSelectionFailed || session?.rogue?.over) {
+    return (
+      <>
+        <TopBar streakMode="rogue" />
+        <div className="flex-1 flex flex-col items-center justify-center text-center gap-[6px] p-[18px]">
+          <Swords size={40} color="#E5484D" />
+          <h1 className="font-display font-bold text-[22px] m-0">Run terminé</h1>
+          {rogueSelectionFailed && <p className="text-mut text-[13.5px]">Aucun puzzle trouvé dans les limites de recherche.</p>}
+          <p className="text-mut text-[13.5px]">Survécu à {session?.rogue?.solved ?? 0} puzzles.</p>
+          <div className="font-display font-bold text-[60px] text-gold leading-none">{session?.rogue?.score ?? 0}</div>
+          <span className="text-mut text-[13px]">points</span>
+          <Button variant="primary" className="mt-[18px] w-[220px]" onClick={() => start('rogue', table)}>Rejouer</Button>
+          <button className="mt-[10px] text-pri font-semibold text-[13px]" onClick={() => { quit(); nav({ to: '/' }); }}>Menu</button>
+        </div>
+      </>
+    );
+  }
+
   if (!session) return null;
   const s = session;
   const p = s.puzzle;
@@ -60,24 +79,6 @@ export function Play() {
   if (s.feedback && !s.feedback.ok && lastWrong.current !== p.target) {
     lastWrong.current = p.target;
     shakeRef.current?.classList.remove('anim-shake'); void shakeRef.current?.offsetWidth; shakeRef.current?.classList.add('anim-shake');
-  }
-
-  // ---- écran de fin Rogue ----
-  if (s.rogue?.over) {
-    return (
-      <>
-        <TopBar streakMode="rogue" />
-        <div className="flex-1 flex flex-col items-center justify-center text-center gap-[6px] p-[18px]">
-          <Swords size={40} color="#E5484D" />
-          <h1 className="font-display font-bold text-[22px] m-0">Run terminé</h1>
-          <p className="text-mut text-[13.5px]">Survécu à {s.rogue.solved} puzzles.</p>
-          <div className="font-display font-bold text-[60px] text-gold leading-none">{s.rogue.score}</div>
-          <span className="text-mut text-[13px]">points</span>
-          <Button variant="primary" className="mt-[18px] w-[220px]" onClick={() => start('rogue', table)}>Rejouer</Button>
-          <button className="mt-[10px] text-pri font-semibold text-[13px]" onClick={() => { quit(); nav({ to: '/' }); }}>Menu</button>
-        </div>
-      </>
-    );
   }
 
   // ---- draft Rogue ----
@@ -123,7 +124,7 @@ export function Play() {
             <span className="font-display font-bold text-[60px] leading-none tracking-tight">{p.target}</span>
             <div className="flex gap-[6px] mt-[4px] flex-wrap justify-center">
               <Chip>Niveau {p.difficulty}</Chip>
-              <Chip bg="#FBEFE0" color="#B5651d">optimal · {s.optimalOperands} chiffres</Chip>
+              <Chip bg="#FBEFE0" color="#B5651d">{mode === 'rogue' ? 'minimum trouvé' : 'optimal'} · {s.optimalOperands} chiffres</Chip>
               {mode === 'classic' && <Chip bg="#EFEAFE" color="#7C5BD6">3★ pour débloquer</Chip>}
             </div>
           </div>

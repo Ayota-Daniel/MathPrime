@@ -2,14 +2,13 @@
  *  Injecte un Storage et (optionnel) un LeaderboardClient. */
 import { create } from 'zustand';
 import type { Puzzle } from './difficulty';
-import { difficultyForOperands } from './difficulty';
 import {
   BASE_RULES, validateAnswer, scorePuzzle, rankForXp, breaksStreak,
   classicCurriculum, dailyPuzzle, freeSkillPick, adjustLevel, dateKey, FREESKILL_START,
-  newRogueRun, rogueOnSolve, rogueOnFail, applyModifier, draftModifiers, exprTokens, hintStarCeiling,
+  newRogueRun, rogueOnSolve, rogueOnFail, applyModifier, draftModifiers, isModifierCompatible, exprTokens, hintStarCeiling,
   type Rules, type Mode, type Reason, type RogueRun, type RogueModifier,
 } from './game-engine';
-import { solveOne } from './solve-one';
+import { pickRoguePuzzle } from './rogue-puzzles';
 import { type Storage, type SaveState, EMPTY_SAVE, loadSave, persistSave } from './persistence';
 import { type LeaderboardClient, type LbEntry, makeDeviceId } from './leaderboard';
 
@@ -37,7 +36,7 @@ export interface Session {
 }
 
 export interface GameState extends Omit<SaveState, 'version'> {
-  session: Session | null; hydrated: boolean;
+  session: Session | null; hydrated: boolean; rogueSelectionFailed: boolean;
   rank: () => number;
   hydrate: () => Promise<void>;
   setSetting: <K extends keyof SaveState['settings']>(k: K, v: SaveState['settings'][K]) => void;
@@ -54,19 +53,16 @@ export interface GameState extends Omit<SaveState, 'version'> {
 function rulesFor(mode: Mode): Rules {
   return mode.startsWith('big') ? { ...BASE_RULES, required: [Number(mode.slice(3))] } : { ...BASE_RULES };
 }
-function pickPuzzle(mode: Mode, table: Puzzle[], rules: Rules, level: Diff, index: number): { puzzle: Puzzle; optimalOperands: number } {
-  if (mode === 'rogue') {
-    for (let t = 0; t < 60; t++) {
-      const target = 5 + Math.floor(Math.random() * 195);
-      const sol = solveOne(target, rules);
-      if (sol) return { puzzle: { target, expr: sol.expr, operands: sol.operands, difficulty: difficultyForOperands(sol.operands) }, optimalOperands: sol.operands };
-    }
-  }
+function pickTablePuzzle(mode: Exclude<Mode, 'rogue'>, table: Puzzle[], level: Diff, index: number): Puzzle {
   let puzzle: Puzzle;
   if (mode === 'freeskill') puzzle = freeSkillPick(table, level);
   else if (mode === 'daily') puzzle = dailyPuzzle(table);
   else { const list = classicCurriculum(table, mode.startsWith('big') ? 60 : 100); puzzle = list[index % list.length]; }
-  return { puzzle, optimalOperands: puzzle.operands };
+  return puzzle;
+}
+
+function stopRogueSelection(session: Session, run: RogueRun): Session {
+  return { ...session, rogue: { ...run, over: true }, draft: null, feedback: null, input: '' };
 }
 
 export function createGameStore(storage: Storage, leaderboard?: LeaderboardClient) {
@@ -81,7 +77,7 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
   };
 
   return create<GameState>((set, get) => ({
-    ...(() => { const { version: _v, ...rest } = EMPTY_SAVE; return rest; })(), session: null, hydrated: false,
+    ...(() => { const { version: _v, ...rest } = EMPTY_SAVE; return rest; })(), session: null, hydrated: false, rogueSelectionFailed: false,
     rank: () => rankForXp(get().xp),
 
     async hydrate() {
@@ -102,9 +98,12 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
       const rules = rogue ? rogue.rules : rulesFor(mode);
       const index = mode === 'classic' ? get().classicProgress : 0;
       const level = mode === 'freeskill' ? FREESKILL_START : 1;
-      const { puzzle, optimalOperands } = pickPuzzle(mode, table, rules, level, index);
+      const puzzle = mode === 'rogue' ? pickRoguePuzzle(rules) : pickTablePuzzle(mode, table, level, index);
+      if (!puzzle) { set({ session: null, rogueSelectionFailed: true }); return; }
+      const optimalOperands = puzzle.operands;
       const maxSeconds = mode === 'freeskill' ? FREE_BASE_SECONDS + (level - 1) * 8 : 0;
       set({
+        rogueSelectionFailed: false,
         session: {
           mode, rules, table, puzzle, optimalOperands, input: '', index, score: 0,
           level, fails: 0, secondsLeft: maxSeconds, maxSeconds, streak: get().streakByMode[mode] ?? 0,
@@ -114,19 +113,23 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
       });
     },
 
-    press(tok) { set((st) => st.session && !st.session.feedback ? { session: { ...st.session, input: st.session.input + tok } } : {}); },
+    press(tok) {
+      const s = get().session;
+      if (!s || s.feedback || s.draft || s.rogue?.over) return;
+      set({ session: { ...s, input: s.input + tok } });
+    },
     del() { set((st) => st.session ? { session: { ...st.session, input: st.session.input.replace(/[+\-*]?\d+$|.$/, '') } } : {}); },
     clear() { set((st) => st.session ? { session: { ...st.session, input: '' } } : {}); },
     clearSoftFeedback() { set((st) => st.session ? { session: { ...st.session, feedback: null } } : {}); },
 
     hint() {
-      const s = get().session; if (!s || s.feedback) return;
+      const s = get().session; if (!s || s.feedback || s.draft || s.rogue?.over) return;
       const total = exprTokens(s.puzzle.expr).length;
       if (s.hintsUsed < total) set({ session: { ...s, hintsUsed: s.hintsUsed + 1 } });
     },
 
     submit() {
-      const st = get(); const s = st.session; if (!s || s.feedback) return;
+      const st = get(); const s = st.session; if (!s || s.feedback || s.draft || s.rogue?.over) return;
       const v = validateAnswer(s.input, s.puzzle.target, s.optimalOperands, s.rules);
 
       if (!v.ok) {
@@ -186,17 +189,29 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
     next() {
       const st = get(); const s = st.session; if (!s) return;
 
-      if (s.mode === 'rogue' && s.rogue) {
+      if (s.mode === 'rogue') {
+        if (!s.rogue || s.rogue.over || s.draft) return;
         const won = !!s.feedback?.ok;
         let run = s.rogue;
         if (won) {
           const r = rogueOnSolve(run, s.feedback?.gained ?? 0); run = r.run;
-          if (r.shouldDraft) { set({ session: { ...s, rogue: run, draft: draftModifiers(), feedback: null, input: '', hintsUsed: 0 } }); return; }
+          if (r.shouldDraft) {
+            const draft = draftModifiers(Math.random, 3, run.rules);
+            if (draft.length > 0) {
+              set({ session: { ...s, rogue: run, draft, feedback: null, input: '', hintsUsed: 0 } });
+              return;
+            }
+          }
         } else {
           run = rogueOnFail(run);
           if (run.over) { set({ bestByMode: { ...st.bestByMode, rogue: Math.max(st.bestByMode.rogue ?? 0, run.score) }, session: { ...s, rogue: run, feedback: null } }); save(get); return; }
         }
-        const { puzzle, optimalOperands } = pickPuzzle('rogue', s.table, run.rules, 1, 0);
+        const puzzle = pickRoguePuzzle(run.rules);
+        if (!puzzle) {
+          set({ rogueSelectionFailed: true, session: stopRogueSelection(s, run) });
+          return;
+        }
+        const optimalOperands = puzzle.operands;
         set({ session: { ...s, rogue: run, rules: run.rules, puzzle, optimalOperands, input: '', feedback: null, hintsUsed: 0 } });
         return;
       }
@@ -205,7 +220,8 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
         const advance = s.feedback?.canAdvance === true;
         const index = advance ? Math.min(s.index + 1, classicCurriculum(s.table, 100).length - 1) : s.index;
         if (advance) set({ classicProgress: Math.max(st.classicProgress, index) });
-        const { puzzle, optimalOperands } = pickPuzzle('classic', s.table, s.rules, s.level, index);
+        const puzzle = pickTablePuzzle('classic', s.table, s.level, index);
+        const optimalOperands = puzzle.operands;
         set({ session: { ...s, index, puzzle, optimalOperands, input: '', feedback: null, hintsUsed: 0 } });
         if (advance) save(get);
         return;
@@ -214,19 +230,28 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
       let { level, fails } = s; let index = s.index;
       if (s.mode === 'freeskill') { level = adjustLevel(level, s.streak, fails); fails = 0; }
       else index = s.index + 1;
-      const { puzzle, optimalOperands } = pickPuzzle(s.mode, s.table, s.rules, level, index);
+      const puzzle = pickTablePuzzle(s.mode, s.table, level, index);
+      const optimalOperands = puzzle.operands;
       const maxSeconds = s.mode === 'freeskill' ? FREE_BASE_SECONDS + (level - 1) * 8 : 0;
       set({ session: { ...s, level, fails, index, puzzle, optimalOperands, input: '', feedback: null, hintsUsed: 0, secondsLeft: maxSeconds, maxSeconds } });
     },
 
     chooseModifier(mod) {
-      const s = get().session; if (!s || !s.rogue) return;
-      const run = applyModifier(s.rogue, mod);
-      const { puzzle, optimalOperands } = pickPuzzle('rogue', s.table, run.rules, 1, 0);
+      const s = get().session; if (!s || !s.rogue || s.rogue.over) return;
+      const offered = s.draft?.find((candidate) => candidate.id === mod.id);
+      if (!offered || !isModifierCompatible(s.rogue.rules, offered)) return;
+      const run = applyModifier(s.rogue, offered);
+      const puzzle = pickRoguePuzzle(run.rules);
+      if (!puzzle) {
+        // Keep the last valid rules and rewards if the candidate cannot produce a puzzle.
+        set({ rogueSelectionFailed: true, session: stopRogueSelection(s, s.rogue) });
+        return;
+      }
+      const optimalOperands = puzzle.operands;
       set({ session: { ...s, rogue: run, rules: run.rules, puzzle, optimalOperands, input: '', feedback: null, draft: null, hintsUsed: 0 } });
     },
 
-    quit() { set({ session: null }); },
+    quit() { set({ session: null, rogueSelectionFailed: false }); },
     async fetchLeaderboard(mode, limit = 50) { return leaderboard ? leaderboard.top(mode, limit) : []; },
   }));
 }

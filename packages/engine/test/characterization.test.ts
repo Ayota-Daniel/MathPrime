@@ -7,6 +7,11 @@ import {
   ROGUE_POOL,
   adjustLevel,
   applyModifier,
+  areRulesCompatible,
+  draftModifiers,
+  isModifierCompatible,
+  pickRoguePuzzle,
+  ROGUE_SEARCH_LIMITS,
   classicCurriculum,
   dailyPuzzle,
   difficultyForOperands,
@@ -17,6 +22,8 @@ import {
   webStorage,
   type Puzzle,
   type RogueRun,
+  type RogueModifier,
+  type Rules,
   type Storage,
 } from '../src/index';
 import { buildTable } from '../src/solver';
@@ -117,6 +124,7 @@ test('les tables JSON sont valides et reproductibles par le générateur courant
       assert.equal(countOperands(entry.expr), entry.operands, `${name}: ${entry.expr}`);
       assert.equal(entry.difficulty, difficultyForOperands(entry.operands), `${name}: difficulté de ${entry.expr}`);
       for (const value of required) assert.ok(entry.expr.match(new RegExp(`(?:^|[^0-9])${value}(?:$|[^0-9])`)));
+      assert.equal(validateAnswer(entry.expr, entry.target, entry.operands, { ...BASE_RULES, required: [...required] }).ok, true);
       assert.equal(generated.get(entry.target), entry.expr, `${name}: expression non reproductible pour ${entry.target}`);
     }
   }
@@ -197,46 +205,29 @@ test('webStorage conserve l’API historique et la sérialisation JSON', async (
   }
 });
 
-test('BUG CARACTÉRISÉ : need_7 + only_35 rend Rogue insoluble', () => {
-  let run: RogueRun = newRogueRun();
-  const needSeven = ROGUE_POOL.find((modifier) => modifier.id === 'need_7');
-  const onlyThreeAndFive = ROGUE_POOL.find((modifier) => modifier.id === 'only_35');
-  assert.ok(needSeven && onlyThreeAndFive);
-
-  run = applyModifier(run, needSeven);
-  run = applyModifier(run, onlyThreeAndFive);
-  assert.deepEqual(run.rules.required, [7]);
-  assert.deepEqual(run.rules.numbers, [3, 5]);
-  assert.equal(run.rules.numbers.includes(7), false);
-  assert.equal(solveOne(38, run.rules), null);
-});
-
-test('BUG CARACTÉRISÉ : le fallback Rogue affiche un puzzle incompatible avec ses règles', () => {
+test('Rogue refuse need_7 et only_35 dans les deux ordres', () => {
+  const needSeven = ROGUE_POOL.find((modifier) => modifier.id === 'need_7')!;
   const onlyThreeAndFive = ROGUE_POOL.find((modifier) => modifier.id === 'only_35')!;
-  const run: RogueRun = {
-    ...newRogueRun(),
-    rules: { numbers: [3, 7], operations: ['+'], required: [7] },
-  };
-  const table = [puzzle(12, '3+3+3+3', 4, 1)];
-  const store = createGameStore(createMemoryStorage());
 
-  store.setState({
-    session: {
-      mode: 'rogue', rules: run.rules, table, puzzle: table[0], optimalOperands: 4,
-      input: '', index: 0, score: 0, level: 1, fails: 0, secondsLeft: 0, maxSeconds: 0,
-      streak: 0, hintsUsed: 0, prevBest: 0, prShown: false,
-      rogue: run, feedback: null, draft: [onlyThreeAndFive],
-    },
-  });
-
-  store.getState().chooseModifier(onlyThreeAndFive);
-  const session = store.getState().session!;
-
-  assert.equal(session.puzzle.expr, table[0].expr);
-  assert.equal(validateAnswer(session.puzzle.expr, session.puzzle.target, session.optimalOperands, session.rules).reason, 'missing_required');
+  for (const [first, second] of [[needSeven, onlyThreeAndFive], [onlyThreeAndFive, needSeven]]) {
+    const run = applyModifier(newRogueRun(), first);
+    assert.equal(isModifierCompatible(run.rules, second), false);
+    assert.equal(applyModifier(run, second), run);
+    assert.equal(areRulesCompatible(run.rules), true);
+  }
 });
 
-test('BUG CARACTÉRISÉ : le score Rogue affiché additionne deux cumuls', () => {
+test('Rogue remplace le fallback Classic par une recherche déterministe valide', () => {
+  const rules: Rules = { numbers: [7], operations: [], required: [7] };
+  const selected = pickRoguePuzzle(rules, () => 0);
+
+  assert.ok(selected);
+  assert.deepEqual(selected, puzzle(7, '7', 1, 1));
+  assert.equal(validateAnswer(selected.expr, selected.target, selected.operands, rules).ok, true);
+});
+
+test('BUG CARACTÉRISÉ : le score Rogue affiché additionne deux cumuls', (context) => {
+  context.mock.method(Math, 'random', () => 0);
   const table = [puzzle(12, '3+3+3+3', 4, 1)];
   const store = createGameStore(createMemoryStorage());
   store.setState({
@@ -337,5 +328,195 @@ test('validation stricte conserve les trois contraintes Big Challenge', () => {
     const rules = { ...BASE_RULES, required: [required] };
     assert.equal(validateAnswer(input, target, 2, rules).reason, 'missing_required');
     assert.equal(validateAnswer('3+5*7', 38, 3, rules).ok, true);
+  }
+});
+
+test('Rogue ne propose que des modificateurs compatibles avec les règles cumulées', () => {
+  for (const id of ['need_7', 'only_35']) {
+    const active = ROGUE_POOL.find((modifier) => modifier.id === id)!;
+    const run = applyModifier(newRogueRun(), active);
+    const choices = draftModifiers(() => 0, ROGUE_POOL.length, run.rules);
+    assert.equal(choices.length, ROGUE_POOL.length - 1);
+    assert.ok(choices.every((modifier) => isModifierCompatible(run.rules, modifier)));
+    assert.ok(!choices.some((modifier) => modifier.id === (id === 'need_7' ? 'only_35' : 'need_7')));
+  }
+  const invalid: Rules = { numbers: [], operations: [], required: [7] };
+  assert.deepEqual(draftModifiers(() => 0, 3, invalid), []);
+  assert.equal(areRulesCompatible({ numbers: [3, 7], operations: [], required: [3, 7] }), false);
+});
+
+test('Rogue conserve les multiplicateurs, les bonus et la limite de vies', () => {
+  let run = { ...newRogueRun(), lives: 1 };
+  for (const id of ['double', 'heal', 'heal', 'heal', 'add_1', 'no_mult']) {
+    run = applyModifier(run, ROGUE_POOL.find((modifier) => modifier.id === id)!);
+  }
+  assert.equal(run.lives, 3);
+  assert.equal(run.scoreMult, 2 * 0.8 * 1.6);
+  assert.deepEqual(run.rules.numbers, [1, 3, 5, 7]);
+  assert.deepEqual(run.rules.operations, ['+', '-']);
+  assert.equal(run.mods.length, 6);
+  assert.deepEqual(BASE_RULES, { numbers: [3, 5, 7], operations: ['+', '-', '*'], required: [] });
+});
+
+test('les solutions Rogue respectent toutes les combinaisons admissibles du pool', () => {
+  let admissibleCombinations = 0;
+  for (let mask = 0; mask < (1 << ROGUE_POOL.length); mask++) {
+    let run = newRogueRun();
+    let compatible = true;
+    for (let index = 0; index < ROGUE_POOL.length; index++) {
+      if (!(mask & (1 << index))) continue;
+      const modifier = ROGUE_POOL[index];
+      if (!isModifierCompatible(run.rules, modifier)) { compatible = false; break; }
+      run = applyModifier(run, modifier);
+    }
+    if (!compatible) continue;
+    admissibleCombinations++;
+    for (const randomValue of [0, 0.35, 0.999999]) {
+      const selected = pickRoguePuzzle(run.rules, () => randomValue);
+      assert.ok(selected, `combinaison ${mask}, tirage ${randomValue}`);
+      assert.equal(validateAnswer(selected.expr, selected.target, selected.operands, run.rules).ok, true);
+      assert.equal(countOperands(selected.expr), selected.operands);
+      assert.ok(selected.operands <= ROGUE_SEARCH_LIMITS.maxOperands);
+      if (selected.operands > 1) {
+        assert.equal(solveOne(selected.target, run.rules, selected.operands - 1, ROGUE_SEARCH_LIMITS.magBound), null);
+      }
+    }
+  }
+  assert.equal(admissibleCombinations, 48);
+});
+
+test('Rogue signale explicitement une sélection impossible sans puzzle de remplacement', () => {
+  assert.equal(pickRoguePuzzle({ numbers: [1], operations: [], required: [] }, () => 0), null);
+  assert.equal(pickRoguePuzzle({ ...BASE_RULES, required: [99] }, () => { throw new Error('tirage interdit'); }), null);
+});
+
+function createRogueFixture(run: RogueRun, draft: RogueModifier[] | null = null) {
+  const selected = pickRoguePuzzle(run.rules, () => 0);
+  assert.ok(selected);
+  const store = createGameStore(createMemoryStorage());
+  store.setState({
+    session: {
+      mode: 'rogue', rules: run.rules, table: [], puzzle: selected, optimalOperands: selected.operands,
+      input: '', index: 0, score: 0, level: 1, fails: 0, secondsLeft: 0, maxSeconds: 0,
+      streak: 0, hintsUsed: 0, prevBest: 0, prShown: false,
+      rogue: run, feedback: null, draft,
+    },
+  });
+  return store;
+}
+
+test('le store Rogue refuse un choix incompatible, absent du draft ou déjà consommé', (context) => {
+  context.mock.method(Math, 'random', () => 0);
+  const needSeven = ROGUE_POOL.find((modifier) => modifier.id === 'need_7')!;
+  const onlyThreeAndFive = ROGUE_POOL.find((modifier) => modifier.id === 'only_35')!;
+  const heal = ROGUE_POOL.find((modifier) => modifier.id === 'heal')!;
+  const store = createRogueFixture(applyModifier(newRogueRun(), needSeven), [onlyThreeAndFive, heal]);
+  const before = store.getState().session;
+  store.getState().chooseModifier(onlyThreeAndFive);
+  store.getState().chooseModifier(needSeven);
+  assert.equal(store.getState().session, before);
+
+  store.getState().chooseModifier({ ...heal, apply: () => { throw new Error('objet non proposé'); } });
+  const after = store.getState().session!;
+  assert.equal(after.draft, null);
+  assert.equal(validateAnswer(after.puzzle.expr, after.puzzle.target, after.optimalOperands, after.rules).ok, true);
+  store.getState().chooseModifier(heal);
+  assert.equal(store.getState().session, after);
+});
+
+test('le draft du store tient compte des règles déjà actives après trois réussites', (context) => {
+  context.mock.method(Math, 'random', () => 0);
+  const needSeven = ROGUE_POOL.find((modifier) => modifier.id === 'need_7')!;
+  const run = { ...applyModifier(newRogueRun(), needSeven), solved: 2 };
+  const store = createRogueFixture(run);
+  enterExpression(store, store.getState().session!.puzzle.expr);
+  store.getState().next();
+  const session = store.getState().session!;
+  assert.equal(session.rogue!.solved, 3);
+  assert.ok(session.draft && session.draft.length > 0);
+  assert.ok(session.draft.every((modifier) => isModifierCompatible(run.rules, modifier)));
+  assert.ok(!session.draft.some((modifier) => modifier.id === 'only_35'));
+});
+
+test('un échec de sélection après un choix arrête Rogue sans appliquer le modificateur', (context) => {
+  context.mock.method(Math, 'random', () => 0);
+  const impossible: RogueModifier = {
+    id: 'test_no_target', label: 'Test', kind: 'boon', scoreMult: 2, restoreLife: true,
+    apply: () => ({ numbers: [1], operations: [], required: [] }),
+  };
+  const run = { ...newRogueRun(), lives: 1, score: 42 };
+  const store = createRogueFixture(run, [impossible]);
+  const before = store.getState().session!;
+  store.getState().chooseModifier(impossible);
+  const state = store.getState();
+  assert.equal(state.rogueSelectionFailed, true);
+  assert.equal(state.session!.rogue!.over, true);
+  assert.equal(state.session!.puzzle, before.puzzle);
+  assert.deepEqual(state.session!.rogue, { ...run, over: true });
+  assert.equal(state.session!.rules, run.rules);
+  assert.equal(state.session!.draft, null);
+  state.press(before.puzzle.expr);
+  state.submit();
+  state.next();
+  assert.equal(store.getState().session, state.session);
+  assert.equal(store.getState().xp, 0);
+
+  state.start('rogue', []);
+  assert.equal(store.getState().rogueSelectionFailed, false);
+  assert.equal(store.getState().session!.rogue!.over, false);
+  state.quit();
+  assert.equal(store.getState().rogueSelectionFailed, false);
+  assert.equal(store.getState().session, null);
+});
+
+test('un pool sans choix admissible ne laisse pas un draft vide dans le store', () => {
+  const store = createRogueFixture(newRogueRun());
+  const session = store.getState().session!;
+  const rules = { ...BASE_RULES, required: [99] };
+  store.setState({ session: {
+    ...session, rules, rogue: { ...session.rogue!, rules, solved: 2 },
+    feedback: { ok: true, gained: 10, optimal: session.puzzle.expr, target: session.puzzle.target },
+  } });
+  store.getState().next();
+  const state = store.getState();
+  assert.equal(state.rogueSelectionFailed, true);
+  assert.equal(state.session!.draft, null);
+  assert.equal(state.session!.rogue!.over, true);
+  assert.equal(state.session!.rogue!.lives, 3);
+  assert.equal(state.session!.rogue!.score, 10);
+  assert.equal(state.session!.puzzle, session.puzzle);
+});
+
+test('solveOne retrouve les minima sur une petite grille exhaustive sans pruning actif', () => {
+  const rules: Rules = { numbers: [1, 2], operations: ['+', '-', '*'], required: [] };
+  for (let target = 1; target <= 12; target++) {
+    const selected = solveOne(target, rules, 5, 100);
+    assert.equal(selected?.operands ?? null, bruteForceMinimum(target, rules.numbers, 5));
+  }
+});
+
+test('Classic, Big Challenge, Daily et Free Skill conservent un parcours valide', (context) => {
+  context.mock.method(Math, 'random', () => 0);
+  for (const mode of ['classic', 'big3', 'big5', 'big7', 'daily', 'freeskill'] as const) {
+    const name = mode.startsWith('big') ? mode : 'base';
+    const entries = JSON.parse(readFileSync(new URL(`../data/puzzles.${name}.json`, import.meta.url), 'utf8')) as Puzzle[];
+    const store = createGameStore(createMemoryStorage());
+    store.getState().start(mode, entries);
+    const first = store.getState().session!;
+    assert.equal(first.mode, mode);
+    assert.equal(first.rogue, null);
+    assert.equal(store.getState().rogueSelectionFailed, false);
+    if (mode === 'freeskill') {
+      assert.equal(first.level, 2);
+      assert.equal(first.secondsLeft, 53);
+      store.getState().tick();
+      assert.equal(store.getState().session!.secondsLeft, 52);
+    }
+    enterExpression(store, first.puzzle.expr);
+    assert.equal(store.getState().session!.feedback!.ok, true, mode);
+    store.getState().next();
+    const next = store.getState().session!;
+    assert.equal(validateAnswer(next.puzzle.expr, next.puzzle.target, next.optimalOperands, next.rules).ok, true, mode);
+    if (mode === 'classic') assert.equal(store.getState().classicProgress, 1);
   }
 });

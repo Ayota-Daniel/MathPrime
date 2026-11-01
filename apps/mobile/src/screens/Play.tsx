@@ -18,7 +18,7 @@ const liveValue = (input: string): string => { try { return /[+\-*]$|^$/.test(in
 
 export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'Play'>) {
   const mode = route.params.mode as Mode;
-  const { session, start, press, del, clear, submit, next, tick, hint, chooseModifier, clearSoftFeedback, quit } = useGame();
+  const { session, rogueSelectionFailed, start, press, del, clear, submit, next, tick, hint, chooseModifier, clearSoftFeedback, quit } = useGame();
 
   useEffect(() => { start(mode, loadTable(mode)); void audio.switchMusic(mode === 'rogue' ? 'rogue' : 'main'); }, [mode, start]);
 
@@ -33,23 +33,24 @@ export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'P
     return () => clearInterval(id);
   }, [mode, tick]);
 
-  if (!session) return null;
-  const s = session; const p = s.puzzle;
-
-  if (s.rogue?.over) {
+  if (rogueSelectionFailed || session?.rogue?.over) {
     return (
       <View className="flex-1 bg-bg">
         <TopBar streakMode="rogue" />
         <View className="flex-1 items-center justify-center p-[18px] gap-[6px]">
           <Text className="font-bold text-[22px]">Run terminé</Text>
-          <Text className="text-mut">Survécu à {s.rogue.solved} puzzles.</Text>
-          <Text className="font-bold text-[60px] text-gold">{s.rogue.score}</Text>
+          {rogueSelectionFailed && <Text className="text-mut">Aucun puzzle trouvé dans les limites de recherche.</Text>}
+          <Text className="text-mut">Survécu à {session?.rogue?.solved ?? 0} puzzles.</Text>
+          <Text className="font-bold text-[60px] text-gold">{session?.rogue?.score ?? 0}</Text>
           <View className="w-[220px] mt-[18px]"><Button variant="primary" label="Rejouer" onPress={() => start('rogue', loadTable('rogue'))} /></View>
           <Pressable className="mt-[10px]" onPress={() => { quit(); navigation.goBack(); }}><Text className="text-pri font-semibold">Menu</Text></Pressable>
         </View>
       </View>
     );
   }
+
+  if (!session) return null;
+  const s = session; const p = s.puzzle;
 
   if (s.draft) {
     return (
@@ -91,7 +92,7 @@ export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'P
             <Text className="font-bold text-[60px]">{p.target}</Text>
             <View className="flex-row gap-[6px] mt-[4px]">
               <Chip>Niveau {p.difficulty}</Chip>
-              <Chip bg="#FBEFE0" color="#B5651d">optimal · {s.optimalOperands}</Chip>
+              <Chip bg="#FBEFE0" color="#B5651d">{mode === 'rogue' ? 'minimum trouvé' : 'optimal'} · {s.optimalOperands}</Chip>
             </View>
           </View>
 
