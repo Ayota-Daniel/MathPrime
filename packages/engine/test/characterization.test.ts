@@ -295,7 +295,47 @@ test('BUG CARACTÉRISÉ : le puzzle Daily est rejouable après validation', () =
   assert.deepEqual(store.getState().session!.puzzle, firstPuzzle);
 });
 
-test('BUG CARACTÉRISÉ : validateAnswer ignore les caractères non tokenisés', () => {
+test('validateAnswer rejette les caractères non tokenisés', () => {
   const result = validateAnswer('3+5abc', 8, 2, BASE_RULES);
-  assert.equal(result.ok, true);
+  assert.equal(result.ok, false);
+  assert.equal(result.reason, 'bad_token');
+});
+
+test('validation stricte couvre toute la chaîne et refuse les syntaxes étrangères', () => {
+  for (const input of ['abc3+5', '3a+5', '3+5abc+', '3+5.0', '3/5', '3+5=8', '3+5²', '3+5\0']) {
+    assert.equal(validateAnswer(input, 8, 2, BASE_RULES).reason, 'bad_token', input);
+  }
+  for (const input of ['3++5', '3+-5', '3**5', '3-+5', '+3', '-3', '*3', '3++']) {
+    assert.equal(validateAnswer(input, 8, 2, BASE_RULES).reason, 'bad_token', input);
+  }
+});
+
+test('validation stricte distingue opérandes, opérations, parenthèses et expressions incomplètes', () => {
+  for (const input of ['3+2', '35', '03+5', '3+55']) {
+    assert.equal(validateAnswer(input, 8, 2, BASE_RULES).reason, 'bad_token', input);
+  }
+  assert.equal(validateAnswer('3*5', 15, 2, { ...BASE_RULES, operations: ['+', '-'] }).reason, 'bad_token');
+  for (const input of ['3+', '3-', '3*']) {
+    assert.equal(validateAnswer(input, 8, 2, BASE_RULES).reason, 'incomplete', input);
+  }
+  for (const input of ['(3+5)', '3+(5)', '3+5)']) {
+    assert.equal(validateAnswer(input, 8, 2, BASE_RULES).reason, 'has_parens', input);
+  }
+  assert.equal(validateAnswer(' \n\t', 8, 2, BASE_RULES).reason, 'empty');
+});
+
+test('validation conserve les espaces ignorés, les opérandes configurables et la précédence', () => {
+  assert.equal(validateAnswer(' \t3 +\n 5 * 7 ', 38, 3, BASE_RULES).ok, true);
+  assert.equal(validateAnswer('3 5+3', 38, 2, { ...BASE_RULES, numbers: [3, 35] }).ok, true);
+  for (const [input, target] of [['7-5-3', -1], ['7-5*3', -8], ['7*5-3*3', 26]] as const) {
+    assert.equal(validateAnswer(input, target, 4, BASE_RULES).ok, true, input);
+  }
+});
+
+test('validation stricte conserve les trois contraintes Big Challenge', () => {
+  for (const [required, input, target] of [[3, '5+7', 12], [5, '3+7', 10], [7, '3+5', 8]] as const) {
+    const rules = { ...BASE_RULES, required: [required] };
+    assert.equal(validateAnswer(input, target, 2, rules).reason, 'missing_required');
+    assert.equal(validateAnswer('3+5*7', 38, 3, rules).ok, true);
+  }
 });

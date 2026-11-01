@@ -17,6 +17,8 @@ export function validateAnswer(input: string, target: number, optimalOperands: n
   const expr = input.replace(/\s+/g, '');
   if (!expr) return fail('empty');
   if (/[()]/.test(expr)) return fail('has_parens');
+  // Cover the entire input, including the unfinished final operator.
+  if (!/^\d+(?:[+\-*]\d+)*[+\-*]?$/.test(expr)) return fail('bad_token');
   if (/[+\-*]$/.test(expr)) return fail('incomplete');
   const tokens = expr.match(/\d+|[+\-*]/g);
   if (!tokens) return fail('bad_token');
