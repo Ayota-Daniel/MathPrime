@@ -6,7 +6,7 @@ import type { Feedback } from '@shortest/engine';
 
 const REASON: Record<string, string> = {
   empty: 'Vide', incomplete: 'Expression incomplète', has_parens: 'Parenthèses interdites',
-  bad_token: 'Symbole non autorisé', missing_required: 'Contrainte non respectée', timeout: 'Temps écoulé',
+  bad_token: 'Symbole non autorisé', missing_required: 'Contrainte non respectée', timeout: 'Temps écoulé', save_failed: 'Sauvegarde impossible',
 };
 
 /** Feuille de feedback (animation CSS native). Joue le son succès/échec à l'apparition. */
@@ -30,7 +30,7 @@ export function FeedbackSheet({ fb, input, onContinue, onRetry }:
         <>
           <h4 className="font-display text-[18px] m-0 mb-[2px] flex items-center gap-[8px]">
             <span className="text-ok">✓</span>{stars === 3 ? 'Optimal !' : 'Correct'}
-            <span className="ml-auto font-mono text-[15px] text-gold">+{fb.gained}</span>
+            <span className="ml-auto font-mono text-[13px] text-gold">{fb.training ? 'Entraînement · sans récompense' : `+${fb.gained}`}</span>
           </h4>
           <div className="my-[12px]"><Stars value={stars} /></div>
           <p className="text-mut text-[13px] font-mono m-0">

@@ -19,6 +19,7 @@ import {
   newRogueRun,
   scorePuzzle,
   validateAnswer,
+  loadSave,
   webStorage,
   type Puzzle,
   type RogueRun,
@@ -43,6 +44,37 @@ function createMemoryStorage(initial: Record<string, unknown> = {}): Storage {
     async get<T>(key: string) { return (values.get(key) as T | undefined) ?? null; },
     async set<T>(key: string, value: T) { values.set(key, value); },
     async remove(key: string) { values.delete(key); },
+  };
+}
+
+function createDeferredFirstWriteStorage() {
+  const values = new Map<string, unknown>();
+  let writeCount = 0;
+  let releaseFirstWrite: (() => void) | null = null;
+  let markFirstWriteStarted = () => {};
+  const firstWriteStarted = new Promise<void>((resolve) => { markFirstWriteStarted = resolve; });
+  const storage: Storage = {
+    async get<T>(key: string) { return (values.get(key) as T | undefined) ?? null; },
+    set<T>(key: string, value: T) {
+      writeCount += 1;
+      if (writeCount === 1) {
+        return new Promise<void>((resolve) => {
+          releaseFirstWrite = () => { values.set(key, value); resolve(); };
+          markFirstWriteStarted();
+        });
+      }
+      values.set(key, value);
+      return Promise.resolve();
+    },
+    async remove(key: string) { values.delete(key); },
+  };
+  return {
+    storage,
+    firstWriteStarted,
+    releaseFirstWrite() {
+      assert.ok(releaseFirstWrite, 'la première écriture doit avoir démarré');
+      releaseFirstWrite();
+    },
   };
 }
 
@@ -226,7 +258,7 @@ test('Rogue remplace le fallback Classic par une recherche déterministe valide'
   assert.equal(validateAnswer(selected.expr, selected.target, selected.operands, rules).ok, true);
 });
 
-test('BUG CARACTÉRISÉ : le score Rogue affiché additionne deux cumuls', (context) => {
+test('le score Rogue est compté une seule fois dans le cumul de run', (context) => {
   context.mock.method(Math, 'random', () => 0);
   const table = [puzzle(12, '3+3+3+3', 4, 1)];
   const store = createGameStore(createMemoryStorage());
@@ -234,20 +266,30 @@ test('BUG CARACTÉRISÉ : le score Rogue affiché additionne deux cumuls', (cont
     session: {
       mode: 'rogue', rules: BASE_RULES, table, puzzle: table[0], optimalOperands: 4,
       input: '', index: 0, score: 0, level: 1, fails: 0, secondsLeft: 0, maxSeconds: 0,
-      streak: 0, hintsUsed: 0, prevBest: 0, prShown: false,
+      streak: 0, dailyDate: null, dailyTraining: false, dailySaving: false, hintsUsed: 0, prevBest: 0, prShown: false,
       rogue: newRogueRun(), feedback: null, draft: null,
     },
   });
 
   enterExpression(store, table[0].expr);
   const gained = store.getState().session?.feedback?.gained;
+  const submitted = store.getState().session!;
+  assert.equal(submitted.rogue!.score, gained);
+  assert.equal(submitted.score, 0);
   store.getState().next();
   const session = store.getState().session!;
 
   assert.ok(typeof gained === 'number' && gained > 0);
   assert.equal(session.rogue!.score, gained);
-  assert.equal(session.score, gained);
-  assert.equal(session.rogue!.score + session.score, gained * 2);
+  assert.equal(session.score, 0);
+
+  enterExpression(store, session.puzzle.expr);
+  const secondGain = store.getState().session!.feedback!.gained!;
+  assert.ok(secondGain > 0);
+  assert.equal(store.getState().session!.rogue!.score, gained + secondGain);
+  assert.equal(store.getState().session!.score, 0);
+  store.getState().next();
+  assert.equal(store.getState().session!.rogue!.score, gained + secondGain);
 });
 
 test('BUG CARACTÉRISÉ : le meilleur score local antérieur bloque le premier envoi opt-in', () => {
@@ -273,17 +315,224 @@ test('BUG CARACTÉRISÉ : le meilleur score local antérieur bloque le premier e
   assert.equal(submissions, 0);
 });
 
-test('BUG CARACTÉRISÉ : le puzzle Daily est rejouable après validation', () => {
-  const store = createGameStore(createMemoryStorage());
+test('Daily rejoué le même jour ne verse pas une seconde récompense', async () => {
+  const storage = createMemoryStorage();
+  const today = new Date('2026-10-31T12:00:00Z');
+  let leaderboardSubmissions = 0;
+  const leaderboard = { async submit() { leaderboardSubmissions += 1; }, async top() { return []; } };
+  const store = createGameStore(storage, leaderboard, () => today);
+  store.setState({ deviceId: 'daily-device', pseudo: 'joueur', settings: { ...store.getState().settings, leaderboardOptIn: true } });
   const table = [puzzle(15, '3+3+3+3+3', 5, 2)];
   store.getState().start('daily', table);
   const firstPuzzle = store.getState().session!.puzzle;
 
   enterExpression(store, firstPuzzle.expr);
-  assert.equal(store.getState().dailyDone !== null, true);
+  store.getState().submit();
+  assert.equal(store.getState().session!.dailySaving, true);
+  assert.equal(store.getState().session!.feedback, null);
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.equal(store.getState().dailyDone, '2026-10-31');
+  assert.equal(leaderboardSubmissions, 1);
+  const rewarded = { xp: store.getState().xp, streak: store.getState().streakByMode.daily, stats: { ...store.getState().stats }, best: store.getState().bestByMode.daily };
   store.getState().next();
 
   assert.deepEqual(store.getState().session!.puzzle, firstPuzzle);
+  assert.equal(store.getState().session!.dailyTraining, true);
+  enterExpression(store, firstPuzzle.expr);
+  assert.equal(store.getState().session!.feedback!.training, true);
+  assert.equal(store.getState().session!.feedback!.gained, 0);
+  assert.equal(store.getState().xp, rewarded.xp);
+  assert.equal(store.getState().streakByMode.daily, rewarded.streak);
+  assert.deepEqual(store.getState().stats, rewarded.stats);
+  assert.equal(store.getState().bestByMode.daily, rewarded.best);
+  assert.equal(store.getState().dailyDone, '2026-10-31');
+  assert.equal(leaderboardSubmissions, 1);
+  store.getState().next();
+  const afterRepeatedNext = store.getState().session!;
+  store.getState().next();
+  assert.equal(store.getState().session, afterRepeatedNext);
+});
+
+test('Daily récompensé reste bloqué après sortie et rechargement du profil', async () => {
+  const storage = createMemoryStorage();
+  const today = new Date('2026-10-31T12:00:00Z');
+  const table = [puzzle(15, '3+3+3+3+3', 5, 2)];
+  const firstStore = createGameStore(storage, undefined, () => today);
+  await firstStore.getState().hydrate();
+  firstStore.getState().start('daily', table);
+  enterExpression(firstStore, table[0].expr);
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  const rewardedXp = firstStore.getState().xp;
+  firstStore.getState().quit();
+
+  const reloadedStore = createGameStore(storage, undefined, () => today);
+  await reloadedStore.getState().hydrate();
+  reloadedStore.getState().start('daily', table);
+  assert.equal(reloadedStore.getState().session!.dailyTraining, true);
+  enterExpression(reloadedStore, table[0].expr);
+  assert.equal(reloadedStore.getState().session!.feedback!.training, true);
+  assert.equal(reloadedStore.getState().xp, rewardedXp);
+});
+
+test('une nouvelle session Daily pendant une sauvegarde ne réutilise pas son ancien feedback', async () => {
+  let finishWrite = () => {};
+  const storage: Storage = {
+    async get<T>() { return null as T | null; },
+    set() { return new Promise<void>((resolve) => { finishWrite = resolve; }); },
+    async remove() {},
+  };
+  const today = new Date('2026-10-31T12:00:00Z');
+  const table = [puzzle(15, '3+3+3+3+3', 5, 2)];
+  const store = createGameStore(storage, undefined, () => today);
+  store.getState().start('daily', table);
+  enterExpression(store, table[0].expr);
+  assert.equal(store.getState().session!.dailySaving, true);
+  await Promise.resolve();
+
+  store.getState().quit();
+  store.getState().start('daily', table);
+  assert.equal(store.getState().session!.dailyTraining, true);
+  assert.equal(store.getState().session!.dailySaving, true);
+  finishWrite();
+  await new Promise<void>((resolve) => setImmediate(resolve));
+
+  assert.equal(store.getState().session!.dailySaving, false);
+  assert.equal(store.getState().session!.dailyTraining, true);
+  assert.equal(store.getState().session!.feedback, null);
+  assert.ok(store.getState().xp > 0);
+});
+
+test('la réussite Daily fusionne XP, statistiques, records et réglages modifiés pendant la sauvegarde', async () => {
+  const deferred = createDeferredFirstWriteStorage();
+  const store = createGameStore(deferred.storage, undefined, () => new Date('2026-10-31T12:00:00Z'));
+  const dailyTable = [puzzle(15, '3+3+3+3+3', 5, 2)];
+  const classicTable = [puzzle(12, '3+3+3+3', 4, 1)];
+  store.getState().start('daily', dailyTable);
+  enterExpression(store, dailyTable[0].expr);
+  await deferred.firstWriteStarted;
+
+  store.getState().quit();
+  store.getState().start('classic', classicTable);
+  enterExpression(store, classicTable[0].expr);
+  const classicGain = store.getState().session!.feedback!.gained!;
+  store.getState().setSetting('language', 'en');
+  assert.equal(store.getState().xp, classicGain);
+  assert.equal(store.getState().stats.played, 1);
+  assert.equal(store.getState().bestByMode.classic, classicGain);
+
+  deferred.releaseFirstWrite();
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  await new Promise<void>((resolve) => setImmediate(resolve));
+
+  const dailyGain = scorePuzzle({ difficulty: 2, stars: 3, mode: 'daily' });
+  assert.equal(store.getState().xp, classicGain + dailyGain);
+  assert.equal(store.getState().stats.played, 2);
+  assert.equal(store.getState().stats.perfect, 2);
+  assert.equal(store.getState().bestByMode.classic, classicGain);
+  assert.equal(store.getState().bestByMode.daily, dailyGain);
+  assert.equal(store.getState().settings.language, 'en');
+  assert.equal(store.getState().dailyDone, '2026-10-31');
+
+  const restored = await loadSave(deferred.storage);
+  assert.equal(restored.xp, classicGain + dailyGain);
+  assert.equal(restored.stats.played, 2);
+  assert.equal(restored.settings.language, 'en');
+  assert.equal(restored.bestByMode.classic, classicGain);
+  assert.equal(restored.bestByMode.daily, dailyGain);
+});
+
+test('une réinitialisation pendant la sauvegarde Daily annule la récompense en attente', async () => {
+  const deferred = createDeferredFirstWriteStorage();
+  const store = createGameStore(deferred.storage, undefined, () => new Date('2026-10-31T12:00:00Z'));
+  const table = [puzzle(15, '3+3+3+3+3', 5, 2)];
+  store.getState().start('daily', table);
+  enterExpression(store, table[0].expr);
+  await deferred.firstWriteStarted;
+
+  store.getState().resetProgress();
+  deferred.releaseFirstWrite();
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  await new Promise<void>((resolve) => setImmediate(resolve));
+
+  const state = store.getState();
+  assert.equal(state.xp, 0);
+  assert.deepEqual(state.stats, { played: 0, perfect: 0 });
+  assert.deepEqual(state.bestByMode, {});
+  assert.equal(state.dailyDone, null);
+  assert.equal(state.session!.dailySaving, false);
+  assert.equal(state.session!.feedback, null);
+
+  const restored = await loadSave(deferred.storage);
+  assert.equal(restored.xp, 0);
+  assert.equal(restored.dailyDone, null);
+  assert.deepEqual(restored.bestByMode, {});
+});
+
+test('Daily ouvre la récompense du nouveau jour UTC pendant une session active', async () => {
+  const storage = createMemoryStorage();
+  let now = new Date('2026-10-31T23:59:00Z');
+  const table = [puzzle(15, '3+3+3+3+3', 5, 2)];
+  const store = createGameStore(storage, undefined, () => now);
+  store.getState().start('daily', table);
+  enterExpression(store, table[0].expr);
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.equal(store.getState().dailyDone, '2026-10-31');
+
+  now = new Date('2026-11-01T00:01:00Z');
+  store.getState().next();
+  assert.equal(store.getState().session!.dailyDate, '2026-11-01');
+  assert.equal(store.getState().session!.dailyTraining, false);
+  assert.equal(store.getState().session!.feedback, null);
+  enterExpression(store, table[0].expr);
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.equal(store.getState().dailyDone, '2026-11-01');
+  assert.equal(store.getState().xp > 0, true);
+});
+
+test('Daily n’accorde ni XP ni statistiques en cas d’échec de sauvegarde', async () => {
+  let failNextWrite = true;
+  const memory = createMemoryStorage();
+  const storage: Storage = {
+    get: (key) => memory.get(key),
+    async set<T>(key: string, value: T) {
+      if (failNextWrite) { failNextWrite = false; throw new Error('write failed'); }
+      await memory.set(key, value);
+    },
+    remove: (key) => memory.remove(key),
+  };
+  const store = createGameStore(storage, undefined, () => new Date('2026-10-31T12:00:00Z'));
+  const table = [puzzle(15, '3+3+3+3+3', 5, 2)];
+  store.getState().start('daily', table);
+  enterExpression(store, table[0].expr);
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.equal(store.getState().session!.feedback!.reason, 'save_failed');
+  assert.equal(store.getState().xp, 0);
+  assert.equal(store.getState().dailyDone, null);
+  assert.equal(store.getState().stats.played, 0);
+  store.getState().clearSoftFeedback();
+  store.getState().submit();
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.equal(store.getState().dailyDone, '2026-10-31');
+  assert.ok(store.getState().xp > 0);
+});
+
+test('les sauvegardes antérieures restent lisibles avec leurs valeurs conservées', async () => {
+  const legacySave = {
+    version: 1,
+    xp: 240,
+    classicProgress: 4,
+    classicStars: { 2: 3 },
+    bestByMode: { classic: 120 },
+    streakByMode: { classic: 5 },
+  };
+  const restored = await loadSave(createMemoryStorage({ 'shortest:save:v3': legacySave }));
+  assert.equal(restored.xp, 240);
+  assert.equal(restored.classicProgress, 4);
+  assert.deepEqual(restored.classicStars, { 2: 3 });
+  assert.equal(restored.bestByMode.classic, 120);
+  assert.equal(restored.streakByMode.classic, 5);
+  assert.equal(restored.dailyDone, null);
+  assert.deepEqual(restored.stats, { played: 0, perfect: 0 });
 });
 
 test('validateAnswer rejette les caractères non tokenisés', () => {
@@ -398,7 +647,7 @@ function createRogueFixture(run: RogueRun, draft: RogueModifier[] | null = null)
     session: {
       mode: 'rogue', rules: run.rules, table: [], puzzle: selected, optimalOperands: selected.operands,
       input: '', index: 0, score: 0, level: 1, fails: 0, secondsLeft: 0, maxSeconds: 0,
-      streak: 0, hintsUsed: 0, prevBest: 0, prShown: false,
+      streak: 0, dailyDate: null, dailyTraining: false, dailySaving: false, hintsUsed: 0, prevBest: 0, prShown: false,
       rogue: run, feedback: null, draft,
     },
   });
@@ -483,7 +732,7 @@ test('un pool sans choix admissible ne laisse pas un draft vide dans le store', 
   const session = store.getState().session!;
   const rules = { ...BASE_RULES, required: [99] };
   store.setState({ session: {
-    ...session, rules, rogue: { ...session.rogue!, rules, solved: 2 },
+    ...session, rules, rogue: { ...session.rogue!, rules, solved: 2, score: 10 },
     feedback: { ok: true, gained: 10, optimal: session.puzzle.expr, target: session.puzzle.target },
   } });
   store.getState().next();
@@ -504,7 +753,7 @@ test('solveOne retrouve les minima sur une petite grille exhaustive sans pruning
   }
 });
 
-test('Classic, Big Challenge, Daily et Free Skill conservent un parcours valide', (context) => {
+test('Classic, Big Challenge, Daily et Free Skill conservent un parcours valide', async (context) => {
   context.mock.method(Math, 'random', () => 0);
   for (const mode of ['classic', 'big3', 'big5', 'big7', 'daily', 'freeskill'] as const) {
     const name = mode.startsWith('big') ? mode : 'base';
@@ -522,6 +771,7 @@ test('Classic, Big Challenge, Daily et Free Skill conservent un parcours valide'
       assert.equal(store.getState().session!.secondsLeft, 52);
     }
     enterExpression(store, first.puzzle.expr);
+    if (mode === 'daily') await new Promise<void>((resolve) => setImmediate(resolve));
     assert.equal(store.getState().session!.feedback!.ok, true, mode);
     store.getState().next();
     const next = store.getState().session!;

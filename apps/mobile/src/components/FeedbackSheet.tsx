@@ -6,7 +6,7 @@ import type { Feedback } from '@shortest/engine';
 
 const REASON: Record<string, string> = {
   incomplete: 'Expression incomplète', has_parens: 'Parenthèses interdites', bad_token: 'Symbole non autorisé',
-  missing_required: 'Contrainte non respectée', timeout: 'Temps écoulé',
+  missing_required: 'Contrainte non respectée', timeout: 'Temps écoulé', save_failed: 'Sauvegarde impossible',
 };
 /** Feuille de feedback mobile. Joue le son succès/échec à l'apparition. */
 export function FeedbackSheet({ fb, input, onContinue, onRetry }:
@@ -27,7 +27,7 @@ export function FeedbackSheet({ fb, input, onContinue, onRetry }:
         <>
           <View className="flex-row items-center justify-between">
             <Text className="text-[18px] font-bold text-ok">{stars === 3 ? '✓ Optimal !' : '✓ Correct'}</Text>
-            <Text className="text-[15px] text-gold font-bold">+{fb.gained}</Text>
+            <Text className="text-[13px] text-gold font-bold">{fb.training ? 'Entraînement · sans récompense' : `+${fb.gained}`}</Text>
           </View>
           <View className="my-[12px]"><Stars value={stars} /></View>
           <Text className="text-mut text-[13px]">
