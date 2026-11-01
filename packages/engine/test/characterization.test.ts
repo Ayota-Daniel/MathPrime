@@ -436,6 +436,15 @@ test('le draft du store tient compte des règles déjà actives après trois ré
   assert.ok(session.draft && session.draft.length > 0);
   assert.ok(session.draft.every((modifier) => isModifierCompatible(run.rules, modifier)));
   assert.ok(!session.draft.some((modifier) => modifier.id === 'only_35'));
+  store.getState().next();
+  assert.equal(store.getState().session, session);
+  store.getState().chooseModifier(session.draft[0]);
+  const resumed = store.getState().session!;
+  assert.equal(resumed.draft, null);
+  assert.equal(resumed.rogue!.lives, 3);
+  assert.equal(validateAnswer(resumed.puzzle.expr, resumed.puzzle.target, resumed.optimalOperands, resumed.rules).ok, true);
+  store.getState().next();
+  assert.equal(store.getState().session, resumed);
 });
 
 test('un échec de sélection après un choix arrête Rogue sans appliquer le modificateur', (context) => {
@@ -519,4 +528,110 @@ test('Classic, Big Challenge, Daily et Free Skill conservent un parcours valide'
     assert.equal(validateAnswer(next.puzzle.expr, next.puzzle.target, next.optimalOperands, next.rules).ok, true, mode);
     if (mode === 'classic') assert.equal(store.getState().classicProgress, 1);
   }
+});
+
+test('Rogue ignore next sans feedback et conserve le puzzle et les vies', (context) => {
+  context.mock.method(Math, 'random', () => 0);
+  const store = createRogueFixture(newRogueRun());
+  const before = store.getState();
+  assert.equal(before.session!.feedback, null);
+  before.next();
+  assert.equal(store.getState(), before);
+});
+
+test('Rogue ignore une continuation après un feedback soft', (context) => {
+  context.mock.method(Math, 'random', () => 0);
+  for (const input of ['3+', '3+5abc']) {
+    const store = createRogueFixture(newRogueRun());
+    enterExpression(store, input);
+    const before = store.getState();
+    assert.equal(before.session!.feedback!.ok, false);
+    assert.equal(before.session!.feedback!.soft, true);
+    before.next();
+    assert.equal(store.getState(), before, input);
+    before.clearSoftFeedback();
+    const retry = store.getState();
+    assert.equal(retry.session!.feedback, null);
+    retry.next();
+    assert.equal(store.getState(), retry);
+  }
+});
+
+test('Rogue refuse une défaite dont la raison ne termine pas le puzzle', (context) => {
+  context.mock.method(Math, 'random', () => 0);
+  const store = createRogueFixture(newRogueRun());
+  const session = store.getState().session!;
+  store.setState({ session: {
+    ...session,
+    feedback: { ok: false, soft: false, reason: 'bad_token', optimal: session.puzzle.expr, target: session.puzzle.target },
+  } });
+  const before = store.getState();
+  before.next();
+  assert.equal(store.getState(), before);
+});
+
+test('un double next après une victoire Rogue ne compte la réussite qu’une fois', (context) => {
+  context.mock.method(Math, 'random', () => 0);
+  const store = createRogueFixture(newRogueRun());
+  const first = store.getState().session!;
+  enterExpression(store, first.puzzle.expr);
+  const gained = store.getState().session!.feedback!.gained!;
+  assert.ok(gained > 0);
+  store.getState().next();
+  const advanced = store.getState();
+  const session = advanced.session!;
+  assert.equal(session.rogue!.solved, 1);
+  assert.equal(session.rogue!.score, gained);
+  assert.equal(session.rogue!.lives, 3);
+  assert.equal(session.feedback, null);
+  assert.notEqual(session.puzzle, first.puzzle);
+  assert.equal(validateAnswer(session.puzzle.expr, session.puzzle.target, session.optimalOperands, session.rules).ok, true);
+  advanced.next();
+  assert.equal(store.getState(), advanced);
+});
+
+test('un double next après une défaite Rogue ne consomme qu’une vie', (context) => {
+  context.mock.method(Math, 'random', () => 0);
+  const needSeven = ROGUE_POOL.find((modifier) => modifier.id === 'need_7')!;
+  const cases = [
+    { run: newRogueRun(), input: '3', reason: 'wrong_value' },
+    { run: applyModifier(newRogueRun(), needSeven), input: '5', reason: 'missing_required' },
+  ];
+  for (const { run, input, reason } of cases) {
+    const store = createRogueFixture(run);
+    const first = store.getState().session!;
+    enterExpression(store, input);
+    assert.equal(store.getState().session!.feedback!.reason, reason);
+    assert.equal(store.getState().session!.feedback!.soft, false);
+    store.getState().next();
+    const advanced = store.getState();
+    const session = advanced.session!;
+    assert.equal(session.rogue!.lives, 2);
+    assert.equal(session.rogue!.over, false);
+    assert.equal(session.rogue!.solved, 0);
+    assert.equal(session.rogue!.score, 0);
+    assert.equal(session.feedback, null);
+    assert.notEqual(session.puzzle, first.puzzle);
+    assert.equal(validateAnswer(session.puzzle.expr, session.puzzle.target, session.optimalOperands, session.rules).ok, true);
+    advanced.next();
+    assert.equal(store.getState(), advanced, reason);
+  }
+});
+
+test('la dernière défaite Rogue termine la run une seule fois', (context) => {
+  context.mock.method(Math, 'random', () => 0);
+  const store = createRogueFixture({ ...newRogueRun(), lives: 1, score: 42 });
+  const first = store.getState().session!;
+  enterExpression(store, '3');
+  assert.equal(store.getState().session!.feedback!.reason, 'wrong_value');
+  store.getState().next();
+  const ended = store.getState();
+  assert.equal(ended.session!.rogue!.lives, 0);
+  assert.equal(ended.session!.rogue!.over, true);
+  assert.equal(ended.session!.rogue!.score, 42);
+  assert.equal(ended.bestByMode.rogue, 42);
+  assert.equal(ended.session!.feedback, null);
+  assert.equal(ended.session!.puzzle, first.puzzle);
+  ended.next();
+  assert.equal(store.getState(), ended);
 });

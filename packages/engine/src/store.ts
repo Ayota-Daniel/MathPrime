@@ -191,10 +191,13 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
 
       if (s.mode === 'rogue') {
         if (!s.rogue || s.rogue.over || s.draft) return;
-        const won = !!s.feedback?.ok;
+        const feedback = s.feedback;
+        if (!feedback || feedback.soft) return;
+        const won = feedback.ok;
+        if (!won && !breaksStreak(feedback.reason)) return;
         let run = s.rogue;
         if (won) {
-          const r = rogueOnSolve(run, s.feedback?.gained ?? 0); run = r.run;
+          const r = rogueOnSolve(run, feedback.gained ?? 0); run = r.run;
           if (r.shouldDraft) {
             const draft = draftModifiers(Math.random, 3, run.rules);
             if (draft.length > 0) {
