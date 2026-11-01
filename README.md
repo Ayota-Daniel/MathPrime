@@ -50,7 +50,7 @@ npm run typecheck    # engine + web
 - **Indices** : bouton *Indice* révèle l'expression optimale token par token ; chaque indice **abaisse le plafond d'étoiles** (anti-abus).
 - **Record personnel** : célébration (bannière + son dédié) déclenchée **une seule fois par run** (pas de spam).
 - **Statistiques** : meilleur score + meilleure série par mode, XP, rang, taux de 3★.
-- **Leaderboard anonyme** : voir `LEADERBOARD.md`. Local par défaut, mondial via Supabase. Opt-in + pseudo, sans login.
+- **Leaderboards** : voir `LEADERBOARD.md`. Records locaux hors ligne; infrastructure Daily compétitive via Supabase Auth anonyme et validation serveur, à configurer séparément.
 
 ## Mobile — Expo SDK 54 (RN 0.81 / React 19.1)
 Node 20.19+ requis. Après `npm install`, lance impérativement :
