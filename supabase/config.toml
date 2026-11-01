@@ -1,0 +1,10 @@
+project_id = "mathprime-local"
+
+[auth]
+enable_anonymous_sign_ins = true
+
+[functions.leaderboard]
+# GET est public. Tous les POST sont vérifiés par /auth/v1/user dans le handler.
+verify_jwt = false
+import_map = "./functions/deno.json"
+entrypoint = "./functions/leaderboard/index.ts"

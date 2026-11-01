@@ -12,10 +12,11 @@
   },
   "scripts": {
     "build:puzzles": "tsx scripts/build-puzzles.ts",
-    "test": "node --import tsx --input-type=module -e \"await import('./test/characterization.test.ts')\"",
-    "typecheck": "tsc --noEmit"
+    "test": "node --import tsx --input-type=module -e \"await import('./test/characterization.test.ts'); await import('./test/competitive.test.ts')\"",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p ../../supabase/tsconfig.json"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.118.0",
     "zustand": "^5.0.0"
   },
   "devDependencies": {

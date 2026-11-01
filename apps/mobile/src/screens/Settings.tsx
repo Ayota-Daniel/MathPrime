@@ -23,7 +23,7 @@ export function Settings({ navigation }: NativeStackScreenProps<RootStack, 'Sett
         <Row label="Sons (bruitages)"><Toggle on={s.sound} onPress={() => set('sound', !s.sound)} /></Row>
         <Row label="Musique de fond"><Toggle on={s.music} onPress={() => set('music', !s.music)} /></Row>
         <Row label="Réduire les animations"><Toggle on={s.reduceMotion} onPress={() => set('reduceMotion', !s.reduceMotion)} /></Row>
-        <Row label="Partager au leaderboard"><Toggle on={s.leaderboardOptIn} onPress={() => set('leaderboardOptIn', !s.leaderboardOptIn)} /></Row>
+        <Row label="Participer au Daily compétitif"><Toggle on={s.leaderboardOptIn} onPress={() => set('leaderboardOptIn', !s.leaderboardOptIn)} /></Row>
         <Row label="Pseudo"><TextInput value={pseudo} onChangeText={setPseudo} maxLength={16} placeholder="anon" className="border border-line rounded-[8px] px-[10px] py-[6px] w-[140px] text-right" /></Row>
         <Row label="Réinitialiser"><Pressable onPress={reset}><Text className="text-err font-semibold">Effacer</Text></Pressable></Row>
       </View>
