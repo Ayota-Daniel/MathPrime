@@ -47,6 +47,37 @@ function createMemoryStorage(initial: Record<string, unknown> = {}): Storage {
   };
 }
 
+function createDeferredFirstWriteStorage() {
+  const values = new Map<string, unknown>();
+  let writeCount = 0;
+  let releaseFirstWrite: (() => void) | null = null;
+  let markFirstWriteStarted = () => {};
+  const firstWriteStarted = new Promise<void>((resolve) => { markFirstWriteStarted = resolve; });
+  const storage: Storage = {
+    async get<T>(key: string) { return (values.get(key) as T | undefined) ?? null; },
+    set<T>(key: string, value: T) {
+      writeCount += 1;
+      if (writeCount === 1) {
+        return new Promise<void>((resolve) => {
+          releaseFirstWrite = () => { values.set(key, value); resolve(); };
+          markFirstWriteStarted();
+        });
+      }
+      values.set(key, value);
+      return Promise.resolve();
+    },
+    async remove(key: string) { values.delete(key); },
+  };
+  return {
+    storage,
+    firstWriteStarted,
+    releaseFirstWrite() {
+      assert.ok(releaseFirstWrite, 'la première écriture doit avoir démarré');
+      releaseFirstWrite();
+    },
+  };
+}
+
 function countOperands(expr: string): number {
   return (expr.match(/\d+/g) ?? []).length;
 }
@@ -369,6 +400,72 @@ test('une nouvelle session Daily pendant une sauvegarde ne réutilise pas son an
   assert.equal(store.getState().session!.dailyTraining, true);
   assert.equal(store.getState().session!.feedback, null);
   assert.ok(store.getState().xp > 0);
+});
+
+test('la réussite Daily fusionne XP, statistiques, records et réglages modifiés pendant la sauvegarde', async () => {
+  const deferred = createDeferredFirstWriteStorage();
+  const store = createGameStore(deferred.storage, undefined, () => new Date('2026-10-31T12:00:00Z'));
+  const dailyTable = [puzzle(15, '3+3+3+3+3', 5, 2)];
+  const classicTable = [puzzle(12, '3+3+3+3', 4, 1)];
+  store.getState().start('daily', dailyTable);
+  enterExpression(store, dailyTable[0].expr);
+  await deferred.firstWriteStarted;
+
+  store.getState().quit();
+  store.getState().start('classic', classicTable);
+  enterExpression(store, classicTable[0].expr);
+  const classicGain = store.getState().session!.feedback!.gained!;
+  store.getState().setSetting('language', 'en');
+  assert.equal(store.getState().xp, classicGain);
+  assert.equal(store.getState().stats.played, 1);
+  assert.equal(store.getState().bestByMode.classic, classicGain);
+
+  deferred.releaseFirstWrite();
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  await new Promise<void>((resolve) => setImmediate(resolve));
+
+  const dailyGain = scorePuzzle({ difficulty: 2, stars: 3, mode: 'daily' });
+  assert.equal(store.getState().xp, classicGain + dailyGain);
+  assert.equal(store.getState().stats.played, 2);
+  assert.equal(store.getState().stats.perfect, 2);
+  assert.equal(store.getState().bestByMode.classic, classicGain);
+  assert.equal(store.getState().bestByMode.daily, dailyGain);
+  assert.equal(store.getState().settings.language, 'en');
+  assert.equal(store.getState().dailyDone, '2026-10-31');
+
+  const restored = await loadSave(deferred.storage);
+  assert.equal(restored.xp, classicGain + dailyGain);
+  assert.equal(restored.stats.played, 2);
+  assert.equal(restored.settings.language, 'en');
+  assert.equal(restored.bestByMode.classic, classicGain);
+  assert.equal(restored.bestByMode.daily, dailyGain);
+});
+
+test('une réinitialisation pendant la sauvegarde Daily annule la récompense en attente', async () => {
+  const deferred = createDeferredFirstWriteStorage();
+  const store = createGameStore(deferred.storage, undefined, () => new Date('2026-10-31T12:00:00Z'));
+  const table = [puzzle(15, '3+3+3+3+3', 5, 2)];
+  store.getState().start('daily', table);
+  enterExpression(store, table[0].expr);
+  await deferred.firstWriteStarted;
+
+  store.getState().resetProgress();
+  deferred.releaseFirstWrite();
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  await new Promise<void>((resolve) => setImmediate(resolve));
+
+  const state = store.getState();
+  assert.equal(state.xp, 0);
+  assert.deepEqual(state.stats, { played: 0, perfect: 0 });
+  assert.deepEqual(state.bestByMode, {});
+  assert.equal(state.dailyDone, null);
+  assert.equal(state.session!.dailySaving, false);
+  assert.equal(state.session!.feedback, null);
+
+  const restored = await loadSave(deferred.storage);
+  assert.equal(restored.xp, 0);
+  assert.equal(restored.dailyDone, null);
+  assert.deepEqual(restored.bestByMode, {});
 });
 
 test('Daily ouvre la récompense du nouveau jour UTC pendant une session active', async () => {

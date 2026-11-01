@@ -71,6 +71,7 @@ function stopRogueSelection(session: Session, run: RogueRun): Session {
 export function createGameStore(storage: Storage, leaderboard?: LeaderboardClient, now: () => Date = () => new Date()) {
   let pendingSave: Promise<void> = Promise.resolve();
   const pendingDailyRewards = new Set<string>();
+  let progressGeneration = 0;
   const saveState = (s: GameState, updates: Partial<SaveState> = {}): SaveState => ({
       version: 3, xp: s.xp, classicProgress: s.classicProgress, classicStars: s.classicStars,
       bestByMode: s.bestByMode, streakByMode: s.streakByMode, bestStreakByMode: s.bestStreakByMode,
@@ -99,6 +100,7 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
     setSetting(k, v) { set((st) => ({ settings: { ...st.settings, [k]: v } })); save(get); },
     setPseudo(p) { set({ pseudo: p.slice(0, 16) }); save(get); },
     resetProgress() {
+      progressGeneration += 1;
       set({ xp: 0, classicProgress: 0, classicStars: {}, bestByMode: {}, streakByMode: {}, bestStreakByMode: {}, dailyDone: null });
       save(get);
     },
@@ -205,19 +207,40 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
 
       if (s.mode === 'daily') {
         const snapshot = saveState(st, { xp: newXp, streakByMode: newStreaks, bestStreakByMode: newBestStreaks, bestByMode: newBests, classicStars, stats: newStats, dailyDone: newDailyDone });
+        const submissionGeneration = progressGeneration;
         pendingDailyRewards.add(today);
         set({ session: updatedSession });
         void persistQueued(snapshot).then(() => {
           pendingDailyRewards.delete(today);
           const activeSession = get().session;
-          let completedSession = activeSession;
-          if (activeSession === updatedSession) {
-            completedSession = { ...updatedSession, dailySaving: false, feedback };
-          } else if (activeSession?.dailySaving && activeSession.dailyDate === today) {
-            completedSession = { ...activeSession, dailySaving: false, dailyTraining: true };
+          if (submissionGeneration !== progressGeneration) {
+            if (activeSession === updatedSession) {
+              set({ session: { ...updatedSession, dailySaving: false } });
+            } else if (activeSession?.dailySaving && activeSession.dailyDate === today) {
+              set({ session: { ...activeSession, dailySaving: false, dailyTraining: get().dailyDone === today } });
+            }
+            return;
           }
-          set({ xp: newXp, streakByMode: newStreaks, bestStreakByMode: newBestStreaks, bestByMode: newBests, classicStars, stats: newStats, dailyDone: newDailyDone,
-            session: completedSession });
+
+          set((currentState) => {
+            const currentDailyStreak = currentState.streakByMode.daily ?? 0;
+            const dailyDone = currentState.dailyDone && currentState.dailyDone > today ? currentState.dailyDone : today;
+            let session = currentState.session;
+            if (session === updatedSession) {
+              session = { ...updatedSession, dailySaving: false, feedback };
+            } else if (session?.dailySaving && session.dailyDate === today) {
+              session = { ...session, dailySaving: false, dailyTraining: true };
+            }
+            return {
+              xp: currentState.xp + gained,
+              streakByMode: { ...currentState.streakByMode, daily: Math.max(currentDailyStreak, streak) },
+              bestStreakByMode: { ...currentState.bestStreakByMode, daily: Math.max(currentState.bestStreakByMode.daily ?? 0, streak) },
+              bestByMode: { ...currentState.bestByMode, daily: Math.max(currentState.bestByMode.daily ?? 0, current) },
+              stats: { played: currentState.stats.played + 1, perfect: currentState.stats.perfect + (stars === 3 ? 1 : 0) },
+              dailyDone,
+              session,
+            };
+          });
           submitLeaderboard();
         }).catch(() => {
           pendingDailyRewards.delete(today);
