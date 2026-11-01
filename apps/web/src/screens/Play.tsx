@@ -156,12 +156,15 @@ export function Play() {
             <Button icon={<Delete size={17} />} onClick={del}>Effacer</Button>
             <Button icon={<RotateCcw size={16} />} onClick={clear}>Vider</Button>
             <Button icon={<Lightbulb size={16} />} onClick={hint} disabled={s.hintsUsed >= exprTokens(s.puzzle.expr).length}>Indice</Button>
-            <Button variant="primary" className="col-span-3" icon={<Check size={18} />} onClick={submit} disabled={!s.input}>Valider</Button>
+            <Button variant="primary" className="col-span-3" icon={<Check size={18} />} onClick={submit} disabled={!s.input || s.dailySaving}>{s.dailySaving ? 'Enregistrement…' : 'Valider'}</Button>
           </div>
         </Card>
 
+        {s.mode === 'daily' && s.dailyTraining && (
+          <div className="text-center text-[12px] text-mut">Défi du jour déjà validé : entraînement sans nouvelle récompense.</div>
+        )}
         <div className="text-center text-mut text-[13px]">
-          Score : <b className="text-ink">{s.rogue ? s.rogue.score + s.score : s.score}</b>
+          Score : <b className="text-ink">{s.rogue ? s.rogue.score : s.score}</b>
           {mode === 'freeskill' && ` · niveau adaptatif ${s.level}`}
         </div>
       </div>

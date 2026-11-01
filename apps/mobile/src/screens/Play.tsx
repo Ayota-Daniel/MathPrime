@@ -121,10 +121,11 @@ export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'P
             <View className="flex-1"><Button label="Vider" onPress={clear} /></View>
             <View className="flex-1"><Button label="Indice" onPress={hint} disabled={s.hintsUsed >= exprTokens(s.puzzle.expr).length} /></View>
           </View>
-          <View className="mt-[10px]"><Button variant="primary" label="Valider" onPress={submit} disabled={!s.input} /></View>
+          <View className="mt-[10px]"><Button variant="primary" label={s.dailySaving ? 'Enregistrement…' : 'Valider'} onPress={submit} disabled={!s.input || s.dailySaving} /></View>
         </Card>
 
-        <Text className="text-center text-mut text-[13px]">Score : <Text className="text-ink font-bold">{s.rogue ? s.rogue.score + s.score : s.score}</Text>{mode === 'freeskill' ? ` · niveau ${s.level}` : ''}</Text>
+        {s.mode === 'daily' && s.dailyTraining && <Text className="text-center text-mut text-[12px]">Défi du jour déjà validé : entraînement sans nouvelle récompense.</Text>}
+        <Text className="text-center text-mut text-[13px]">Score : <Text className="text-ink font-bold">{s.rogue ? s.rogue.score : s.score}</Text>{mode === 'freeskill' ? ` · niveau ${s.level}` : ''}</Text>
       </ScrollView>
 
       {fb && <FeedbackSheet fb={fb} input={s.input} onContinue={next} onRetry={clearSoftFeedback} />}
