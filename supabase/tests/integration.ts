@@ -34,10 +34,11 @@ try {
   assert.equal(sdkResult.outcome!.ok, true, 'SDK réel et validation de la réponse client');
   const first = await signup(); const other = await signup();
   assert.equal((await post('forged-token', { action: 'start', mode: 'daily' })).status, 401);
-  const start = await post(first.access_token, { action: 'start', mode: 'daily' });
-  assert.equal(start.status, 200, 'défi serveur');
-  const initial = await start.json();
-  const c = initial.challenge;
+  const starts = await Promise.all(Array.from({ length: 6 }, () => post(first.access_token, { action: 'start', mode: 'daily' })));
+  assert.ok(starts.every((response) => response.status === 200), 'starts concurrents sur un nouveau joueur');
+  const opened = await Promise.all(starts.map((response) => response.json()));
+  const c = opened[0].challenge;
+  assert.ok(opened.every((reply) => reply.challenge.id === c.id && reply.challenge.version === 0), 'un seul run créé');
   const event = { action: 'hint', runId: c.id, eventId: randomUUID(), version: c.version, pseudo: 'test' };
   assert.equal((await post(other.access_token, event)).status, 404, 'run lié au joueur Auth');
   assert.equal((await post(first.access_token, { ...event, score: 999999 })).status, 400, 'score inventé interdit');
@@ -54,13 +55,32 @@ try {
   assert.equal(rejected.outcome.ok, false);
   const puzzle = puzzleFor({ day: c.day } as ServerRun);
   const solvedEvent = { ...event, action: 'answer', eventId: randomUUID(), version: rejected.challenge.version, expression: puzzle.expr };
-  const solvedResponse = await post(first.access_token, solvedEvent);
-  assert.equal(solvedResponse.status, 200);
-  const solved = await solvedResponse.json();
+  const distinctEvent = { ...solvedEvent, eventId: randomUUID() };
+  const attempts = [solvedEvent, distinctEvent, solvedEvent, distinctEvent, solvedEvent, distinctEvent];
+  const mixed = await Promise.all(attempts.map(async (attempt) => {
+    const [answerResponse, startResponse] = await Promise.all([
+      post(first.access_token, attempt), post(first.access_token, { action: 'start', mode: 'daily' }),
+    ]);
+    assert.equal(startResponse.status, 200, 'start ne deadlock pas avec answer');
+    assert.equal((await startResponse.json()).challenge.id, c.id);
+    return { attempt, status: answerResponse.status, reply: await answerResponse.json() };
+  }));
+  const winner = mixed.find((result) => result.status === 200);
+  assert.ok(winner, 'une récompense acceptée');
+  for (const result of mixed) {
+    if (result.attempt.eventId === winner.attempt.eventId) {
+      assert.equal(result.status, 200, 'chaque doublon gagnant retrouve la confirmation');
+      assert.deepEqual(result.reply, winner.reply);
+    } else assert.equal(result.status, 409, 'événement distinct refusé après la récompense');
+  }
+  const solved = winner.reply;
   assert.equal(solved.outcome.ok, true);
   assert.equal(solved.outcome.stars, 2, 'indice serveur inclus dans les étoiles');
   assert.ok(solved.confirmedBest > 0);
-  assert.deepEqual(await (await post(first.access_token, solvedEvent)).json(), solved);
+  assert.equal(solved.confirmedBest, solved.outcome.gained, 'pas de cumul doublé');
+  assert.equal(solved.challenge.version, rejected.challenge.version + 1, 'un seul événement de réponse appliqué');
+  assert.equal(solved.challenge.streak, rejected.challenge.streak + 1, 'une seule récompense');
+  assert.deepEqual(await (await post(first.access_token, winner.attempt)).json(), solved);
   assert.equal((await post(first.access_token, { ...solvedEvent, eventId: randomUUID(), version: solved.challenge.version })).status, 409);
   for (const token of [null, first.access_token]) {
     for (const method of ['POST', 'PATCH', 'DELETE']) {

@@ -20,10 +20,26 @@ begin
     if not (select relrowsecurity from pg_class where oid = ('public.' || t)::regclass) then raise exception 'RLS inactive: %', t; end if;
     if has_table_privilege('authenticated', 'public.' || t, 'INSERT,UPDATE,DELETE') or has_table_privilege('anon', 'public.' || t, 'INSERT,UPDATE,DELETE') then raise exception 'client write grant: %', t; end if;
   end loop;
-  if has_function_privilege('authenticated', 'public.competition_commit(uuid,uuid,uuid,integer,text,text,text,jsonb)', 'EXECUTE') then raise exception 'client RPC grant'; end if;
+  foreach t in array array[
+    'competition_begin(uuid)', 'competition_rate(uuid)', 'competition_read(uuid,uuid)',
+    'competition_replay(uuid,uuid,text)', 'competition_commit(uuid,uuid,uuid,integer,text,text,text,jsonb)'
+  ] loop
+    if has_function_privilege('authenticated', 'public.' || t, 'EXECUTE')
+      or has_function_privilege('anon', 'public.' || t, 'EXECUTE') then raise exception 'client RPC grant: %', t; end if;
+    if not has_function_privilege('service_role', 'public.' || t, 'EXECUTE') then raise exception 'server RPC grant missing: %', t; end if;
+  end loop;
   if not has_function_privilege('anon', 'public.competition_top()', 'EXECUTE') then raise exception 'public read unavailable'; end if;
   r := public.competition_begin('00000000-0000-4000-8000-000000000001');
   run_id := (r->>'id')::uuid;
+  if public.competition_begin('00000000-0000-4000-8000-000000000001')->>'id' <> r->>'id' then raise exception 'start duplicated the daily run'; end if;
+  begin
+    perform public.competition_commit('00000000-0000-4000-8000-000000000001', run_id,
+      '00000000-0000-4000-8000-000000000005', 99, 'stale-hash', 'answer', 'stale',
+      '{"challenge":{"hints":0,"streak":1},"outcome":{"ok":true,"gained":10}}');
+    raise exception 'stale version accepted';
+  exception when raise_exception then if sqlerrm <> 'stale_version' then raise; end if; end;
+  if (select version from public.competition_runs where id = (r->>'id')::uuid) <> 0
+    or exists(select 1 from public.competition_events e where e.run_id = (r->>'id')::uuid) then raise exception 'stale event changed state'; end if;
   insert into public.competition_scores(user_id, mode, pseudo, score) values ('00000000-0000-4000-8000-000000000001', 'daily', 'best', 900);
   result := public.competition_commit('00000000-0000-4000-8000-000000000001', run_id,
     '00000000-0000-4000-8000-000000000002', 0, 'hash-one', 'answer', 'lower',
@@ -53,6 +69,8 @@ do $$ begin
     perform public.competition_begin('00000000-0000-4000-8000-000000000004');
     raise exception 'rate limit ignored';
   exception when raise_exception then if sqlerrm <> 'rate_limited' then raise; end if; end;
+  if (select calls from public.competition_limits where user_id = '00000000-0000-4000-8000-000000000004') <> 60 then raise exception 'quota changed after rejection'; end if;
+  if (select count(*) from public.competition_runs where user_id = '00000000-0000-4000-8000-000000000004') <> 1 then raise exception 'quota rejection duplicated run'; end if;
 end $$;
 
 -- Même avec un grant accidentel, aucune policy RLS ne permet l'insertion cliente.
