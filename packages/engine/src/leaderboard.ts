@@ -1,7 +1,4 @@
-/** leaderboard.ts — leaderboard ANONYME (pas de login).
- *  Identité = UUID aléatoire local + pseudo choisi. Aucune PII, aucun fingerprint.
- *  Limite assumée : sans auth, un score est falsifiable côté client. On envoie
- *  l'expression gagnante pour permettre une revalidation serveur si tu l'actives. */
+/** Classement local uniquement. Ses scores ne constituent aucune preuve compétitive. */
 import type { Mode } from './game-engine';
 import type { Storage } from './persistence';
 
@@ -25,37 +22,21 @@ export function makeDeviceId(): string {
 export function localLeaderboard(storage: Storage): LeaderboardClient {
   const KEY = 'shortest:lb:local';
   const load = async (): Promise<LbEntry[]> => (await storage.get<LbEntry[]>(KEY)) ?? [];
+  let pendingWrite: Promise<void> = Promise.resolve();
   return {
-    async submit(e) {
-      const all = await load();
-      const i = all.findIndex((x) => x.id === e.id && x.mode === e.mode);
-      if (i >= 0) { if (e.score > all[i].score) all[i] = e; } else all.push(e);
-      await storage.set(KEY, all);
-    },
-    async top(mode, limit = 50) {
-      return (await load()).filter((x) => x.mode === mode).sort((a, b) => b.score - a.score).slice(0, limit);
-    },
-  };
-}
-
-/** Adaptateur Supabase via REST (aucune dépendance). Table publique `scores`.
- *  url = https://xxxx.supabase.co  |  anonKey = clé publique anon.
- *  upsert sur (id,mode) -> une ligne (meilleur score) par appareil et par mode. */
-export function supabaseLeaderboard(url: string, anonKey: string): LeaderboardClient {
-  const base = `${url.replace(/\/$/, '')}/rest/v1/scores`;
-  const headers = { apikey: anonKey, Authorization: `Bearer ${anonKey}`, 'Content-Type': 'application/json' };
-  return {
-    async submit(e) {
-      await fetch(base, {
-        method: 'POST',
-        headers: { ...headers, Prefer: 'resolution=merge-duplicates' },
-        body: JSON.stringify({ id: e.id, pseudo: e.pseudo, mode: e.mode, score: e.score, expr: e.expr ?? null, at: e.at }),
+    submit(e) {
+      const write = pendingWrite.then(async () => {
+        const all = await load();
+        const i = all.findIndex((x) => x.id === e.id && x.mode === e.mode);
+        if (i >= 0) { if (e.score > all[i].score) all[i] = e; } else all.push(e);
+        await storage.set(KEY, all);
       });
+      pendingWrite = write.catch(() => {});
+      return write;
     },
     async top(mode, limit = 50) {
-      const res = await fetch(`${base}?mode=eq.${mode}&order=score.desc&limit=${limit}&select=id,pseudo,mode,score,at`, { headers });
-      if (!res.ok) return [];
-      return (await res.json()) as LbEntry[];
+      await pendingWrite;
+      return (await load()).filter((x) => x.mode === mode).sort((a, b) => b.score - a.score).slice(0, limit);
     },
   };
 }

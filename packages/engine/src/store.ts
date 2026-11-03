@@ -39,7 +39,7 @@ export interface Session {
 }
 
 export interface GameState extends Omit<SaveState, 'version'> {
-  session: Session | null; hydrated: boolean; rogueSelectionFailed: boolean;
+  session: Session | null; hydrated: boolean; rogueSelectionFailed: boolean; localLeaderboardError: boolean;
   rank: () => number;
   hydrate: () => Promise<void>;
   setSetting: <K extends keyof SaveState['settings']>(k: K, v: SaveState['settings'][K]) => void;
@@ -88,7 +88,7 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
   };
 
   return create<GameState>((set, get) => ({
-    ...(() => { const { version: _v, ...rest } = EMPTY_SAVE; return rest; })(), session: null, hydrated: false, rogueSelectionFailed: false,
+    ...(() => { const { version: _v, ...rest } = EMPTY_SAVE; return rest; })(), session: null, hydrated: false, rogueSelectionFailed: false, localLeaderboardError: false,
     rank: () => rankForXp(get().xp),
 
     async hydrate() {
@@ -187,10 +187,13 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
       // RECORD PERSO : célébré UNE seule fois par run (anti-spam)
       const isPr = current > s.prevBest && !s.prShown && s.prevBest > 0;
       const pr = (isPr || (s.prevBest === 0 && current > 0 && !s.prShown));
-      const submitLeaderboard = () => {
-        if (pr && st.settings.leaderboardOptIn && st.pseudo && leaderboard) {
-          void leaderboard.submit({ id: st.deviceId, pseudo: st.pseudo, mode: s.mode, score: current, expr: s.input, at: Date.now() });
-        }
+      const submitLocalScore = () => {
+        if (!leaderboard) return;
+        // Le classement de cet appareil reste indépendant du consentement distant et du toast de record.
+        const localBest = Math.max(st.bestByMode[s.mode] ?? 0, current);
+        void leaderboard.submit({ id: st.deviceId, pseudo: st.pseudo || 'Moi', mode: s.mode, score: localBest, at: Date.now() })
+          .then(() => set({ localLeaderboardError: false }))
+          .catch(() => set({ localLeaderboardError: true }));
       };
 
       const classicStars = s.mode === 'classic' ? { ...st.classicStars, [s.index]: Math.max(st.classicStars[s.index] ?? 0, stars) } : st.classicStars;
@@ -241,7 +244,7 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
               session,
             };
           });
-          submitLeaderboard();
+          submitLocalScore();
         }).catch(() => {
           pendingDailyRewards.delete(today);
           const currentSession = get().session;
@@ -265,7 +268,7 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
         session: updatedSession,
       });
       save(get);
-      submitLeaderboard();
+      submitLocalScore();
     },
 
     tick() {

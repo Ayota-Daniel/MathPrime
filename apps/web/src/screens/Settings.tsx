@@ -31,7 +31,7 @@ export function Settings() {
           <Row label="Musique de fond"><Toggle on={s.music} onClick={() => set('music', !s.music)} /></Row>
           <Row label="Réduire les animations"><Toggle on={s.reduceMotion} onClick={() => set('reduceMotion', !s.reduceMotion)} /></Row>
           <Row label="Langue"><button className="text-pri font-semibold text-[13px]" onClick={() => set('language', s.language === 'fr' ? 'en' : 'fr')}>{s.language === 'fr' ? 'Français' : 'English'}</button></Row>
-          <Row label="Partager au leaderboard"><Toggle on={s.leaderboardOptIn} onClick={() => set('leaderboardOptIn', !s.leaderboardOptIn)} /></Row>
+          <Row label="Participer au Daily compétitif"><Toggle on={s.leaderboardOptIn} onClick={() => set('leaderboardOptIn', !s.leaderboardOptIn)} /></Row>
           <Row label="Pseudo (leaderboard)"><input value={pseudo} onChange={(e) => setPseudo(e.target.value)} maxLength={16} placeholder="anon" className="border border-line rounded-[8px] px-[10px] py-[6px] font-mono text-[13px] w-[140px] text-right" /></Row>
           <Row label="Réinitialiser la progression"><button className="text-err font-semibold text-[13px]" onClick={reset}>Effacer</button></Row>
         </div>

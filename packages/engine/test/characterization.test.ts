@@ -292,10 +292,11 @@ test('le score Rogue est compté une seule fois dans le cumul de run', (context)
   assert.equal(store.getState().session!.rogue!.score, gained + secondGain);
 });
 
-test('BUG CARACTÉRISÉ : le meilleur score local antérieur bloque le premier envoi opt-in', () => {
+test('un record local historique est enregistré sans dépendre de la célébration de record', () => {
   let submissions = 0;
+  let submittedScore = 0;
   const leaderboard = {
-    async submit() { submissions += 1; },
+    async submit(entry: { score: number }) { submissions += 1; submittedScore = entry.score; },
     async top() { return []; },
   };
   const store = createGameStore(createMemoryStorage(), leaderboard);
@@ -304,7 +305,7 @@ test('BUG CARACTÉRISÉ : le meilleur score local antérieur bloque le premier e
     hydrated: true,
     deviceId: 'device-test',
     pseudo: 'joueur',
-    settings: { ...store.getState().settings, leaderboardOptIn: true },
+    settings: { ...store.getState().settings, leaderboardOptIn: false },
     bestByMode: { classic: 5000 },
   });
 
@@ -312,7 +313,8 @@ test('BUG CARACTÉRISÉ : le meilleur score local antérieur bloque le premier e
   enterExpression(store, table[0].expr);
 
   assert.equal(store.getState().session?.feedback?.ok, true);
-  assert.equal(submissions, 0);
+  assert.equal(submissions, 1);
+  assert.equal(submittedScore, 5000);
 });
 
 test('Daily rejoué le même jour ne verse pas une seconde récompense', async () => {

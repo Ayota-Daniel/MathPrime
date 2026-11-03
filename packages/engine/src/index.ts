@@ -9,3 +9,6 @@ export * from './solve-one';
 export * from './rogue-puzzles';
 export * from './leaderboard';
 export * from './store';
+export * from './competitive-types';
+export * from './competitive-api';
+export * from './competitive-store';
