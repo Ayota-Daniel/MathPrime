@@ -1,0 +1,320 @@
+[
+  {
+    "disclaimer": "Agents synthétiques utilisant les solutions témoins ; aucun taux de victoire humain mesuré.",
+    "parameters": {
+      "seed": 42,
+      "runs": 30,
+      "policy": "prudent",
+      "survivalPuzzles": 6,
+      "config": {
+        "lives": 3,
+        "hints": 3,
+        "ordinaryPerAct": 3,
+        "bossPhases": [
+          2,
+          2,
+          3
+        ],
+        "seconds": [
+          35,
+          45,
+          60,
+          75,
+          90
+        ],
+        "minimumSeconds": 25,
+        "maximumSeconds": 120,
+        "maxLengthInflation": 2,
+        "minimumTargets": 2,
+        "scoreBase": 100,
+        "bossRewards": [
+          150,
+          250,
+          500
+        ],
+        "hintPenalty": 0.15,
+        "scoreBounds": [
+          0.5,
+          2.5
+        ],
+        "search": {
+          "maxOperands": 6,
+          "magnitude": 500,
+          "maxTarget": 150,
+          "maxStates": 350000
+        },
+        "rules": {
+          "numbers": [
+            2,
+            3,
+            7
+          ],
+          "operations": [
+            "+",
+            "-",
+            "*"
+          ],
+          "minimumOccurrences": {},
+          "requireSubtraction": false,
+          "maxMultiplications": null
+        }
+      }
+    },
+    "summary": {
+      "officialVictories": 28,
+      "blocked": 0,
+      "meanScore": 6202.766666666666,
+      "bestScore": 7997,
+      "maxProgress": 22,
+      "meanProgress": 20.9,
+      "bossVictories": [
+        29,
+        28,
+        28
+      ],
+      "endings": {
+        "simulation-survival-limit": 28,
+        "incorrect-terminal-answer": 1,
+        "timeout": 1
+      },
+      "chosenCards": {
+        "T4": 52,
+        "T2": 27,
+        "T5": 33,
+        "T3": 4,
+        "E3": 8,
+        "E2": 13,
+        "D1": 3,
+        "D3": 3,
+        "D4": 1
+      },
+      "warnings": 0
+    },
+    "generator": {
+      "searches": 26,
+      "cacheHits": 66833,
+      "states": 240059
+    },
+    "performance": {
+      "environment": "linux/x64 Node v26.13.0",
+      "elapsedMs": 1087.250739,
+      "generated": 675,
+      "generationMeanMs": 0.04260758666666932,
+      "generationP95Ms": 0.03234000000003334,
+      "generationMaxMs": 16.028200999999996,
+      "note": "Mesures locales, cache inclus. La durée totale inclut les prévalidations de drafts. Aucune mesure Android."
+    }
+  },
+  {
+    "disclaimer": "Agents synthétiques utilisant les solutions témoins ; aucun taux de victoire humain mesuré.",
+    "parameters": {
+      "seed": 42,
+      "runs": 30,
+      "policy": "equilibre",
+      "survivalPuzzles": 6,
+      "config": {
+        "lives": 3,
+        "hints": 3,
+        "ordinaryPerAct": 3,
+        "bossPhases": [
+          2,
+          2,
+          3
+        ],
+        "seconds": [
+          35,
+          45,
+          60,
+          75,
+          90
+        ],
+        "minimumSeconds": 25,
+        "maximumSeconds": 120,
+        "maxLengthInflation": 2,
+        "minimumTargets": 2,
+        "scoreBase": 100,
+        "bossRewards": [
+          150,
+          250,
+          500
+        ],
+        "hintPenalty": 0.15,
+        "scoreBounds": [
+          0.5,
+          2.5
+        ],
+        "search": {
+          "maxOperands": 6,
+          "magnitude": 500,
+          "maxTarget": 150,
+          "maxStates": 350000
+        },
+        "rules": {
+          "numbers": [
+            2,
+            3,
+            7
+          ],
+          "operations": [
+            "+",
+            "-",
+            "*"
+          ],
+          "minimumOccurrences": {},
+          "requireSubtraction": false,
+          "maxMultiplications": null
+        }
+      }
+    },
+    "summary": {
+      "officialVictories": 24,
+      "blocked": 0,
+      "meanScore": 6229.7,
+      "bestScore": 9197,
+      "maxProgress": 22,
+      "meanProgress": 18.566666666666666,
+      "bossVictories": [
+        28,
+        28,
+        24
+      ],
+      "endings": {
+        "simulation-survival-limit": 12,
+        "timeout": 9,
+        "incorrect-terminal-answer": 9
+      },
+      "chosenCards": {
+        "T4": 50,
+        "T2": 22,
+        "T5": 13,
+        "D1": 11,
+        "E2": 18,
+        "D3": 13,
+        "T3": 11,
+        "D4": 4
+      },
+      "warnings": 0
+    },
+    "generator": {
+      "searches": 26,
+      "cacheHits": 65573,
+      "states": 240059
+    },
+    "performance": {
+      "environment": "linux/x64 Node v26.13.0",
+      "elapsedMs": 1041.639203,
+      "generated": 654,
+      "generationMeanMs": 0.044495038226298196,
+      "generationP95Ms": 0.029700999999988653,
+      "generationMaxMs": 16.682231,
+      "note": "Mesures locales, cache inclus. La durée totale inclut les prévalidations de drafts. Aucune mesure Android."
+    }
+  },
+  {
+    "disclaimer": "Agents synthétiques utilisant les solutions témoins ; aucun taux de victoire humain mesuré.",
+    "parameters": {
+      "seed": 42,
+      "runs": 30,
+      "policy": "temeraire",
+      "survivalPuzzles": 6,
+      "config": {
+        "lives": 3,
+        "hints": 3,
+        "ordinaryPerAct": 3,
+        "bossPhases": [
+          2,
+          2,
+          3
+        ],
+        "seconds": [
+          35,
+          45,
+          60,
+          75,
+          90
+        ],
+        "minimumSeconds": 25,
+        "maximumSeconds": 120,
+        "maxLengthInflation": 2,
+        "minimumTargets": 2,
+        "scoreBase": 100,
+        "bossRewards": [
+          150,
+          250,
+          500
+        ],
+        "hintPenalty": 0.15,
+        "scoreBounds": [
+          0.5,
+          2.5
+        ],
+        "search": {
+          "maxOperands": 6,
+          "magnitude": 500,
+          "maxTarget": 150,
+          "maxStates": 350000
+        },
+        "rules": {
+          "numbers": [
+            2,
+            3,
+            7
+          ],
+          "operations": [
+            "+",
+            "-",
+            "*"
+          ],
+          "minimumOccurrences": {},
+          "requireSubtraction": false,
+          "maxMultiplications": null
+        }
+      }
+    },
+    "summary": {
+      "officialVictories": 5,
+      "blocked": 0,
+      "meanScore": 2140.4333333333334,
+      "bestScore": 7606,
+      "maxProgress": 22,
+      "meanProgress": 9.1,
+      "bossVictories": [
+        23,
+        11,
+        5
+      ],
+      "endings": {
+        "timeout": 12,
+        "incorrect-terminal-answer": 17,
+        "simulation-survival-limit": 1
+      },
+      "chosenCards": {
+        "T1": 18,
+        "D2": 10,
+        "E2": 13,
+        "D1": 4,
+        "E3": 3,
+        "E1": 21,
+        "T3": 8,
+        "D4": 2,
+        "T4": 9,
+        "D3": 2
+      },
+      "warnings": 3
+    },
+    "generator": {
+      "searches": 30,
+      "cacheHits": 48243,
+      "states": 257732
+    },
+    "performance": {
+      "environment": "linux/x64 Node v26.13.0",
+      "elapsedMs": 882.120383,
+      "generated": 354,
+      "generationMeanMs": 0.06678857344632835,
+      "generationP95Ms": 0.039520999999922424,
+      "generationMaxMs": 15.773527999999999,
+      "note": "Mesures locales, cache inclus. La durée totale inclut les prévalidations de drafts. Aucune mesure Android."
+    }
+  }
+]
