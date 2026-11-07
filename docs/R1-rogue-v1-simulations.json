@@ -45,8 +45,8 @@
         },
         "rules": {
           "numbers": [
-            2,
             3,
+            5,
             7
           ],
           "operations": [
@@ -90,18 +90,38 @@
       },
       "warnings": 0
     },
+    "diagnostics": {
+      "obligations": {
+        "D1": {
+          "restrictive": 28,
+          "suspect": 25,
+          "unmeasured": 0
+        },
+        "T3": {
+          "restrictive": 11,
+          "suspect": 1,
+          "unmeasured": 0
+        }
+      },
+      "candidateCounts": {
+        "minimum": 4,
+        "mean": 86.45333333333333
+      },
+      "timeWarnings": [],
+      "refusals": []
+    },
     "generator": {
-      "searches": 26,
-      "cacheHits": 66833,
-      "states": 240059
+      "searches": 33,
+      "cacheHits": 66956,
+      "states": 274085
     },
     "performance": {
       "environment": "linux/x64 Node v26.13.0",
-      "elapsedMs": 1087.250739,
+      "elapsedMs": 1045.280744,
       "generated": 675,
-      "generationMeanMs": 0.04260758666666932,
-      "generationP95Ms": 0.03234000000003334,
-      "generationMaxMs": 16.028200999999996,
+      "generationMeanMs": 0.05938690962962876,
+      "generationP95Ms": 0.03928099999995993,
+      "generationMaxMs": 16.192222,
       "note": "Mesures locales, cache inclus. La durée totale inclut les prévalidations de drafts. Aucune mesure Android."
     }
   },
@@ -151,8 +171,8 @@
         },
         "rules": {
           "numbers": [
-            2,
             3,
+            5,
             7
           ],
           "operations": [
@@ -195,18 +215,38 @@
       },
       "warnings": 0
     },
+    "diagnostics": {
+      "obligations": {
+        "D1": {
+          "restrictive": 55,
+          "suspect": 40,
+          "unmeasured": 22
+        },
+        "T3": {
+          "restrictive": 25,
+          "suspect": 7,
+          "unmeasured": 0
+        }
+      },
+      "candidateCounts": {
+        "minimum": 4,
+        "mean": 93.41437308868501
+      },
+      "timeWarnings": [],
+      "refusals": []
+    },
     "generator": {
-      "searches": 26,
-      "cacheHits": 65573,
-      "states": 240059
+      "searches": 35,
+      "cacheHits": 65818,
+      "states": 278864
     },
     "performance": {
       "environment": "linux/x64 Node v26.13.0",
-      "elapsedMs": 1041.639203,
+      "elapsedMs": 1592.302766,
       "generated": 654,
-      "generationMeanMs": 0.044495038226298196,
-      "generationP95Ms": 0.029700999999988653,
-      "generationMaxMs": 16.682231,
+      "generationMeanMs": 0.12101968960244655,
+      "generationP95Ms": 0.07311200000003737,
+      "generationMaxMs": 31.712163000000004,
       "note": "Mesures locales, cache inclus. La durée totale inclut les prévalidations de drafts. Aucune mesure Android."
     }
   },
@@ -256,8 +296,8 @@
         },
         "rules": {
           "numbers": [
-            2,
             3,
+            5,
             7
           ],
           "operations": [
@@ -300,20 +340,90 @@
         "T4": 9,
         "D3": 2
       },
-      "warnings": 3
+      "warnings": 1
+    },
+    "diagnostics": {
+      "obligations": {
+        "D1": {
+          "restrictive": 17,
+          "suspect": 8,
+          "unmeasured": 4
+        },
+        "T3": {
+          "restrictive": 15,
+          "suspect": 6,
+          "unmeasured": 0
+        }
+      },
+      "candidateCounts": {
+        "minimum": 2,
+        "mean": 106.22881355932203
+      },
+      "timeWarnings": [
+        {
+          "seedIndex": 0,
+          "stage": 2,
+          "puzzle": {
+            "expression": "3+3*5*5+7+7",
+            "operands": 6,
+            "multiplications": 2,
+            "target": 92,
+            "rules": {
+              "numbers": [
+                3,
+                5,
+                7
+              ],
+              "operations": [
+                "+",
+                "-",
+                "*"
+              ],
+              "minimumOccurrences": {},
+              "requireSubtraction": false,
+              "maxMultiplications": null
+            },
+            "difficulty": 1,
+            "seconds": 29.75,
+            "minimumStars": 1,
+            "obligationDiagnostics": [],
+            "variant": "ordinary",
+            "estimatedCost": 30,
+            "warnings": [
+              "heuristic-cost-exceeds-time"
+            ],
+            "candidateCount": 147,
+            "effects": [
+              {
+                "id": "T1",
+                "remaining": 3,
+                "level": 1,
+                "shieldUsed": false
+              }
+            ],
+            "lives": 3,
+            "hints": 2,
+            "diagnostics": []
+          },
+          "effects": [
+            "T1"
+          ]
+        }
+      ],
+      "refusals": []
     },
     "generator": {
-      "searches": 30,
-      "cacheHits": 48243,
-      "states": 257732
+      "searches": 41,
+      "cacheHits": 48324,
+      "states": 298437
     },
     "performance": {
       "environment": "linux/x64 Node v26.13.0",
-      "elapsedMs": 882.120383,
+      "elapsedMs": 1189.984545,
       "generated": 354,
-      "generationMeanMs": 0.06678857344632835,
-      "generationP95Ms": 0.039520999999922424,
-      "generationMaxMs": 15.773527999999999,
+      "generationMeanMs": 0.17991170056497824,
+      "generationP95Ms": 0.07186100000001261,
+      "generationMaxMs": 36.709768999999994,
       "note": "Mesures locales, cache inclus. La durée totale inclut les prévalidations de drafts. Aucune mesure Android."
     }
   }

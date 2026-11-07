@@ -1,6 +1,6 @@
 # MathPrime — R1 : prototype Rogue V1
 
-État validé le 7 novembre 2026. Base : `modernization`, commit `448c62a`, récupérée par HTTPS après échec de l'authentification SSH. Branche : `feat/rogue-v1-prototype`.
+État corrigé et validé en R1.1 le 7 novembre 2026. Base : `modernization`, commit `448c62a`, récupérée par HTTPS après échec de l'authentification SSH. Branche : `feat/rogue-v1-prototype`.
 
 ## 1. Architecture livrée
 
@@ -90,7 +90,7 @@ Inspection préalable des solveurs existants : `solver.ts` et `solve-one.ts` sui
 
 Recherche en largeur, sans parenthèses, respectant les priorités : état `(total, terme courant, occurrences saturées, soustraction utilisée, nombre de multiplications)`. Les contraintes interviennent pendant l'expansion. Un état identique atteint plus tard est dominé par son chemin plus court. Le nombre de multiplications demeure dans la clé même pour la comparaison sans budget : cela permet de connaître le maximum de multiplications parmi les solutions optimales.
 
-Bornes initiales : chiffres réutilisables `[2,3,7]`, opérations `+,-,*`, six opérandes maximum, valeur absolue de chaque total de termes et terme courant ≤ 500, cibles entières positives ≤ 150, budget de 350 000 états par recherche. Ces limites sont configurables.
+Bornes initiales : chiffres réutilisables `[3,5,7]`, opérations `+,-,*`, six opérandes maximum, valeur absolue de chaque total de termes et terme courant ≤ 500, cibles entières positives ≤ 150, budget de 350 000 états par recherche. Ces limites sont configurables.
 
 Une recherche terminée fournit le minimum d'opérandes dans cet espace. Il ne s'agit pas d'une preuve d'optimalité hors des bornes intermédiaires choisies. Une recherche tronquée par le budget d'états est explicitement refusée pour la génération, même si elle a trouvé des témoins partiels. Les réponses soumises peuvent être plus longues que six opérandes, mais doivent respecter les mêmes bornes intermédiaires ; elles ne peuvent donc battre un minimum déjà trouvé dans les six premiers niveaux.
 
@@ -114,7 +114,7 @@ Un indice donne le témoin complet dans le prototype. Cela permet de tester les 
 
 ## 7. Validation réellement exécutée
 
-- `npm test` : **74 tests réussis**, dont 20 nouveaux groupes R1 ; environ 5,6 s dans cette exécution.
+- `npm test` : **76 tests réussis**, dont 20 groupes R1 et 2 groupes de régression R1.1 ; environ 4,3 s dans cette exécution.
 - `npm run typecheck -w @shortest/engine` : réussi, incluant la vérification Supabase déjà présente.
 - `npm run typecheck -w @shortest/web` : réussi.
 - `npm run typecheck -w @shortest/mobile` : réussi.
@@ -148,7 +148,7 @@ La graine reproduit exactement une même politique avec ses paramètres. Les cho
 - Perfectionniste et Équilibre fragile exercent bien leurs pénalités avec des réponses non optimales. Un agent qui soumet toujours le témoin leur donnerait artificiellement un avantage sans coût.
 - Budget de multiplications est choisi 10 fois par le téméraire. Le filtre initial « minimum strictement plus long » bloquait une continuation ; il a été remplacé par le critère « au moins une solution optimale exclue ». Les 90 simulations finales ne bloquent plus.
 - Les filtres de budget éliminent de nombreuses cibles à bonus gratuit. Les pools peuvent devenir étroits avec les améliorations et les occurrences de boss ; les drafts refusent alors le build avec diagnostic.
-- Trois avertissements de coût/temps chez le téméraire, zéro dans les deux autres lots. Cela signale une interaction à explorer, pas trois puzzles prouvés trop difficiles.
+- Un avertissement de coût/temps chez le téméraire, zéro dans les deux autres lots. Analyse détaillée dans la section R1.1 ci-dessous.
 - Le tirage uniforme de trois offres, leur cadence et les politiques de préférence biaisent la fréquence d'achat. Aucune estimation de puissance intrinsèque par carte ou interaction n'est établie.
 - Le score moyen inclut la survie et ne doit pas être comparé comme un score de victoire à durée identique. `bestScore` et progression sont rapportés séparément.
 - L'ordre des effets continus est testé. Les échanges immédiats ont naturellement un ordre temporel : sacrifier une vie puis soigner peut changer l'éligibilité du choix suivant.
@@ -157,13 +157,13 @@ Les scénarios testés fonctionnent ; il n'existe pas de preuve exhaustive pour 
 
 ## 10. Performance mesurée
 
-Environnement : Linux x64, Node v26.13.0, mesures locales séquentielles avec cache de session inclus. Les chiffres ne décrivent pas Android.
+Environnement : Linux x64, Node v26.13.0, lots locaux séquentiels avec cache de session inclus. D’autres vérifications locales étaient actives pendant la mesure ; ces durées ne constituent pas un benchmark contrôlé. Les chiffres ne décrivent pas Android.
 
 | Politique | Puzzles générés | Durée totale du lot | Moyenne génération | p95 génération | Maximum génération |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Prudent | 675 | 1 087,25 ms | 0,043 ms | 0,032 ms | 16,03 ms |
-| Équilibré | 654 | 1 041,64 ms | 0,044 ms | 0,030 ms | 16,68 ms |
-| Téméraire | 354 | 882,12 ms | 0,067 ms | 0,040 ms | 15,77 ms |
+| Prudent | 675 | 1 045,28 ms | 0,059 ms | 0,039 ms | 16,19 ms |
+| Équilibré | 654 | 1 592,30 ms | 0,121 ms | 0,073 ms | 31,71 ms |
+| Téméraire | 354 | 1 189,98 ms | 0,180 ms | 0,072 ms | 36,71 ms |
 
 La moyenne peut dépasser le p95 en présence de quelques recherches à froid. Ces mesures entourent `generate`, pas chaque prévalidation de draft ; la durée totale inclut également ces prévalidations. Les rapports contiennent le nombre de recherches, états et accès cache. Le cache est limité à 128 entrées et réinitialisable. Augmenter chiffres, opérandes ou occurrences peut fortement accroître le nombre d'états ; le budget de recherche prévient un travail illimité et produit un refus diagnostiqué.
 
@@ -196,3 +196,52 @@ Défaut : cinq runs, graine 42, politique équilibrée, aucune continuation. Lim
 6. Définir des variantes de boss plus variées et un remplacement d'effet librement choisi avant d'engager l'intégration visuelle.
 
 Aucune intégration visuelle Rogue n'est commencée dans R1.
+
+
+## 13. Corrections et diagnostic R1.1 — PR #8
+
+La configuration réelle de MathPrime est désormais exactement `[3,5,7]`. Les grilles `[2,3]` et `[2,7]` restent des fixtures indépendantes de tests de solveur. Les réponses non optimales des tests de run utilisent maintenant `+3-3`, et les assertions de variante de boss suivent le chiffre 3. Les bornes de recherche sont strictement inchangées : six opérandes, magnitude 500, cible maximale 150, 350 000 états. Aucune relaxation ou extension pour masquer un échec.
+
+Régressions : chacune des douze cartes de niveau 1, prise séparément, est prévalidée sur les phases futures ; 22 phases par carte sont ensuite générées et tous leurs témoins n'utilisent que 3, 5 et 7. Les trois boss, une victoire complète et six phases de survie réussies sont testés. Ces sondes maintiennent volontairement les effets temporaires actifs pour vérifier leurs contraintes ; les tests de transitions vérifient séparément leur expiration réelle. Ce n'est pas une couverture exhaustive de tous les builds.
+
+### Résultats recalculés et disponibilité des cibles
+
+Les trois lots de 30 runs utilisent toujours les graines 42 à 71 et six réussites de survie demandées. Le JSON de référence a été remplacé par les résultats corrigés et comprend maintenant des diagnostics d'obligations, de taille des pools et les puzzles signalés par l'heuristique. Les victoires officielles restent 28 / 24 / 5 ; les scores moyens et progressions de la section 8 restent identiques. Ce résultat découle des politiques synthétiques, de leurs erreurs contrôlées et du même nombre de transitions, et ne prouve aucune équivalence des puzzles ni de difficulté humaine.
+
+Aucun refus de génération dans ces 90 runs. Les pools des puzzles effectivement tirés ont respectivement un minimum de 4 / 4 / 2 candidats et une moyenne de 86,45 / 93,41 / 106,23 candidats.
+
+`docs/R1.1-rogue-v1-pools.json` compare 352 sondes : build vide, chacune des douze cartes et trois combinaisons D1/D2/T3, sur les stages 0 à 21. Les deux configurations conservent les mêmes bornes mais produisent des contraintes de variantes et des cibles différentes. Aucun pool corrigé n'est sous le seuil de deux candidats ; **124 sondes perdent au moins 50 % des candidats**. Cas critique : D2 seul aux stages 16–18 passe de 20 à 2 candidats ; D1+D2 passe de 21 à 3. Une répétition peut donc devenir prévisible. Aucun filtre supplémentaire D1/T3 n'est introduit ; élargissement des pools et diversité restent un sujet R2, à traiter explicitement.
+
+Reproduction exacte des sondes :
+
+```sh
+node --import tsx packages/engine/scripts/diagnose-rogue-v1-pools.ts > /tmp/rogue-v1-pools.json
+```
+
+### Valeur réelle de D1 et T3
+
+Chaque puzzle généré avec D1/T3 actif porte `obligationDiagnostics`. Pour la même cible et les mêmes autres contraintes, deux recherches complètes sont comparées : une sans l'obligation, une qui la viole (7 interdit pour D1 de base, soustraction interdite pour T3). Si une expression violant l'obligation possède le minimum de la recherche de référence, l'obligation est **restrictive** : elle exclut au moins une solution optimale, même si d'autres solutions optimales subsistent. Sinon toutes les solutions optimales la respectent déjà : le bonus est **suspect**. Le résultat ne dépend donc pas du seul témoin choisi par le solveur. Les recherches diagnostiques utilisent exactement les bornes actuelles et ne changent ni les cibles ni le tirage aléatoire.
+
+| Politique | D1 restrictif / suspect / non mesuré | T3 restrictif / suspect / non mesuré |
+| --- | --- | --- |
+| Prudent | 28 / 25 / 0 | 11 / 1 / 0 |
+| Équilibré | 55 / 40 / 22 | 25 / 7 / 0 |
+| Téméraire | 17 / 8 / 4 | 15 / 6 / 0 |
+
+Total sur les apparitions de puzzles, retries compris : D1 a 100 cas restrictifs, 73 suspects et 26 non mesurés ; T3 a 51 cas restrictifs et 14 suspects. Ce sont des fréquences dans ces parcours, pas un recensement de toutes les cibles distinctes ni une mesure causale de puissance. D1/T3 peuvent donc donner un bonus sans exclure de solution optimale dans une proportion notable des cas observés. Aucun bonus n'est corrigé en R1.1 : un filtrage systématique pourrait aggraver les pools étroits.
+
+Limite explicite R2 : lorsque la règle exige plusieurs 7 (amélioration D1 ou occurrence de boss), la comparaison simple « aucun 7 » ne suffit pas à tester tous les violateurs ; le diagnostic retourne `unmeasured`, jamais une conclusion approximative. Une comparaison tronquée ou indisponible renvoie également `unmeasured`. Une analyse exacte des seuils d'occurrences et une politique d'offres tenant compte de la fréquence d'obligations réellement restrictives restent à concevoir.
+
+### Avertissement temporel inspecté
+
+Un seul cas dans les lots corrigés (contre trois dans les anciens lots erronés) : téméraire, graine 42, stage 2 (troisième puzzle), cible 92, témoin `3+3*5*5+7+7`, T1 actif. L'expression vaut bien 92 et utilise six opérandes. La recherche complète fournit un minimum borné de six ; le coût heuristique est 30, tandis que le chronomètre est 29,75 s après Précipitation.
+
+- Solvabilité mathématique : **oui**, témoin valide sous les règles exactes.
+- Minimum dans les bornes : **connu**, recherche terminée sans troncature.
+- Jouabilité selon l'heuristique : **signalée comme coûteuse**, dépassement de 0,25 ; cela ne démontre pas une impossibilité humaine ni une difficulté humaine précise.
+
+Le puzzle reste généré, l'avertissement reste dans les événements et le rapport JSON. Aucun changement des temps ou de l'heuristique dans ce correctif. Les agents synthétiques soumettent un témoin connu ; leur réussite ne valide pas cette heuristique.
+
+### Périmètre et prochain playtest
+
+Aucun écran, maquette, autre mode, Daily ou composant Supabase n'est modifié. L'indice révélant le témoin complet reste un **placeholder** : les prochains playtests doivent le signaler et ne pas en déduire l'efficacité d'une aide progressive ni l'économie d'indices définitive. Aucun test humain ou Android n'a été ajouté. La CI verte signalée pour la PR précédente ne constitue pas une validation distante de ce commit de correction.

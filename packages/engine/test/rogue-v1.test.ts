@@ -270,7 +270,7 @@ test('R1: boss variants add restrictions without repeating active ones', () => {
   assert.equal(extra.requireSubtraction, true);
   assert.equal(extra.maxMultiplications, 2);
   const combined = { ...extra, maxMultiplications: 1 };
-  assert.equal(additionalRule(combined, 3).minimumOccurrences[2], 1);
+  assert.equal(additionalRule(combined, 3).minimumOccurrences[3], 1);
   const architect = phaseAt(15, cfg);
   assert.equal(architect.act, 3); assert.equal(architect.index, 2);
   assert.notDeepEqual(bossRules(cfg.rules, architect), cfg.rules);
@@ -313,7 +313,7 @@ test('R1: architect precision rejects one-star valid answers; last-life final de
   let run = reach(15);
   run = act({ ...run, lives: 1 }, { type: 'start' });
   const puzzle = run.current!;
-  const long = `${puzzle.expression}+2-2`;
+  const long = `${puzzle.expression}+3-3`;
   assert.ok(inspectExpression(long, puzzle.rules, config().search.magnitude));
   assert.equal(expressionValue(long), puzzle.target);
   run = act(run, { type: 'submit', expression: long });
@@ -341,7 +341,7 @@ test('R1: simulations are reproducible, policies distinct, generator failure exp
 test('R1: score cannot skip phases; nonoptimal answers exercise perfection and fragile penalties', () => {
   let run = { ...newRun(), score: 1_000_000, effects: [effect('D3', null, 2), effect('D4', null, 2)] };
   run = act(run, { type: 'start' });
-  run = act(run, { type: 'submit', expression: `${run.current!.expression}+2-2` });
+  run = act(run, { type: 'submit', expression: `${run.current!.expression}+3-3` });
   assert.equal(run.stage, 1);
   assert.equal(run.score, 1_000_028);
   assert.equal(run.nextSeconds, -12);
@@ -364,4 +364,37 @@ test('R1: every offered build survives remaining mathematical phases and surviva
       assert.equal(expressionValue(generated.puzzle.expression), generated.puzzle.target);
     }
   }
+});
+
+test('R1.1: MathPrime defaults, all twelve cards, boss phases and survival use only 3, 5, 7', () => {
+  assert.deepEqual(newRun().config.rules.numbers, [3, 5, 7]);
+  for (const id of Object.keys(CARDS) as CardId[]) {
+    const build = acquire(id, resources(), config());
+    assert.deepEqual(futureErrors(newRun(), build.effects, generator), [], id);
+    for (let stage = 0; stage < 22; stage++) {
+      const result = generator.generate(config(), build.effects, phaseAt(stage, config()), 0.5, 0, null);
+      assert.ok(result.puzzle, `${id}, stage ${stage}: ${result.diagnostics}`);
+      assert.match(result.puzzle.expression, /^[357](?:[+*\-][357])*$/);
+    }
+  }
+  let run = reach(16);
+  assert.equal(run.officialVictory, true);
+  run = act(run, { type: 'continue' });
+  for (let i = 0; i < 6; i++) run = win(run);
+  assert.equal(run.stage, 22);
+});
+
+test('R1.1: obligation diagnostics distinguish restrictive and suspect without filtering', () => {
+  const rules = config().rules;
+  // 7: the unique one-operand optimum already includes 7; 10: 5+5 is excluded.
+  const seven = { ...rules, minimumOccurrences: { 7: 1 } };
+  assert.equal(generator.obligationDiagnostics(config(), seven, 7, [effect('D1')])[0].status, 'already-satisfied-by-all-optima');
+  assert.equal(generator.obligationDiagnostics(config(), seven, 10, [effect('D1')])[0].status, 'restrictive');
+  const subtraction = { ...rules, requireSubtraction: true };
+  // 2 requires subtraction at its two-operand optimum; 10 has 5+5 without subtraction.
+  assert.equal(generator.obligationDiagnostics(config(), subtraction, 2, [effect('T3')])[0].status, 'already-satisfied-by-all-optima');
+  assert.equal(generator.obligationDiagnostics(config(), subtraction, 10, [effect('T3')])[0].status, 'restrictive');
+  assert.equal(generator.obligationDiagnostics(config(), { ...seven, minimumOccurrences: { 7: 2 } }, 14, [effect('D1')])[0].status, 'unmeasured');
+  const tiny = config(); tiny.search.maxStates = 1;
+  assert.equal(generator.obligationDiagnostics(tiny, seven, 7, [effect('D1')])[0].status, 'unmeasured');
 });

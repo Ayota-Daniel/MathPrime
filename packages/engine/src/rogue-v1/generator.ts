@@ -1,7 +1,7 @@
 import { buildRules, bossRuleVariants, puzzleSeconds } from './cards';
 import { solveRules } from './math';
 import type { SearchResult } from './math';
-import type { Config, Effect, Phase, Puzzle, Rules, Solution } from './model';
+import type { Config, Effect, ObligationDiagnostic, Phase, Puzzle, Rules, Solution } from './model';
 
 export interface Pool {
   candidates: { target: number; solution: Solution }[];
@@ -63,6 +63,31 @@ export class Generator {
     if (candidates.length < config.minimumTargets) diagnostics.push(`insufficient-targets:${candidates.length}/${config.minimumTargets}`);
     return { candidates, rules, diagnostics, states: result.states };
   }
+  /** Compare all bounded optima via a search of expressions violating the obligation.
+   * Diagnostic only: never filter targets or change active rules.
+   */
+  obligationDiagnostics(config: Config, rules: Rules, target: number, effects: Effect[]): ObligationDiagnostic[] {
+    return effects.filter(effect => effect.id === 'D1' || effect.id === 'T3').map(effect => {
+      const card = effect.id as 'D1' | 'T3';
+      if (card === 'D1' && rules.minimumOccurrences[7] !== 1) {
+        return { card, status: 'unmeasured', reason: 'multiple-sevens-or-boss-obligation' };
+      }
+      const baselineRules = { ...rules, minimumOccurrences: { ...rules.minimumOccurrences } };
+      if (card === 'D1') delete baselineRules.minimumOccurrences[7];
+      else baselineRules.requireSubtraction = false;
+      const violatingRules: Rules = card === 'D1'
+        ? { ...baselineRules, numbers: rules.numbers.filter(digit => digit !== 7) }
+        : { ...baselineRules, operations: rules.operations.filter(operation => operation !== '-') };
+      const baseline = this.search(baselineRules, config);
+      const violating = this.search(violatingRules, config);
+      const minimum = baseline.solutions.get(target)?.operands;
+      if (!baseline.complete || !violating.complete || baseline.errors.length || violating.errors.length || minimum === undefined) {
+        return { card, status: 'unmeasured', reason: 'comparison-unavailable' };
+      }
+      return { card, baselineOperands: minimum, status: violating.solutions.get(target)?.operands === minimum
+        ? 'restrictive' : 'already-satisfied-by-all-optima' };
+    });
+  }
   generate(config: Config, effects: Effect[], phase: Phase, randomValue: number, carry: number, previous: number | null): { puzzle: Puzzle | null; diagnostics: string[] } {
     const pool = this.pool(config, effects, phase);
     if (pool.candidates.length < config.minimumTargets) return { puzzle: null, diagnostics: pool.diagnostics };
@@ -76,6 +101,7 @@ export class Generator {
     return { puzzle: {
       ...selected.solution, target: selected.target, rules: pool.rules, difficulty: phase.difficulty,
       seconds, minimumStars: phase.boss && phase.act === 3 && phase.index >= 1 ? 2 : 1,
+      obligationDiagnostics: this.obligationDiagnostics(config, pool.rules, selected.target, effects),
       variant: pool.variant ?? 'ordinary', estimatedCost, warnings: estimatedCost > seconds ? ['heuristic-cost-exceeds-time'] : [], candidateCount: pool.candidates.length,
     }, diagnostics: pool.diagnostics };
   }

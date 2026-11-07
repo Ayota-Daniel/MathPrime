@@ -1,7 +1,7 @@
 import { inspectExpression } from './math';
 import { Generator } from './generator';
 import { DEFAULT_CONFIG, random } from './model';
-import type { CardId, Config, Run } from './model';
+import type { CardId, Config, Puzzle, Run } from './model';
 import { newRun, transition } from './run';
 
 export type Policy = 'prudent' | 'equilibre' | 'temeraire';
@@ -30,8 +30,30 @@ export interface SimulationReport {
     maxProgress: number; meanProgress: number; bossVictories: number[]; endings: Record<string, number>;
     chosenCards: Partial<Record<CardId, number>>; warnings: number;
   };
+  diagnostics: ReturnType<typeof summarizeDiagnostics>;
   generator: { searches: number; cacheHits: number; states: number };
   runs: Run[];
+}
+function summarizeDiagnostics(runs: Run[]) {
+  const obligations = { D1: { restrictive: 0, suspect: 0, unmeasured: 0 }, T3: { restrictive: 0, suspect: 0, unmeasured: 0 } };
+  const candidates: number[] = [];
+  const timeWarnings: { seedIndex: number; stage: number; puzzle: Puzzle; effects: string[] }[] = [];
+  const refusals: unknown[] = [];
+  runs.forEach((run, seedIndex) => {
+    for (const event of run.events) {
+      if (event.type === 'generation-refused') refusals.push({ seedIndex, stage: event.stage, reasons: event.detail });
+      if (event.type !== 'puzzle') continue;
+      const puzzle = event.detail as Puzzle & { effects: { id: string }[] };
+      candidates.push(puzzle.candidateCount);
+      for (const diagnostic of puzzle.obligationDiagnostics) {
+        const status = diagnostic.status === 'already-satisfied-by-all-optima' ? 'suspect' : diagnostic.status;
+        obligations[diagnostic.card][status]++;
+      }
+      if (puzzle.warnings.length) timeWarnings.push({ seedIndex, stage: event.stage, puzzle, effects: puzzle.effects.map(effect => effect.id) });
+    }
+  });
+  return { obligations, candidateCounts: { minimum: Math.min(...candidates),
+    mean: candidates.reduce((sum, count) => sum + count, 0) / (candidates.length || 1) }, timeWarnings, refusals };
 }
 export function simulate(options: SimulationOptions = {}): SimulationReport {
   const { seed = 1, runs = 5, policy = 'equilibre', survivalPuzzles = 0, config = DEFAULT_CONFIG } = options;
@@ -100,6 +122,7 @@ export function simulate(options: SimulationOptions = {}): SimulationReport {
       endings, chosenCards,
       warnings: results.reduce((sum, run) => sum + run.events.filter(event => event.type === 'puzzle' && (event.detail as { warnings: string[] }).warnings.length).length, 0),
     },
+    diagnostics: summarizeDiagnostics(results),
     generator: { searches: generator.searches, cacheHits: generator.cacheHits, states: generator.states },
     runs: results,
   };

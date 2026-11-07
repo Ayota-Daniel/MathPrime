@@ -1,0 +1,3396 @@
+{
+  "note": "Static level-one builds kept active across all probes, including temporary effects. Identical search bounds; not identical puzzles.",
+  "rows": [
+    {
+      "cards": [],
+      "stage": 0,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 1,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 2,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 3,
+      "before": 140,
+      "after": 141,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 4,
+      "before": 140,
+      "after": 142,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 5,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 6,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 7,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 8,
+      "before": 126,
+      "after": 127,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 9,
+      "before": 52,
+      "after": 19,
+      "diagnostics": [
+        "insignificant-budget-rejected:86"
+      ]
+    },
+    {
+      "cards": [],
+      "stage": 10,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 11,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 12,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 13,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 14,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 15,
+      "before": 84,
+      "after": 65,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 16,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 17,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 18,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 19,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 20,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [],
+      "stage": 21,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 0,
+      "before": 147,
+      "after": 149,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 1,
+      "before": 147,
+      "after": 149,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 2,
+      "before": 147,
+      "after": 149,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 3,
+      "before": 144,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 4,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 5,
+      "before": 140,
+      "after": 141,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 6,
+      "before": 140,
+      "after": 141,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 7,
+      "before": 140,
+      "after": 141,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 8,
+      "before": 126,
+      "after": 132,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 9,
+      "before": 51,
+      "after": 23,
+      "diagnostics": [
+        "insignificant-budget-rejected:87"
+      ]
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 10,
+      "before": 116,
+      "after": 112,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 11,
+      "before": 116,
+      "after": 112,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 12,
+      "before": 116,
+      "after": 112,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 13,
+      "before": 76,
+      "after": 68,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 14,
+      "before": 76,
+      "after": 68,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 15,
+      "before": 86,
+      "after": 74,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 16,
+      "before": 28,
+      "after": 9,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 17,
+      "before": 28,
+      "after": 9,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 18,
+      "before": 28,
+      "after": 9,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 19,
+      "before": 43,
+      "after": 29,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 20,
+      "before": 43,
+      "after": 29,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1"
+      ],
+      "stage": 21,
+      "before": 43,
+      "after": 29,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 0,
+      "before": 45,
+      "after": 20,
+      "diagnostics": [
+        "length-inflation-rejected:1",
+        "insignificant-budget-rejected:50"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 1,
+      "before": 45,
+      "after": 20,
+      "diagnostics": [
+        "length-inflation-rejected:1",
+        "insignificant-budget-rejected:50"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 2,
+      "before": 45,
+      "after": 20,
+      "diagnostics": [
+        "length-inflation-rejected:1",
+        "insignificant-budget-rejected:50"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 3,
+      "before": 46,
+      "after": 23,
+      "diagnostics": [
+        "length-inflation-rejected:1",
+        "insignificant-budget-rejected:37"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 4,
+      "before": 41,
+      "after": 24,
+      "diagnostics": [
+        "length-inflation-rejected:1",
+        "insignificant-budget-rejected:39"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 5,
+      "before": 45,
+      "after": 20,
+      "diagnostics": [
+        "length-inflation-rejected:1",
+        "insignificant-budget-rejected:37"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 6,
+      "before": 45,
+      "after": 20,
+      "diagnostics": [
+        "length-inflation-rejected:1",
+        "insignificant-budget-rejected:37"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 7,
+      "before": 45,
+      "after": 20,
+      "diagnostics": [
+        "length-inflation-rejected:1",
+        "insignificant-budget-rejected:37"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 8,
+      "before": 52,
+      "after": 26,
+      "diagnostics": [
+        "insignificant-budget-rejected:96"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 9,
+      "before": 55,
+      "after": 25,
+      "diagnostics": [
+        "insignificant-budget-rejected:91"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 10,
+      "before": 52,
+      "after": 19,
+      "diagnostics": [
+        "insignificant-budget-rejected:86"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 11,
+      "before": 52,
+      "after": 19,
+      "diagnostics": [
+        "insignificant-budget-rejected:86"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 12,
+      "before": 52,
+      "after": 19,
+      "diagnostics": [
+        "insignificant-budget-rejected:86"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 13,
+      "before": 51,
+      "after": 19,
+      "diagnostics": [
+        "insignificant-budget-rejected:39"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 14,
+      "before": 51,
+      "after": 19,
+      "diagnostics": [
+        "insignificant-budget-rejected:39"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 15,
+      "before": 52,
+      "after": 22,
+      "diagnostics": [
+        "insignificant-budget-rejected:42"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 16,
+      "before": 20,
+      "after": 2,
+      "diagnostics": [
+        "insignificant-budget-rejected:2"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 17,
+      "before": 20,
+      "after": 2,
+      "diagnostics": [
+        "insignificant-budget-rejected:2"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 18,
+      "before": 20,
+      "after": 2,
+      "diagnostics": [
+        "insignificant-budget-rejected:2"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 19,
+      "before": 21,
+      "after": 4,
+      "diagnostics": [
+        "insignificant-budget-rejected:16"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 20,
+      "before": 21,
+      "after": 4,
+      "diagnostics": [
+        "insignificant-budget-rejected:16"
+      ]
+    },
+    {
+      "cards": [
+        "D2"
+      ],
+      "stage": 21,
+      "before": 21,
+      "after": 4,
+      "diagnostics": [
+        "insignificant-budget-rejected:16"
+      ]
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 0,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 1,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 2,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 3,
+      "before": 140,
+      "after": 141,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 4,
+      "before": 140,
+      "after": 142,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 5,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 6,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 7,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 8,
+      "before": 126,
+      "after": 127,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 9,
+      "before": 52,
+      "after": 19,
+      "diagnostics": [
+        "insignificant-budget-rejected:86"
+      ]
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 10,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 11,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 12,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 13,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 14,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 15,
+      "before": 84,
+      "after": 65,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 16,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 17,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 18,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 19,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 20,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D3"
+      ],
+      "stage": 21,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 0,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 1,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 2,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 3,
+      "before": 140,
+      "after": 141,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 4,
+      "before": 140,
+      "after": 142,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 5,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 6,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 7,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 8,
+      "before": 126,
+      "after": 127,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 9,
+      "before": 52,
+      "after": 19,
+      "diagnostics": [
+        "insignificant-budget-rejected:86"
+      ]
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 10,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 11,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 12,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 13,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 14,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 15,
+      "before": 84,
+      "after": 65,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 16,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 17,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 18,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 19,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 20,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D4"
+      ],
+      "stage": 21,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 0,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 1,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 2,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 3,
+      "before": 140,
+      "after": 141,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 4,
+      "before": 140,
+      "after": 142,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 5,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 6,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 7,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 8,
+      "before": 126,
+      "after": 127,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 9,
+      "before": 52,
+      "after": 19,
+      "diagnostics": [
+        "insignificant-budget-rejected:86"
+      ]
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 10,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 11,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 12,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 13,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 14,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 15,
+      "before": 84,
+      "after": 65,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 16,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 17,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 18,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 19,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 20,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T1"
+      ],
+      "stage": 21,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 0,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 1,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 2,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 3,
+      "before": 140,
+      "after": 141,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 4,
+      "before": 140,
+      "after": 142,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 5,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 6,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 7,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 8,
+      "before": 126,
+      "after": 127,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 9,
+      "before": 52,
+      "after": 19,
+      "diagnostics": [
+        "insignificant-budget-rejected:86"
+      ]
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 10,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 11,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 12,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 13,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 14,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 15,
+      "before": 84,
+      "after": 65,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 16,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 17,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 18,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 19,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 20,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T2"
+      ],
+      "stage": 21,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 0,
+      "before": 142,
+      "after": 150,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 1,
+      "before": 142,
+      "after": 150,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 2,
+      "before": 142,
+      "after": 150,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 3,
+      "before": 138,
+      "after": 148,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 4,
+      "before": 139,
+      "after": 149,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 5,
+      "before": 139,
+      "after": 148,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 6,
+      "before": 139,
+      "after": 148,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 7,
+      "before": 139,
+      "after": 148,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 8,
+      "before": 52,
+      "after": 26,
+      "diagnostics": [
+        "insignificant-budget-rejected:96"
+      ]
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 9,
+      "before": 128,
+      "after": 132,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 10,
+      "before": 126,
+      "after": 127,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 11,
+      "before": 126,
+      "after": 127,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 12,
+      "before": 126,
+      "after": 127,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 13,
+      "before": 93,
+      "after": 86,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 14,
+      "before": 93,
+      "after": 86,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 15,
+      "before": 97,
+      "after": 94,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 16,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 17,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 18,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 19,
+      "before": 21,
+      "after": 4,
+      "diagnostics": [
+        "insignificant-budget-rejected:16"
+      ]
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 20,
+      "before": 21,
+      "after": 4,
+      "diagnostics": [
+        "insignificant-budget-rejected:16"
+      ]
+    },
+    {
+      "cards": [
+        "T3"
+      ],
+      "stage": 21,
+      "before": 21,
+      "after": 4,
+      "diagnostics": [
+        "insignificant-budget-rejected:16"
+      ]
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 0,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 1,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 2,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 3,
+      "before": 140,
+      "after": 141,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 4,
+      "before": 140,
+      "after": 142,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 5,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 6,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 7,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 8,
+      "before": 126,
+      "after": 127,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 9,
+      "before": 52,
+      "after": 19,
+      "diagnostics": [
+        "insignificant-budget-rejected:86"
+      ]
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 10,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 11,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 12,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 13,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 14,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 15,
+      "before": 84,
+      "after": 65,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 16,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 17,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 18,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 19,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 20,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T4"
+      ],
+      "stage": 21,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 0,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 1,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 2,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 3,
+      "before": 140,
+      "after": 141,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 4,
+      "before": 140,
+      "after": 142,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 5,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 6,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 7,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 8,
+      "before": 126,
+      "after": 127,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 9,
+      "before": 52,
+      "after": 19,
+      "diagnostics": [
+        "insignificant-budget-rejected:86"
+      ]
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 10,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 11,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 12,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 13,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 14,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 15,
+      "before": 84,
+      "after": 65,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 16,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 17,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 18,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 19,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 20,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "T5"
+      ],
+      "stage": 21,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 0,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 1,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 2,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 3,
+      "before": 140,
+      "after": 141,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 4,
+      "before": 140,
+      "after": 142,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 5,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 6,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 7,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 8,
+      "before": 126,
+      "after": 127,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 9,
+      "before": 52,
+      "after": 19,
+      "diagnostics": [
+        "insignificant-budget-rejected:86"
+      ]
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 10,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 11,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 12,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 13,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 14,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 15,
+      "before": 84,
+      "after": 65,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 16,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 17,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 18,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 19,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 20,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E1"
+      ],
+      "stage": 21,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 0,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 1,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 2,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 3,
+      "before": 140,
+      "after": 141,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 4,
+      "before": 140,
+      "after": 142,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 5,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 6,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 7,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 8,
+      "before": 126,
+      "after": 127,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 9,
+      "before": 52,
+      "after": 19,
+      "diagnostics": [
+        "insignificant-budget-rejected:86"
+      ]
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 10,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 11,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 12,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 13,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 14,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 15,
+      "before": 84,
+      "after": 65,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 16,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 17,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 18,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 19,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 20,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E2"
+      ],
+      "stage": 21,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 0,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 1,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 2,
+      "before": 145,
+      "after": 147,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 3,
+      "before": 140,
+      "after": 141,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 4,
+      "before": 140,
+      "after": 142,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 5,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 6,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 7,
+      "before": 136,
+      "after": 134,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 8,
+      "before": 126,
+      "after": 127,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 9,
+      "before": 52,
+      "after": 19,
+      "diagnostics": [
+        "insignificant-budget-rejected:86"
+      ]
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 10,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 11,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 12,
+      "before": 115,
+      "after": 105,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 13,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 14,
+      "before": 73,
+      "after": 56,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 15,
+      "before": 84,
+      "after": 65,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 16,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 17,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 18,
+      "before": 25,
+      "after": 4,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 19,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 20,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "E3"
+      ],
+      "stage": 21,
+      "before": 40,
+      "after": 20,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 0,
+      "before": 41,
+      "after": 21,
+      "diagnostics": [
+        "insignificant-budget-rejected:52"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 1,
+      "before": 41,
+      "after": 21,
+      "diagnostics": [
+        "insignificant-budget-rejected:52"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 2,
+      "before": 41,
+      "after": 21,
+      "diagnostics": [
+        "insignificant-budget-rejected:52"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 3,
+      "before": 42,
+      "after": 24,
+      "diagnostics": [
+        "length-inflation-rejected:1",
+        "insignificant-budget-rejected:42"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 4,
+      "before": 39,
+      "after": 28,
+      "diagnostics": [
+        "insignificant-budget-rejected:41"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 5,
+      "before": 41,
+      "after": 21,
+      "diagnostics": [
+        "insignificant-budget-rejected:44"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 6,
+      "before": 41,
+      "after": 21,
+      "diagnostics": [
+        "insignificant-budget-rejected:44"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 7,
+      "before": 41,
+      "after": 21,
+      "diagnostics": [
+        "insignificant-budget-rejected:44"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 8,
+      "before": 49,
+      "after": 26,
+      "diagnostics": [
+        "insignificant-budget-rejected:99"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 9,
+      "before": 51,
+      "after": 27,
+      "diagnostics": [
+        "insignificant-budget-rejected:90"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 10,
+      "before": 51,
+      "after": 23,
+      "diagnostics": [
+        "insignificant-budget-rejected:87"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 11,
+      "before": 51,
+      "after": 23,
+      "diagnostics": [
+        "insignificant-budget-rejected:87"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 12,
+      "before": 51,
+      "after": 23,
+      "diagnostics": [
+        "insignificant-budget-rejected:87"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 13,
+      "before": 51,
+      "after": 23,
+      "diagnostics": [
+        "insignificant-budget-rejected:43"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 14,
+      "before": 51,
+      "after": 23,
+      "diagnostics": [
+        "insignificant-budget-rejected:43"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 15,
+      "before": 52,
+      "after": 26,
+      "diagnostics": [
+        "insignificant-budget-rejected:45"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 16,
+      "before": 21,
+      "after": 3,
+      "diagnostics": [
+        "insignificant-budget-rejected:6"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 17,
+      "before": 21,
+      "after": 3,
+      "diagnostics": [
+        "insignificant-budget-rejected:6"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 18,
+      "before": 21,
+      "after": 3,
+      "diagnostics": [
+        "insignificant-budget-rejected:6"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 19,
+      "before": 20,
+      "after": 8,
+      "diagnostics": [
+        "insignificant-budget-rejected:21"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 20,
+      "before": 20,
+      "after": 8,
+      "diagnostics": [
+        "insignificant-budget-rejected:21"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2"
+      ],
+      "stage": 21,
+      "before": 20,
+      "after": 8,
+      "diagnostics": [
+        "insignificant-budget-rejected:21"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 0,
+      "before": 142,
+      "after": 150,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 1,
+      "before": 142,
+      "after": 150,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 2,
+      "before": 142,
+      "after": 150,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 3,
+      "before": 139,
+      "after": 149,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 4,
+      "before": 140,
+      "after": 149,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 5,
+      "before": 140,
+      "after": 148,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 6,
+      "before": 140,
+      "after": 148,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 7,
+      "before": 140,
+      "after": 148,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 8,
+      "before": 49,
+      "after": 26,
+      "diagnostics": [
+        "insignificant-budget-rejected:99"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 9,
+      "before": 129,
+      "after": 136,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 10,
+      "before": 126,
+      "after": 132,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 11,
+      "before": 126,
+      "after": 132,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 12,
+      "before": 126,
+      "after": 132,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 13,
+      "before": 94,
+      "after": 91,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 14,
+      "before": 94,
+      "after": 91,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 15,
+      "before": 98,
+      "after": 101,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 16,
+      "before": 43,
+      "after": 29,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 17,
+      "before": 43,
+      "after": 29,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 18,
+      "before": 43,
+      "after": 29,
+      "diagnostics": []
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 19,
+      "before": 20,
+      "after": 8,
+      "diagnostics": [
+        "insignificant-budget-rejected:21"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 20,
+      "before": 20,
+      "after": 8,
+      "diagnostics": [
+        "insignificant-budget-rejected:21"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "T3"
+      ],
+      "stage": 21,
+      "before": 20,
+      "after": 8,
+      "diagnostics": [
+        "insignificant-budget-rejected:21"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 0,
+      "before": 40,
+      "after": 22,
+      "diagnostics": [
+        "insignificant-budget-rejected:42"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 1,
+      "before": 40,
+      "after": 22,
+      "diagnostics": [
+        "insignificant-budget-rejected:42"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 2,
+      "before": 40,
+      "after": 22,
+      "diagnostics": [
+        "insignificant-budget-rejected:42"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 3,
+      "before": 40,
+      "after": 23,
+      "diagnostics": [
+        "insignificant-budget-rejected:40"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 4,
+      "before": 39,
+      "after": 23,
+      "diagnostics": [
+        "insignificant-budget-rejected:38"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 5,
+      "before": 40,
+      "after": 22,
+      "diagnostics": [
+        "insignificant-budget-rejected:40"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 6,
+      "before": 40,
+      "after": 22,
+      "diagnostics": [
+        "insignificant-budget-rejected:40"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 7,
+      "before": 40,
+      "after": 22,
+      "diagnostics": [
+        "insignificant-budget-rejected:40"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 8,
+      "before": 46,
+      "after": 26,
+      "diagnostics": [
+        "insignificant-budget-rejected:97"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 9,
+      "before": 47,
+      "after": 27,
+      "diagnostics": [
+        "insignificant-budget-rejected:100"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 10,
+      "before": 49,
+      "after": 26,
+      "diagnostics": [
+        "insignificant-budget-rejected:99"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 11,
+      "before": 49,
+      "after": 26,
+      "diagnostics": [
+        "insignificant-budget-rejected:99"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 12,
+      "before": 49,
+      "after": 26,
+      "diagnostics": [
+        "insignificant-budget-rejected:99"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 13,
+      "before": 49,
+      "after": 26,
+      "diagnostics": [
+        "insignificant-budget-rejected:58"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 14,
+      "before": 49,
+      "after": 26,
+      "diagnostics": [
+        "insignificant-budget-rejected:58"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 15,
+      "before": 45,
+      "after": 14,
+      "diagnostics": [
+        "insignificant-budget-rejected:74"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 16,
+      "before": 20,
+      "after": 8,
+      "diagnostics": [
+        "insignificant-budget-rejected:21"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 17,
+      "before": 20,
+      "after": 8,
+      "diagnostics": [
+        "insignificant-budget-rejected:21"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 18,
+      "before": 20,
+      "after": 8,
+      "diagnostics": [
+        "insignificant-budget-rejected:21"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 19,
+      "before": 20,
+      "after": 8,
+      "diagnostics": [
+        "insignificant-budget-rejected:30"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 20,
+      "before": 20,
+      "after": 8,
+      "diagnostics": [
+        "insignificant-budget-rejected:30"
+      ]
+    },
+    {
+      "cards": [
+        "D1",
+        "D2",
+        "T3"
+      ],
+      "stage": 21,
+      "before": 20,
+      "after": 8,
+      "diagnostics": [
+        "insignificant-budget-rejected:30"
+      ]
+    }
+  ]
+}

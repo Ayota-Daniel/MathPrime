@@ -37,13 +37,19 @@ export const DEFAULT_CONFIG: Config = {
   maxLengthInflation: 2, minimumTargets: 2, scoreBase: 100,
   bossRewards: [150, 250, 500], hintPenalty: 0.15, scoreBounds: [0.5, 2.5],
   search: { maxOperands: 6, magnitude: 500, maxTarget: 150, maxStates: 350_000 },
-  rules: { numbers: [2, 3, 7], operations: ['+', '-', '*'], minimumOccurrences: {},
+  rules: { numbers: [3, 5, 7], operations: ['+', '-', '*'], minimumOccurrences: {},
     requireSubtraction: false, maxMultiplications: null },
 };
 export type CardId = 'D1' | 'D2' | 'D3' | 'D4' | 'T1' | 'T2' | 'T3' | 'T4' | 'T5' | 'E1' | 'E2' | 'E3';
 export interface Effect { id: CardId; remaining: number | null; level: number; shieldUsed: boolean; }
 export interface Resources { lives: number; hints: number; effects: Effect[]; }
 export interface Solution { expression: string; operands: number; multiplications: number; }
+export interface ObligationDiagnostic {
+  card: 'D1' | 'T3';
+  status: 'restrictive' | 'already-satisfied-by-all-optima' | 'unmeasured';
+  baselineOperands?: number;
+  reason?: string;
+}
 export interface Puzzle extends Solution {
   target: number;
   rules: Rules;
@@ -53,6 +59,7 @@ export interface Puzzle extends Solution {
   estimatedCost: number;
   warnings: string[];
   candidateCount: number;
+  obligationDiagnostics: ObligationDiagnostic[];
   variant: string;
 }
 export interface Phase { act: number; boss: boolean; index: number; difficulty: Difficulty; survival: number; }
