@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "types": ["node"] },
+  "include": ["scripts/playtest-rogue-v1.ts", "scripts/rogue-playtest-log.ts"]
+}

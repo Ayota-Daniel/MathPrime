@@ -30,3 +30,6 @@ secrets.*
 # Supabase CLI local runtime metadata (never deployment credentials).
 supabase/.temp/
 supabase/.branches/
+
+# Private local Rogue playtest sessions.
+.playtests/
