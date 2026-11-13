@@ -1,5 +1,6 @@
 import { BALANCE, expire, puzzleScore, starsFor } from './cards';
 import { Generator } from './generator';
+import { progressiveHint } from './hints';
 import { expressionValue, inspectExpression } from './math';
 import { DEFAULT_CONFIG, phaseAt, random, totalStages } from './model';
 import type { Config, Run } from './model';
@@ -103,8 +104,9 @@ export function transition(previous: Run, action: Action, generator = new Genera
   }
   if (action.type === 'hint' && run.status === 'playing') {
     if (run.hints <= 0) throw new Error('no-hints');
+    const information = progressiveHint(run.current!, run.hintsUsed);
     run.hints--; run.hintsUsed++;
-    event(run, 'hint', { expression: run.current!.expression, hints: run.hints });
+    event(run, 'hint', { information, hints: run.hints });
     return run;
   }
   if (action.type === 'submit' && run.status === 'playing') {

@@ -6,3 +6,4 @@ export * from './generator';
 export * from './rewards';
 export * from './run';
 export * from './simulator';
+export * from './hints';
