@@ -1124,3 +1124,37 @@
     display: none;
   }
 }
+
+.rogue-resume {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  max-width: 510px;
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid #69667f;
+  border-radius: 14px;
+  background: #ffffff09;
+}
+.rogue-resume p {
+  font-size: 13px;
+  margin: 0;
+  color: #eeecff;
+}
+.rogue-resume > button {
+  min-width: 140px;
+  padding: 12px 18px;
+  margin-left: auto;
+}
+@media (max-width: 540px) {
+  .rogue-resume {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .rogue-resume > button {
+    margin-left: 0;
+  }
+}

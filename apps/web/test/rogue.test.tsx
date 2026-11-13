@@ -165,9 +165,10 @@ test("R3.1: automatic timeout, stale callbacks, foreground catchup, disposal and
   f.controller.dispose();
   f.controller.dispose();
   assert.equal(f.clock.jobs.size, 0);
-  assert.equal(f.view().screen, "ended");
-  assert.equal(f.view().endCause, "abandoned");
-  f.send({ type: "new", seed: 5 });
+  assert.equal(f.view().screen, "playing");
+  // Leaving a screen now pauses its timers; it no longer abandons a saved run.
+  f.controller.attach();
+  f.send({ type: "new", seed: 5, replace: true });
   assert.equal(f.view().lives, 3);
   assert.equal(f.view().score, 0);
   f.controller.dispose();
@@ -361,6 +362,7 @@ test("R3.1: defeat and confirmed abandonment end locally, stale async actions ca
   assert.equal(f.view().officialVictory, false);
   f.send({ type: "new", seed: 0 });
   const revision = f.view().revision;
+  f.send({ type: "abandon" });
   f.controller.dispose();
   f.controller.dispatch({ type: "start" }, revision);
   assert.equal(f.view().screen, "ended");

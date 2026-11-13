@@ -83,6 +83,7 @@ function MathEntry({
   function insert(value: string) {
     const start = field.current?.selectionStart ?? input.length;
     const end = field.current?.selectionEnd ?? start;
+    if (input.length - (end - start) + value.length > 150) return;
     setInput(input.slice(0, start) + value + input.slice(end));
     requestAnimationFrame(() => {
       field.current?.focus();

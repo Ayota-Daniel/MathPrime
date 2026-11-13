@@ -24,7 +24,11 @@ type Actions = {
   busy: boolean;
   send: (action: WebAction) => void;
 };
-export function RogueWelcome({ busy, send }: Omit<Actions, "view">) {
+export function RogueWelcome({
+  busy,
+  send,
+  view,
+}: Omit<Actions, "view"> & { view?: RogueView }) {
   const [seed, setSeed] = useState("42");
   return (
     <>
@@ -53,6 +57,21 @@ export function RogueWelcome({ busy, send }: Omit<Actions, "view">) {
             <Flag size={17} aria-hidden="true" />3 actes
           </span>
         </div>
+        {view?.hasSaved && (
+          <div className="rogue-resume">
+            <p>
+              Graine {view.savedSummary?.seed} · {view.savedSummary?.score}{" "}
+              points
+            </p>
+            <Button
+              disabled={busy}
+              variant="primary"
+              onClick={() => send({ type: "continue" })}
+            >
+              {view.savedSummary?.ended ? "Voir le dernier bilan" : "Continuer"}
+            </Button>
+          </div>
+        )}
         <div className="rogue-start-row">
           <Button
             variant="primary"
@@ -121,9 +140,9 @@ export function RogueWelcome({ busy, send }: Omit<Actions, "view">) {
         </div>
       </details>
       <p className="rogue-footnote">
-        Score local à cette run. Pas de sauvegarde en cours de partie : un
-        rechargement la termine. Le premier choix de carte arrive après deux
-        puzzles.
+        Sauvegarde automatique sur cet appareil. Le temps continue hors de
+        l’application pendant un puzzle. Le premier choix de carte arrive après
+        deux puzzles.
       </p>
     </>
   );
