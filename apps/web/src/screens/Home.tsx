@@ -10,13 +10,13 @@ const MODES = [
   { id: 'classic', name: 'Classique', tg: '100 niveaux, gate 3★, sans chrono', icon: Target, color: '#5B5BD6' },
   { id: 'daily', name: 'Daily', tg: 'Un défi par jour', icon: Calendar, color: '#179C6B' },
   { id: 'freeskill', name: 'Free Skill', tg: 'Chrono, difficulté adaptative', icon: Zap, color: '#E8A317' },
-  { id: 'rogue', name: 'Rogue-like', tg: '3 vies, draft de contraintes', icon: Swords, color: '#E5484D' },
+  { id: 'rogue', name: 'Rogue', tg: '3 actes, 12 cartes, 3 boss', icon: Swords, color: '#E5484D' },
 ] as const;
 
 export function Home() {
   const nav = useNavigate();
   useEffect(() => { audio.switchMusic('main'); }, []);
-  const go = (mode: string) => nav({ to: '/play/$mode', params: { mode } });
+  const go = (mode: string) => mode === 'rogue' ? nav({ to: '/rogue' }) : nav({ to: '/play/$mode', params: { mode } });
   return (
     <>
       <TopBar />
