@@ -28,9 +28,10 @@ export function Button({ variant = 'ghost', icon, children, className = '', onCl
 }
 
 /** Tuile chiffre/opérateur. `kind` change la couleur ; clic = son de sélection. */
-export function Tile({ label, kind, onPress }: { label: string; kind: 'num' | 'op'; onPress: () => void }) {
+export function Tile({ label, kind, onPress, disabled = false }: { label: string; kind: 'num' | 'op'; onPress: () => void; disabled?: boolean }) {
   return (
     <button
+      type="button" disabled={disabled}
       onClick={() => { audio.play('select'); onPress(); }}
       className={`font-mono font-bold text-[22px] py-[16px] rounded-tile border border-line active:scale-[.94] transition-transform
         ${kind === 'num' ? 'bg-num text-pri-d' : 'bg-op'}`}

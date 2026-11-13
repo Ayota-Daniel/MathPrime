@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
+    "test": "TSX_TSCONFIG_PATH=tsconfig.test.json node --import tsx --input-type=module -e \"await import('./test/rogue.test.tsx')\""
   },
   "dependencies": {
     "@shortest/engine": "*",

@@ -8,7 +8,9 @@
   "exports": {
     ".": "./src/index.ts",
     "./solver": "./src/solver.ts",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./rogue-v1": "./src/rogue-v1/index.ts",
+    "./rogue-v1/session": "./src/rogue-v1/playtest/session.ts"
   },
   "scripts": {
     "build:puzzles": "tsx scripts/build-puzzles.ts",
