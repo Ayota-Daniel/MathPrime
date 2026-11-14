@@ -577,7 +577,7 @@ test("R3.2.2: historical saves remain untouched until a confirmed replacement", 
     const before = JSON.stringify(raw);
     const f = await fixture(shared);
     assert.equal(f.view().hasSaved, false);
-    assert.match(f.view().storageNotice, /incompatible.*60 s/);
+    assert.match(f.view().storageNotice, /incompatible.*contrats de règles/);
     await f.send({ type: "new", seed: 7 });
     assert.equal(JSON.stringify(shared.values.get(ROGUE_SAVE_KEY)), before);
     assert.equal(f.view().screen, "home");

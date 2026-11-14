@@ -12,3 +12,4 @@ export * from './diagnostics';
 export * from './card-presentation';
 export { ARCHIVE_STATUS_LABELS } from './run-history';
 export type { RunArchive } from './run-history';
+export * from './human-playtest';

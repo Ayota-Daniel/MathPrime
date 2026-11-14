@@ -51,6 +51,13 @@ export interface ObligationDiagnostic {
   reason?: string;
 }
 export interface Puzzle extends Solution {
+  generation?: {
+    profile: 'r4.2';
+    rawCandidates: number;
+    selectedCandidates: number;
+    progressionFallback: boolean;
+    notes: string[];
+  };
   target: number;
   rules: Rules;
   difficulty: Difficulty;

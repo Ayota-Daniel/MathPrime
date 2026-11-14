@@ -7,7 +7,7 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.rogue-benchmark.json",
     "sfx": "node scripts/gen-sfx.cjs",
     "test": "node --import tsx --input-type=module -e \"await import('./test/rogue.test.ts')\""
   },

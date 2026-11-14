@@ -16,6 +16,7 @@ import {
 import { Button } from "../components/ui";
 import { audio } from "../lib/audio";
 import "../rogue/rogue.css";
+import { RoguePlaytestExport } from "../components/rogue/RoguePlaytestExport";
 
 export function Rogue() {
   const { view, busy, send: perform, controller, error } = useRogueSession();
@@ -211,6 +212,12 @@ export function Rogue() {
             </aside>
           )}
         </div>
+        {view.hasSaved && ["home", "ended"].includes(view.screen) && (
+          <RoguePlaytestExport
+            report={controller.exportPlaytest}
+            disabled={busy || Boolean(view.storageError)}
+          />
+        )}
       </main>
       <footer className="rogue-footer">
         Rogue V1 · Sauvegarde automatique locale · Aucune synchronisation cloud

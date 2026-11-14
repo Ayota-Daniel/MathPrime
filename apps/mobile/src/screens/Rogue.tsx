@@ -28,6 +28,7 @@ import {
 } from "../rogue/Panels";
 import { NativeExtras, NativeDiagnostics } from "../rogue/Extras";
 import { s } from "../rogue/styles";
+import { NativePlaytestExport } from "../rogue/PlaytestExport";
 
 export function Rogue({
   navigation,
@@ -229,6 +230,12 @@ export function Rogue({
               disabled={disabled}
               send={send}
               onMenu={back}
+            />
+          )}
+          {view.hasSaved && ["home", "ended"].includes(view.screen) && (
+            <NativePlaytestExport
+              report={controller.exportPlaytest}
+              disabled={disabled}
             />
           )}
           {view.screen !== "home" && (
