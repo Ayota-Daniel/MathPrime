@@ -79,7 +79,11 @@ export function RogueInput({
         }}
       />
       <Text style={styles.muted}>Valeur calculée : {value}</Text>
-      <View pointerEvents={busy ? "none" : "auto"} style={{ gap: 10 }}>
+      <View
+        collapsable={false}
+        pointerEvents={busy ? "none" : "auto"}
+        style={{ gap: 10 }}
+      >
         <View style={styles.row}>
           {view.puzzle!.rules.numbers.map((n) => (
             <Tile

@@ -1,0 +1,24 @@
+PID 4564
+SUCCESS 3 ['♥ 1/3 ◇ 3 indices', '300 pts', 'Acte 1 · Puzzle 3/3 · 3/16 réussites']
+SUCCESS 4 ['♥ 1/3 ◇ 3 indices', '500 pts', 'Acte 1 · Boss, phase 1 · 4/16 réussites']
+SUCCESS 5 ['♥ 1/3 ◇ 3 indices', '850 pts', 'Acte 1 · Boss, phase 2 · 5/16 réussites']
+SUCCESS 6 ['♥ 1/3 ◇ 3 indices', '1050 pts', 'Acte 2 · Puzzle 1/3 · 6/16 réussites']
+SUCCESS 7 ['♥ 1/3 ◇ 3 indices', '1250 pts', 'Acte 2 · Puzzle 2/3 · 7/16 réussites']
+SUCCESS 8 ['♥ 1/3 ◇ 3 indices', '1500 pts', 'Acte 2 · Puzzle 3/3 · 8/16 réussites']
+SUCCESS 9 ['♥ 1/3 ◇ 3 indices', '1875 pts', 'Acte 2 · Boss, phase 1 · 9/16 réussites']
+SUCCESS 10 ['♥ 1/3 ◇ 3 indices', '2500 pts', 'Acte 2 · Boss, phase 2 · 10/16 réussites']
+SUCCESS 11 ['♥ 1/3 ◇ 3 indices', '2905 pts', 'Acte 3 · Puzzle 1/3 · 11/16 réussites']
+SUCCESS 12 ['♥ 1/3 ◇ 3 indices', '3310 pts', 'Acte 3 · Puzzle 2/3 · 12/16 réussites']
+SUCCESS 13 ['♥ 1/3 ◇ 3 indices', '3790 pts', 'Acte 3 · Puzzle 3/3 · 13/16 réussites']
+SUCCESS 14 ['♥ 1/3 ◇ 3 indices', '4430 pts', 'Acte 3 · Boss, phase 1 · 14/16 réussites']
+SUCCESS 15 ['♥ 1/3 ◇ 3 indices', '5070 pts', 'Acte 3 · Boss, phase 2 · 15/16 réussites']
+SUCCESS 16 ['♥ 1/3 ◇ 3 indices', '6110 pts', 'Acte 3 · Boss, phase 3 · 16/16 réussites']
+NO_CRASH_PID 4564
+
+Survie sur le même PID, après correction finale :
+SURVIVAL_ONE ['6785 pts', 'Survie · rencontre 1 · 17/16 réussites']
+SURVIVAL_TWO ['7460 pts', 'Survie · rencontre 2 · 18/16 réussites']
+FINAL_NO_CRASH_PID 4564
+CRASH_BUFFER
+
+Bilan contrôlé et rouvert ensuite : seed 7, 18 réussites, 2 échecs, 3 boss, 7460 points, victoire officielle conservée.

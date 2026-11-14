@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import type { ComponentRef } from "react";
 import {
   Alert,
   BackHandler,
@@ -31,6 +32,7 @@ export function Rogue({
   navigation,
 }: NativeStackScreenProps<RootStack, "Rogue">) {
   const { view, controller, busy, error, send: perform } = useRogue();
+  const content = useRef<ComponentRef<typeof ScrollView>>(null);
   const current = useRef({ busy, view });
   current.current = { busy, view };
   const disabled = busy || !view.hydrated || Boolean(view.storageError);
@@ -106,7 +108,11 @@ export function Rogue({
   }
   useEffect(() => {
     if (view.screen !== "playing") Keyboard.dismiss();
-  }, [view.screen]);
+    const frame = requestAnimationFrame(() => {
+      content.current?.scrollTo({ y: 0, animated: false });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [view.screen, view.stage]);
   return (
     <SafeAreaView style={s.safe} edges={["top", "bottom"]}>
       <View style={s.header}>
@@ -158,9 +164,11 @@ export function Rogue({
       )}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
+          ref={content}
+          removeClippedSubviews={false}
           keyboardShouldPersistTaps="always"
           keyboardDismissMode="none"
           automaticallyAdjustKeyboardInsets
