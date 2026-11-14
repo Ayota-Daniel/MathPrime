@@ -2,7 +2,8 @@ import { Generator } from '../generator';
 import { expressionValue, inspectExpression } from '../math';
 import { starsFor } from '../cards';
 import { DEFAULT_CONFIG, phaseAt } from '../model';
-import type { Effect, Puzzle, Run } from '../model';
+import type { GenerationProfile } from '../difficulty';
+import type { Config, Effect, Puzzle, Run } from '../model';
 import { newRun, transition } from '../run';
 
 export interface Clock {
@@ -36,7 +37,7 @@ export class PlaytestSession {
   message = '';
   readonly attempts: Attempt[] = [];
   readonly seed: number;
-  private readonly generator = new Generator();
+  private readonly generator: Generator;
   private readonly beganAt: number;
   private endedAt: number | null = null;
   private syncedAt = 0;
@@ -45,9 +46,17 @@ export class PlaytestSession {
   private pendingAttempt: Attempt | null = null;
   private readonly initialConfig;
 
-  constructor(readonly format: SessionFormat, seed: number, private readonly clock: Clock, private readonly changed: () => void = () => {}) {
+  constructor(
+    readonly format: SessionFormat,
+    seed: number,
+    private readonly clock: Clock,
+    private readonly changed: () => void = () => {},
+    profile: GenerationProfile = 'r4.2',
+    config: Config = DEFAULT_CONFIG,
+  ) {
     this.seed = seed >>> 0;
-    this.run = newRun(seed, DEFAULT_CONFIG);
+    this.generator = new Generator(profile);
+    this.run = newRun(seed, config);
     this.initialConfig = this.run.config;
     this.beganAt = clock.now();
     this.prepare();

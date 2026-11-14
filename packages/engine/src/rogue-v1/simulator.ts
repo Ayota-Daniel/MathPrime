@@ -16,6 +16,7 @@ export const POLICY_PARAMETERS = {
   temeraire: { errorRate: 0.23, timeFraction: 0.40, hintRate: 0.05, nonOptimalRate: 0.40 },
 };
 export interface SimulationOptions {
+  generationProfile?: import('./difficulty').GenerationProfile;
   seed?: number;
   runs?: number;
   policy?: Policy;
@@ -31,7 +32,7 @@ export interface SimulationReport {
     chosenCards: Partial<Record<CardId, number>>; warnings: number;
   };
   diagnostics: ReturnType<typeof summarizeDiagnostics>;
-  generator: { searches: number; cacheHits: number; states: number };
+  generator: { searches: number; cacheHits: number; states: number; maximumSearchStates: number };
   runs: Run[];
 }
 function summarizeDiagnostics(runs: Run[]) {
@@ -58,7 +59,7 @@ function summarizeDiagnostics(runs: Run[]) {
 export function simulate(options: SimulationOptions = {}): SimulationReport {
   const { seed = 1, runs = 5, policy = 'equilibre', survivalPuzzles = 0, config = DEFAULT_CONFIG } = options;
   if (!Number.isInteger(runs) || runs < 1 || runs > 1000 || !Number.isInteger(survivalPuzzles) || survivalPuzzles < 0 || survivalPuzzles > 100 || !PREFERENCES[policy]) throw new Error('invalid-simulation-options');
-  const generator = new Generator();
+  const generator = new Generator(options.generationProfile ?? 'r4.2');
   const results: Run[] = [];
   const chosenCards: Partial<Record<CardId, number>> = {};
   const parameters = POLICY_PARAMETERS[policy];
@@ -123,7 +124,7 @@ export function simulate(options: SimulationOptions = {}): SimulationReport {
       warnings: results.reduce((sum, run) => sum + run.events.filter(event => event.type === 'puzzle' && (event.detail as { warnings: string[] }).warnings.length).length, 0),
     },
     diagnostics: summarizeDiagnostics(results),
-    generator: { searches: generator.searches, cacheHits: generator.cacheHits, states: generator.states },
+    generator: { searches: generator.searches, cacheHits: generator.cacheHits, states: generator.states, maximumSearchStates: generator.maximumSearchStates },
     runs: results,
   };
 }

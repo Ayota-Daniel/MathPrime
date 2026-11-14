@@ -1,10 +1,11 @@
-import { DEFAULT_CONFIG, phaseAt } from "./model";
+import { phaseAt } from "./model";
 import type { Clock } from "./playtest/session";
 import { PlaytestSession } from "./playtest/session";
 
 export const ROGUE_SAVE_KEY = "shortest:rogue:session";
 export const ROGUE_SAVE_VERSION = 2;
-export const ROGUE_RULESET = "rogue-v1-r3.2.2-1";
+export { ROGUE_RULESET, LEGACY_ROGUE_RULESET } from "./contracts";
+import { ROGUE_RULESET, rulesContract, supportedRuleset } from "./contracts";
 export interface JournalEntry {
   at: number;
   command: string;
@@ -44,6 +45,7 @@ export class DurableSession {
     private readonly env: SessionEnvironment,
     changed: () => void,
     id = env.newId(),
+    readonly ruleset = ROGUE_RULESET,
   ) {
     if (!/^[a-zA-Z0-9_-]{1,100}$/.test(id))
       throw new Error("invalid-session-id");
@@ -58,10 +60,18 @@ export class DurableSession {
         if (handle !== undefined) env.clock.cancel(handle);
       },
     };
-    this.game = new PlaytestSession("full", seed, clock, () => {
-      this.append("temps"); // Reproduces the automatic timeout when the journal is replayed.
-      changed();
-    });
+    const contract = rulesContract(ruleset);
+    this.game = new PlaytestSession(
+      "full",
+      seed,
+      clock,
+      () => {
+        this.append("temps"); // Reproduces the automatic timeout when the journal is replayed.
+        changed();
+      },
+      contract.generation,
+      contract.config,
+    );
     this.replaying = false;
   }
   private time(): number {
@@ -108,7 +118,7 @@ export class DurableSession {
     this.pause();
     const snapshot: RogueSave = {
       version: ROGUE_SAVE_VERSION,
-      ruleset: ROGUE_RULESET,
+      ruleset: this.ruleset,
       id: this.id,
       seed: this.seed,
       savedAt: this.env.civilNow(),
@@ -125,7 +135,7 @@ export class DurableSession {
     const run = this.game.run;
     const attempt = this.game.attempts[this.game.attempts.length - 1];
     return {
-      configuration: DEFAULT_CONFIG,
+      configuration: run.config,
       screen: this.game.screen,
       stage: run.stage,
       phase: phaseAt(run.stage, run.config),
@@ -168,7 +178,13 @@ export class DurableSession {
     env: SessionEnvironment,
     changed: () => void,
   ): DurableSession {
-    const session = new DurableSession(save.seed, env, changed, save.id);
+    const session = new DurableSession(
+      save.seed,
+      env,
+      changed,
+      save.id,
+      save.ruleset,
+    );
     session.replaying = true;
     for (const entry of save.journal) {
       session.replayTime = entry.at;
@@ -237,12 +253,12 @@ export function validateRogueSave(input: unknown): SaveValidation {
   const migrated = raw.version === 1;
   if (typeof raw.ruleset !== "string")
     return { status: migrated ? "incompatible" : "invalid", reason: "ruleset" };
-  if (raw.ruleset !== ROGUE_RULESET)
+  if (!supportedRuleset(raw.ruleset))
     return { status: "incompatible", reason: "ruleset" };
   const save = {
     ...raw,
     version: 2,
-    ruleset: migrated ? ROGUE_RULESET : raw.ruleset,
+    ruleset: raw.ruleset,
     clockAdjusted: migrated ? false : raw.clockAdjusted,
   } as unknown as RogueSave;
   const allowed = [
@@ -273,7 +289,7 @@ export function validateRogueSave(input: unknown): SaveValidation {
     save.journal.length > 20_000
   )
     return { status: "invalid", reason: "fields" };
-  if (save.ruleset !== ROGUE_RULESET)
+  if (!supportedRuleset(save.ruleset))
     return { status: "incompatible", reason: "ruleset" };
   let previous = 0;
   for (const entry of save.journal) {

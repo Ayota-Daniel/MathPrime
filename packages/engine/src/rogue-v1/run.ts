@@ -1,9 +1,10 @@
 import { BALANCE, expire, puzzleScore, starsFor } from './cards';
 import { Generator } from './generator';
+import { RECENT_ENCOUNTERS } from './difficulty';
 import { progressiveHint } from './hints';
 import { expressionValue, inspectExpression } from './math';
 import { DEFAULT_CONFIG, phaseAt, random, totalStages } from './model';
-import type { Config, Run } from './model';
+import type { Config, Run, Puzzle } from './model';
 import { applyOffer, draft } from './rewards';
 
 export type Action =
@@ -87,7 +88,14 @@ export function transition(previous: Run, action: Action, generator = new Genera
   if (action.type === 'start' && run.status === 'ready') {
     const [value, seed] = random(run.seed);
     run.seed = seed;
-    const result = generator.generate(run.config, run.effects, phaseAt(run.stage, run.config), value, run.nextSeconds, run.lastTarget);
+    const recent = run.events
+      .filter(event => event.type === 'puzzle')
+      .slice(-RECENT_ENCOUNTERS)
+      .map(event => event.detail as Puzzle);
+    const result = generator.generate(
+      run.config, run.effects, phaseAt(run.stage, run.config),
+      value, run.nextSeconds, run.lastTarget, recent,
+    );
     if (!result.puzzle) {
       run.status = 'blocked'; run.endCause = 'generation-unavailable';
       event(run, 'generation-refused', result.diagnostics);

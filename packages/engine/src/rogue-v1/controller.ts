@@ -1,3 +1,6 @@
+import { humanPlaytestReport } from "./human-playtest";
+import type { HumanFeedback } from "./human-playtest";
+import { LEGACY_ROGUE_RULESET } from "./contracts";
 import { archiveRun, appendArchives, isConcluded } from "./run-history";
 import type { RunArchive } from "./run-history";
 import {
@@ -202,7 +205,7 @@ export class RogueController {
             } else
               this.storageNotice =
                 result.status === "incompatible"
-                  ? "Sauvegarde Rogue incompatible avec les nouvelles durées (minimum 60 s). Elle est conservée ; une nouvelle run peut la remplacer avec confirmation."
+                  ? "Sauvegarde Rogue incompatible avec les contrats de règles pris en charge. Elle est conservée ; une nouvelle run peut la remplacer avec confirmation."
                   : "Sauvegarde Rogue invalide : aucune progression restaurée.";
           }
         } catch {
@@ -294,6 +297,15 @@ export class RogueController {
         this.publish(true);
       }
     });
+  exportPlaytest = (feedback: HumanFeedback) => {
+    if (!this.saved || this.storageError)
+      throw new Error("playtest-unavailable");
+    return humanPlaytestReport(
+      this.saved,
+      this.environment.civilNow(),
+      feedback,
+    );
+  };
   getSnapshot = (): RogueView => this.view;
   subscribe = (listener: () => void): (() => void) => {
     this.listeners.add(listener);
@@ -410,6 +422,9 @@ export class RogueController {
           this.onTimeout,
         );
         this.suspended = false;
+        if (this.durable.ruleset === LEGACY_ROGUE_RULESET)
+          this.storageNotice =
+            "Cette run conserve ses règles de difficulté historiques. Les nouvelles runs utilisent la progression R4.2.";
         if (this.durable.clockAdjusted)
           this.storageNotice =
             "Horloge civile reculée : le puzzle en cours a expiré par sécurité, une seule fois.";
