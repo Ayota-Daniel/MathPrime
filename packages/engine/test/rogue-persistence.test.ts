@@ -6,7 +6,10 @@ import {
   ROGUE_SAVE_KEY,
   validateRogueSave,
 } from "../src/rogue-v1/saved-session";
-import { RogueSaveRepository } from "../src/rogue-v1/save-repository";
+import {
+  ROGUE_STORE_KEY,
+  RogueSaveRepository,
+} from "../src/rogue-v1/save-repository";
 import { DEFAULT_CONFIG, solveRules } from "../src/rogue-v1";
 import type { Clock } from "../src/rogue-v1/playtest/session";
 
@@ -122,6 +125,11 @@ async function fixture(shared = memory(), clock = new ManualClock()) {
   }
   return { shared, clock, controller, view, send, win, next };
 }
+function activeSave(shared: ReturnType<typeof memory>): unknown {
+  const store = shared.values.get(ROGUE_STORE_KEY) as
+    { active: unknown } | undefined;
+  return store ? store.active : shared.values.get(ROGUE_SAVE_KEY);
+}
 async function reopen(f: Awaited<ReturnType<typeof fixture>>, offline: number) {
   f.controller.dispose();
   f.clock.civil += offline;
@@ -140,7 +148,7 @@ test("R3.2: save during puzzle, deterministic restore, hidden witnesses and elap
   const target = f.view().puzzle!.target!;
   f.clock.advance(5_111.123);
   await f.send({ type: "hint" });
-  const raw = f.shared.values.get(ROGUE_SAVE_KEY);
+  const raw = activeSave(f.shared);
   assert.equal(validateRogueSave(raw).status, "valid");
   const text = JSON.stringify(raw);
   assert.ok(!text.includes("3+3+5*7"));
@@ -261,7 +269,7 @@ test("R3.2: invalid syntax stays replayable; corrupt, incompatible and altered c
   await f.send({ type: "new", seed: 42 });
   await f.send({ type: "start" });
   await f.send({ type: "submit", expression: "(3+5)" });
-  const raw = f.shared.values.get(ROGUE_SAVE_KEY) as Record<string, unknown>;
+  const raw = activeSave(f.shared) as Record<string, unknown>;
   assert.equal(validateRogueSave(raw).status, "valid");
   for (const value of [
     null,
@@ -288,15 +296,13 @@ test("R3.2: version-one envelope with an explicit current contract migrates with
   f.shared.values.set("shortest:save:v3", { xp: 777, dailyDone: "2026-11-13" });
   await f.send({ type: "new", seed: 42 });
   await f.win();
-  const raw = f.shared.values.get(ROGUE_SAVE_KEY) as Record<string, unknown>;
+  const raw = activeSave(f.shared) as Record<string, unknown>;
   const { clockAdjusted, ...legacy } = raw;
+  f.shared.values.delete(ROGUE_STORE_KEY);
   f.shared.values.set(ROGUE_SAVE_KEY, { ...legacy, version: 1 });
   f = await reopen(f, 0);
   assert.equal(f.view().score, 100);
-  assert.equal(
-    (f.shared.values.get(ROGUE_SAVE_KEY) as { version: number }).version,
-    2,
-  );
+  assert.equal((activeSave(f.shared) as { version: number }).version, 2);
   assert.deepEqual(f.shared.values.get("shortest:save:v3"), {
     xp: 777,
     dailyDone: "2026-11-13",
@@ -309,15 +315,12 @@ test("R3.2: new run requires replacement, serial writes never revive an old sess
   await f.send({ type: "new", seed: 42 });
   await f.win();
   await f.next();
-  const oldId = (f.shared.values.get(ROGUE_SAVE_KEY) as { id: string }).id;
+  const oldId = (activeSave(f.shared) as { id: string }).id;
   await f.send({ type: "new", seed: 7 });
   assert.equal(f.view().seed, 42);
   await f.send({ type: "new", seed: 7, replace: true });
   assert.equal(f.view().score, 0);
-  assert.notEqual(
-    (f.shared.values.get(ROGUE_SAVE_KEY) as { id: string }).id,
-    oldId,
-  );
+  assert.notEqual((activeSave(f.shared) as { id: string }).id, oldId);
   f = await reopen(f, 0);
   assert.equal(f.view().seed, 7);
   assert.equal(f.view().stage, 0);
@@ -343,10 +346,7 @@ test("R3.2: write failures block play until retry, and stale controllers cannot 
   assert.equal(f.view().storageError, "");
   await other.send({ type: "new", seed: 9, replace: true });
   assert.match(other.view().storageError, /autre fenêtre/);
-  assert.equal(
-    (f.shared.values.get(ROGUE_SAVE_KEY) as { seed: number }).seed,
-    42,
-  );
+  assert.equal((activeSave(f.shared) as { seed: number }).seed, 42);
   f.controller.dispose();
   other.controller.dispose();
 });
@@ -373,6 +373,12 @@ test("R3.2: final boss rewards, victory and survival survive restoration without
   f = await reopen(f, 0);
   assert.equal(f.view().officialVictory, true);
   assert.equal(f.view().score, score);
+  assert.equal(f.view().history.length, 1);
+  assert.equal(f.view().history[0].status, "victory");
+  assert.equal(f.view().history[0].successes, 16);
+  assert.equal(f.view().history[0].failures, 1);
+  assert.deepEqual(f.view().history[0].acts, [1, 2, 3]);
+  assert.deepEqual(f.view().history[0].bosses, [1, 2, 3]);
   f.controller.dispose();
 });
 
@@ -439,10 +445,7 @@ test("R3.2: absent, corrupt and incompatible saves are preserved until an explic
     await f.send({ type: "new", seed: 42, replace: true });
     assert.equal(f.view().screen, "preparation");
     assert.equal(f.view().storageNotice, "");
-    assert.equal(
-      validateRogueSave(shared.values.get(ROGUE_SAVE_KEY)).status,
-      "valid",
-    );
+    assert.equal(validateRogueSave(activeSave(shared)).status, "valid");
     f.controller.dispose();
   }
 });
@@ -579,10 +582,7 @@ test("R3.2.2: historical saves remain untouched until a confirmed replacement", 
     assert.equal(JSON.stringify(shared.values.get(ROGUE_SAVE_KEY)), before);
     assert.equal(f.view().screen, "home");
     await f.send({ type: "new", seed: 7, replace: true });
-    assert.equal(
-      validateRogueSave(shared.values.get(ROGUE_SAVE_KEY)).status,
-      "valid",
-    );
+    assert.equal(validateRogueSave(activeSave(shared)).status, "valid");
     assert.equal("target" in f.view().puzzle!, false);
     assert.equal(f.view().puzzle!.seconds, 95);
     assert.deepEqual(shared.values.get("shortest:save:v3"), { xp: 777 });

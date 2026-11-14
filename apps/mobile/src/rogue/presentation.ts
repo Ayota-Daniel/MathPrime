@@ -1,4 +1,4 @@
-import { CARDS, MAJOR_UPGRADES } from "@shortest/engine/rogue-v1";
+import { CARDS, presentCard, editExpression } from "@shortest/engine/rogue-v1";
 import type { CardId, Effect, Offer } from "@shortest/engine/rogue-v1";
 import type { RoguePuzzleView } from "@shortest/engine/rogue-v1/controller";
 export const BOSS_NAMES = [
@@ -7,11 +7,7 @@ export const BOSS_NAMES = [
   "L’Architecte des nombres",
 ];
 export function cardDescription(id: CardId, level = 1) {
-  const terms =
-    level > 1 && id in MAJOR_UPGRADES
-      ? MAJOR_UPGRADES[id as keyof typeof MAJOR_UPGRADES]
-      : CARDS[id];
-  return { name: CARDS[id].name, ...terms };
+  return presentCard(id, level);
 }
 export function effectDuration(id: CardId, remaining = CARDS[id].duration) {
   if (remaining === null) return "Toute la run";
@@ -53,10 +49,5 @@ export function insertToken(
   selection: { start: number; end: number },
   token: string,
 ) {
-  const from = Math.min(text.length, selection.start);
-  const to = Math.max(from, Math.min(text.length, selection.end));
-  return {
-    text: text.slice(0, from) + token + text.slice(to),
-    selection: { start: from + token.length, end: from + token.length },
-  };
+  return editExpression(text, selection, { type: "insert", token });
 }

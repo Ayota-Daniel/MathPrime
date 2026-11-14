@@ -7,3 +7,8 @@ export * from './rewards';
 export * from './run';
 export * from './simulator';
 export * from './hints';
+export * from './expression-edit';
+export * from './diagnostics';
+export * from './card-presentation';
+export { ARCHIVE_STATUS_LABELS } from './run-history';
+export type { RunArchive } from './run-history';

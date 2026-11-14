@@ -1172,3 +1172,15 @@
   cursor: pointer;
   font-size: 0.85rem;
 }
+
+.rogue-extras {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.rogue-extras [role="alertdialog"] {
+  margin-top: 12px;
+  padding: 16px;
+  border: 1px solid #dfe4ec;
+  border-radius: 12px;
+}

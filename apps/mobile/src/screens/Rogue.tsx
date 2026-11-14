@@ -26,6 +26,7 @@ import {
   NativeSummary,
   NativeBuild,
 } from "../rogue/Panels";
+import { NativeExtras, NativeDiagnostics } from "../rogue/Extras";
 import { s } from "../rogue/styles";
 
 export function Rogue({
@@ -46,7 +47,7 @@ export function Rogue({
     ) {
       Alert.alert(
         "Remplacer la session ?",
-        "La sauvegarde actuelle sera remplacée par une nouvelle run.",
+        "La run actuelle sera archivée avant son remplacement. Une partie inachevée sera marquée interrompue.",
         [
           { text: "Annuler", style: "cancel" },
           {
@@ -180,7 +181,9 @@ export function Rogue({
               accessibilityLabel="Chargement de la session"
             />
           )}
-          {(error || view.storageError || view.message) && (
+          {(error ||
+            view.storageError ||
+            (view.message && !view.diagnostics.length)) && (
             <Text accessibilityRole="alert" style={s.error}>
               {error || view.storageError || view.message}
             </Text>
@@ -194,11 +197,19 @@ export function Rogue({
               disabled={busy}
             />
           )}
+          <NativeDiagnostics errors={view.diagnostics} />
           {view.storageNotice && (
             <Text style={s.note}>{view.storageNotice}</Text>
           )}
           {view.screen === "home" && (
-            <NativeHome view={view} disabled={disabled} send={send} />
+            <>
+              <NativeExtras
+                entries={view.history}
+                disabled={disabled}
+                onDelete={(id) => send({ type: "delete-archive", id })}
+              />
+              <NativeHome view={view} disabled={disabled} send={send} />
+            </>
           )}
           {["preparation", "playing"].includes(view.screen) && view.puzzle && (
             <NativePuzzle view={view} disabled={disabled} send={send} />
