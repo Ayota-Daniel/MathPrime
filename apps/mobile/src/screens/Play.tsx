@@ -20,7 +20,7 @@ export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'P
   const mode = route.params.mode as Mode;
   const { session, rogueSelectionFailed, start, press, del, clear, submit, next, tick, hint, chooseModifier, clearSoftFeedback, quit } = useGame();
 
-  useEffect(() => { start(mode, loadTable(mode)); void audio.switchMusic(mode === 'rogue' ? 'rogue' : 'main'); }, [mode, start]);
+  useEffect(() => { if (mode === 'rogue') { navigation.replace('Rogue'); return; } start(mode, loadTable(mode)); void audio.switchMusic('main'); }, [mode, start, navigation]);
 
   // timer Free Skill + bip "tick" sous 5 s
   useEffect(() => {
@@ -33,6 +33,7 @@ export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'P
     return () => clearInterval(id);
   }, [mode, tick]);
 
+  if (mode === 'rogue') return null;
   if (rogueSelectionFailed || session?.rogue?.over) {
     return (
       <View className="flex-1 bg-bg">
@@ -92,7 +93,7 @@ export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'P
             <Text className="font-bold text-[60px]">{p.target}</Text>
             <View className="flex-row gap-[6px] mt-[4px]">
               <Chip>Niveau {p.difficulty}</Chip>
-              <Chip bg="#FBEFE0" color="#B5651d">{mode === 'rogue' ? 'minimum trouvé' : 'optimal'} · {s.optimalOperands}</Chip>
+              <Chip bg="#FBEFE0" color="#B5651d">optimal · {s.optimalOperands}</Chip>
             </View>
           </View>
 

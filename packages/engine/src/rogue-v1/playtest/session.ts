@@ -71,6 +71,11 @@ export class PlaytestSession {
     const pending = this.screen === 'playing' ? Math.max(0, this.clock.now() - this.syncedAt) / 1000 : 0;
     return Math.max(0, this.run.current.seconds - this.run.elapsed - pending);
   }
+  pauseTimer(): void { this.cancelDeadline(); }
+  resumeTimer(): void {
+    this.cancelDeadline();
+    if (this.screen === 'playing') this.armDeadline();
+  }
   private cancelDeadline(): void {
     this.timerGeneration++;
     if (this.deadline !== undefined) this.clock.cancel(this.deadline);

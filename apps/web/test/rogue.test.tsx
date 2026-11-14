@@ -43,10 +43,13 @@ class ManualClock implements Clock {
 }
 const cache = new Map<string, ReturnType<typeof solveRules>>();
 function solution(view: RogueView): string {
-  const rules: Rules = view.puzzle!.rules;
+  const puzzle = view.puzzle!;
+  assert.equal(puzzle.state, "playing");
+  if (puzzle.state !== "playing") throw new Error("Start before solving");
+  const rules: Rules = puzzle.rules;
   const key = JSON.stringify(rules);
   if (!cache.has(key)) cache.set(key, solveRules(rules, DEFAULT_CONFIG.search));
-  return cache.get(key)!.solutions.get(view.puzzle!.target)!.expression;
+  return cache.get(key)!.solutions.get(puzzle.target)!.expression;
 }
 function fixture(seed = 42) {
   const clock = new ManualClock();
@@ -56,8 +59,8 @@ function fixture(seed = 42) {
   send({ type: "new", seed });
   const view = () => controller.getSnapshot();
   function win() {
-    const expression = solution(view());
     send({ type: "start" });
+    const expression = solution(view());
     clock.advance(1_000);
     send({ type: "submit", expression });
     assert.equal(view().result?.success, true);
@@ -75,8 +78,9 @@ test("R3.1: welcome, explicit start, safe view, and no timers in preparation", (
   assert.deepEqual(f.view().puzzle!.rules.numbers, [3, 5, 7]);
   assert.equal(f.clock.jobs.size, 0);
   f.clock.advance(900_000);
-  assert.equal(f.view().remaining, 35);
-  const expression = solution(f.view());
+  assert.equal(f.view().remaining, 0);
+  assert.equal("target" in f.view().puzzle!, false);
+  const expression = "3+3+5*7";
   assert.equal("expression" in f.view().puzzle!, false);
   assert.equal("operands" in f.view().puzzle!, false);
   assert.ok(!JSON.stringify(f.view()).includes(expression));
@@ -127,13 +131,13 @@ test("R3.1: keyboard syntax, right/wrong answers, stars and score supplied by th
 
 test("R3.1: hints remain partial, reduce score by 15 percent and never cap stars", () => {
   const f = fixture();
-  const expression = solution(f.view());
   f.send({ type: "start" });
+  const expression = solution(f.view());
   f.clock.advance(5_000);
   f.controller.refresh();
   f.send({ type: "hint" });
   assert.equal(f.view().hints, 2);
-  assert.equal(f.view().remaining, 30);
+  assert.equal(f.view().remaining, 90);
   assert.ok(!f.view().hintMessages[0].includes(expression));
   f.send({ type: "hint" });
   assert.equal(new Set(f.view().hintMessages).size, 2);
@@ -147,7 +151,7 @@ test("R3.1: automatic timeout, stale callbacks, foreground catchup, disposal and
   const f = fixture();
   f.send({ type: "start" });
   const stale = [...f.clock.jobs.values()][0].callback;
-  f.clock.advance(35_000);
+  f.clock.advance(95_000);
   assert.equal(f.view().screen, "result");
   assert.equal(f.view().lives, 2);
   stale();
@@ -156,7 +160,7 @@ test("R3.1: automatic timeout, stale callbacks, foreground catchup, disposal and
   assert.equal(f.view().lives, 2);
   f.next();
   f.send({ type: "start" });
-  f.clock.time += 40_000;
+  f.clock.time += 100_000;
   f.controller.refresh();
   assert.equal(f.view().result?.cause, "timeout");
   assert.equal(f.view().lives, 1);
@@ -165,9 +169,10 @@ test("R3.1: automatic timeout, stale callbacks, foreground catchup, disposal and
   f.controller.dispose();
   f.controller.dispose();
   assert.equal(f.clock.jobs.size, 0);
-  assert.equal(f.view().screen, "ended");
-  assert.equal(f.view().endCause, "abandoned");
-  f.send({ type: "new", seed: 5 });
+  assert.equal(f.view().screen, "playing");
+  // Leaving a screen now pauses its timers; it no longer abandons a saved run.
+  f.controller.attach();
+  f.send({ type: "new", seed: 5, replace: true });
   assert.equal(f.view().lives, 3);
   assert.equal(f.view().score, 0);
   f.controller.dispose();
@@ -274,8 +279,8 @@ test("R3.1: card constraints and healing/protection use existing validated engin
     }
     f.send({ type: "choose", index: index + 1 });
     assert.equal(f.view().puzzle!.rules.requireSubtraction, true);
-    const expression = solution(f.view()) + "+3-3";
     f.send({ type: "start" });
+    const expression = solution(f.view()) + "+3-3";
     f.send({ type: "submit", expression });
     assert.equal(f.view().result?.success, true);
     assert.equal(
@@ -304,7 +309,7 @@ test("R3.1: all boss phases, retry, victory and optional survival preserve offic
   f.send({ type: "survival" });
   for (let i = 0; i < 3; i++) {
     f.send({ type: "start" });
-    f.clock.advance(100_000);
+    f.clock.advance(f.view().puzzle!.seconds * 1_000);
     const feedback = renderToStaticMarkup(
       <RogueResult view={f.view()} busy={false} send={f.send} />,
     );
@@ -361,6 +366,7 @@ test("R3.1: defeat and confirmed abandonment end locally, stale async actions ca
   assert.equal(f.view().officialVictory, false);
   f.send({ type: "new", seed: 0 });
   const revision = f.view().revision;
+  f.send({ type: "abandon" });
   f.controller.dispose();
   f.controller.dispatch({ type: "start" }, revision);
   assert.equal(f.view().screen, "ended");
@@ -425,4 +431,32 @@ test("R3.1: contextual healing and insurance rewards apply once with their actua
     f.controller.dispose();
   }
   assert.equal(missing.size, 0);
+});
+
+test("R3.2.2: every preparation hides the target in rendered Web markup", () => {
+  const f = fixture();
+  for (let stage = 0; stage < 18; stage++) {
+    const prepared = f.view();
+    assert.equal(prepared.puzzle!.state, "preparation");
+    const html = renderToStaticMarkup(
+      <RoguePuzzle view={prepared} busy={false} send={f.send} />,
+    );
+    assert.ok(!html.includes('class="rogue-target"'));
+    assert.match(html, /Cible masquée/);
+    assert.match(html, /Règles de base/);
+    assert.equal(html.includes("Prêt pour votre run"), stage === 0);
+    f.send({ type: "start" });
+    const active = f.view();
+    assert.equal(active.puzzle!.state, "playing");
+    assert.equal(active.remaining, Math.ceil(prepared.puzzle!.seconds));
+    const playing = renderToStaticMarkup(
+      <RoguePuzzle view={active} busy={false} send={f.send} />,
+    );
+    assert.match(playing, /class="rogue-target"/);
+    assert.ok(!playing.includes("Cible masquée"));
+    f.send({ type: "submit", expression: solution(active) });
+    f.next();
+    if (f.view().screen === "victory") f.send({ type: "survival" });
+  }
+  f.controller.dispose();
 });

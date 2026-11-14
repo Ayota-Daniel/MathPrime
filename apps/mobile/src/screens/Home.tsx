@@ -10,7 +10,7 @@ const MODES: { id: string; name: string; tg: string; color: string; icon: Lucide
   { id: 'classic', name: 'Classique', tg: '100 niveaux · gate 3★', color: '#5B5BD6', icon: Target },
   { id: 'daily', name: 'Daily', tg: 'Un défi par jour', color: '#179C6B', icon: Calendar },
   { id: 'freeskill', name: 'Free Skill', tg: 'Chrono · adaptatif', color: '#E8A317', icon: Zap },
-  { id: 'rogue', name: 'Rogue-like', tg: '3 vies · draft', color: '#E5484D', icon: Swords },
+  { id: 'rogue', name: 'Rogue', tg: '3 actes · 12 cartes · 3 boss', color: '#E5484D', icon: Swords },
 ];
 
 function ModeCard({ name, tg, color, icon: Icon, onPress }: { name: string; tg: string; color: string; icon: LucideIcon; onPress: () => void }) {
@@ -35,7 +35,7 @@ function FlatBtn({ label, icon: Icon, color, onPress }: { label: string; icon: L
 }
 
 export function Home({ navigation }: NativeStackScreenProps<RootStack, 'Home'>) {
-  const go = (mode: string) => navigation.navigate('Play', { mode });
+  const go = (mode: string) => mode === 'rogue' ? navigation.navigate('Rogue') : navigation.navigate('Play', { mode });
   return (
     <View className="flex-1 bg-bg">
       <TopBar />

@@ -33,7 +33,7 @@ export interface Config {
 }
 export const DEFAULT_CONFIG: Config = {
   lives: 3, hints: 3, ordinaryPerAct: 3, bossPhases: [2, 2, 3],
-  seconds: [35, 45, 60, 75, 90], minimumSeconds: 25, maximumSeconds: 120,
+  seconds: [95, 105, 115, 125, 135], minimumSeconds: 60, maximumSeconds: 180,
   maxLengthInflation: 2, minimumTargets: 2, scoreBase: 100,
   bossRewards: [150, 250, 500], hintPenalty: 0.15, scoreBounds: [0.5, 2.5],
   search: { maxOperands: 6, magnitude: 500, maxTarget: 150, maxStates: 350_000 },

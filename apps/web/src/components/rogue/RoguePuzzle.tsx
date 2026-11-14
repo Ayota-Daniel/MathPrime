@@ -24,7 +24,13 @@ export function encounterName(view: RogueView): string {
     ? `Boss ${view.phase.act} · phase ${view.phase.index + 1}`
     : `Acte ${view.phase.act} · puzzle ${view.phase.index + 1} sur 3`;
 }
-export function PuzzleRules({ puzzle }: { puzzle: WebPuzzle }) {
+export function PuzzleRules({
+  puzzle,
+  showBaseRules = false,
+}: {
+  puzzle: WebPuzzle;
+  showBaseRules?: boolean;
+}) {
   const constraints = Object.entries(puzzle.rules.minimumOccurrences)
     .filter(([, count]) => count > 0)
     .map(([digit, count]) => `Au moins ${count} fois le chiffre ${digit}`);
@@ -49,9 +55,13 @@ export function PuzzleRules({ puzzle }: { puzzle: WebPuzzle }) {
             .join("  ")}
         </span>
       </p>
-      <small>
-        Chiffres réutilisables. Sans parenthèses, multiplication prioritaire.
-      </small>
+      <details open={showBaseRules}>
+        <summary>Règles de base</summary>
+        <small>
+          Chiffres réutilisables. Sans parenthèses, multiplication prioritaire.
+          Visez une expression courte.
+        </small>
+      </details>
       {constraints.length > 0 && (
         <ul aria-label="Contraintes de cette épreuve">
           {constraints.map((constraint) => (
@@ -83,6 +93,7 @@ function MathEntry({
   function insert(value: string) {
     const start = field.current?.selectionStart ?? input.length;
     const end = field.current?.selectionEnd ?? start;
+    if (input.length - (end - start) + value.length > 150) return;
     setInput(input.slice(0, start) + value + input.slice(end));
     requestAnimationFrame(() => {
       field.current?.focus();
@@ -206,7 +217,7 @@ export function RoguePuzzle({
   send: (action: WebAction) => void;
 }) {
   const puzzle = view.puzzle!;
-  const preparing = view.screen === "preparation";
+  const preparing = puzzle.state === "preparation";
   const boss = view.phase.boss;
   const bossCopy = [
     "En première phase, une solution optimale donne 8 secondes de plus à la prochaine tentative de phase 2.",
@@ -215,7 +226,7 @@ export function RoguePuzzle({
   ];
   return (
     <section
-      className={`rogue-puzzle-panel${boss ? " rogue-boss-panel" : ""}`}
+      className={`rogue-puzzle-panel${boss ? " rogue-boss-panel" : ""}${preparing && !puzzle.introduction ? " rogue-short-preparation" : ""}`}
       aria-labelledby="rogue-title"
     >
       <div className="rogue-puzzle-heading">
@@ -235,17 +246,43 @@ export function RoguePuzzle({
         {boss
           ? BOSS_NAMES[view.phase.act - 1]
           : preparing
-            ? "Prenez connaissance des règles."
+            ? puzzle.introduction === "run"
+              ? "Prêt pour votre run ?"
+              : "Prochaine épreuve."
             : "Atteignez la cible."}
       </h1>
-      {boss && (
+      {preparing && boss && puzzle.introduction === "boss" && (
         <p className="rogue-boss-copy">{bossCopy[view.phase.act - 1]}</p>
       )}
-      <div className="rogue-target">
-        <span>Cible à atteindre</span>
-        <strong>{puzzle.target}</strong>
-      </div>
-      <PuzzleRules puzzle={puzzle} />
+      {preparing && puzzle.introduction === "act" && (
+        <p>Acte {view.phase.act}. Découvrez les contraintes de cette étape.</p>
+      )}
+      {preparing && puzzle.introduction === "survival" && (
+        <p>
+          Votre victoire est acquise. La survie ajoute progressivement de la
+          pression.
+        </p>
+      )}
+      {preparing && puzzle.introduction === "changes" && (
+        <p>
+          Votre build ou vos contraintes ont changé. Vérifiez-les avant de
+          partir.
+        </p>
+      )}
+      {puzzle.state === "playing" ? (
+        <div className="rogue-target">
+          <span>Cible à atteindre</span>
+          <strong>{puzzle.target}</strong>
+        </div>
+      ) : (
+        <p className="rogue-hidden-target">
+          Cible masquée jusqu’au démarrage du chronomètre.
+        </p>
+      )}
+      <PuzzleRules
+        puzzle={puzzle}
+        showBaseRules={preparing && puzzle.introduction === "run"}
+      />
       {preparing ? (
         <div className="rogue-prepare">
           <p>

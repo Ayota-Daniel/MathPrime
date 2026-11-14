@@ -154,9 +154,9 @@ test('R1: effect combinations are independent of card order and timer caps apply
     assert.equal(scoreCoefficient(effects, true, cfg), scoreCoefficient(reversed, true, cfg));
     assert.equal(puzzleScore(cfg, effects, 3, 1, 2), puzzleScore(cfg, reversed, 3, 1, 2));
   }
-  assert.equal(puzzleSeconds(cfg, [effect('T5'), effect('T1')], phaseAt(0, cfg), -100), 25);
-  assert.equal(puzzleSeconds(cfg, [effect('T2')], phaseAt(0, cfg), 500), 120);
-  assert.equal(puzzleSeconds(cfg, [effect('T2'), effect('T5'), effect('E3')], phaseAt(0, cfg), 0), 52);
+  assert.equal(puzzleSeconds(cfg, [effect('T5'), effect('T1')], phaseAt(0, cfg), -100), 60);
+  assert.equal(puzzleSeconds(cfg, [effect('T2')], phaseAt(0, cfg), 500), 180);
+  assert.equal(puzzleSeconds(cfg, [effect('T2'), effect('T5'), effect('E3')], phaseAt(0, cfg), 0), 112);
   assert.equal(puzzleScore(cfg, [effect('D3'), effect('T1')], 3, 0, 1), 165);
   assert.equal(puzzleScore(cfg, [effect('D3')], 2, 0, 1), 54);
   assert.equal(scoreCoefficient(Array(10).fill(effect('E1')), true, cfg), 2.5);
@@ -209,11 +209,11 @@ test('R1: last attempt scores before expiry, blood counts successes, fragile car
   assert.equal(run.effects.find(e => e.id === 'E1')!.remaining, 2);
   assert.equal(run.nextSeconds, BALANCE.fragileSeconds);
   run = act(run, { type: 'start' });
-  assert.equal(run.current!.seconds, 35 + 8);
+  assert.equal(run.current!.seconds, 95 + 8);
   assert.equal(run.nextSeconds, 0);
   run = act(run, { type: 'submit', expression: 'bad' });
   assert.equal(run.effects.find(e => e.id === 'E1')!.remaining, 2);
-  assert.equal(act(run, { type: 'start' }).current!.seconds, 35);
+  assert.equal(act(run, { type: 'start' }).current!.seconds, 95);
 });
 
 test('R1: hints consume run reserve, affect score only and never cap stars', () => {
@@ -345,7 +345,7 @@ test('R1: score cannot skip phases; nonoptimal answers exercise perfection and f
   assert.equal(run.stage, 1);
   assert.equal(run.score, 1_000_028);
   assert.equal(run.nextSeconds, -12);
-  assert.equal(act(run, { type: 'start' }).current!.seconds, 25);
+  assert.equal(act(run, { type: 'start' }).current!.seconds, 83);
 });
 
 test('R1: every offered build survives remaining mathematical phases and survival preview', () => {
@@ -397,4 +397,92 @@ test('R1.1: obligation diagnostics distinguish restrictive and suspect without f
   assert.equal(generator.obligationDiagnostics(config(), { ...seven, minimumOccurrences: { 7: 2 } }, 14, [effect('D1')])[0].status, 'unmeasured');
   const tiny = config(); tiny.search.maxStates = 1;
   assert.equal(generator.obligationDiagnostics(tiny, seven, 7, [effect('D1')])[0].status, 'unmeasured');
+});
+
+test("R3.2.2: all time builds keep the minimum and each time modifier stays meaningful", () => {
+  const cfg = config();
+  assert.deepEqual(cfg.seconds, [95, 105, 115, 125, 135]);
+  assert.equal(cfg.minimumSeconds, 60);
+  assert.equal(cfg.maximumSeconds, 180);
+  const timeCards: CardId[] = ["T1", "T2", "T5", "E3"];
+  const phases = [
+    ...Array.from({ length: 17 }, (_, stage) => phaseAt(stage, cfg)),
+    phaseAt(35, cfg),
+    phaseAt(36, cfg),
+    phaseAt(1016, cfg),
+  ];
+  for (let mask = 0; mask < 1 << timeCards.length; mask++) {
+    const effects = timeCards
+      .filter((_, index) => mask & (1 << index))
+      .map((id) => effect(id));
+    for (const phase of phases) {
+      const carries = [
+        -12,
+        -8,
+        0,
+        8,
+        12,
+        ...(phase.act === 1 && phase.boss && phase.index === 1 ? [20] : []),
+      ];
+      for (const carry of carries) {
+        const seconds = puzzleSeconds(cfg, effects, phase, carry);
+        assert.ok(
+          seconds >= 60 && seconds <= 180,
+          JSON.stringify({ effects, phase, carry, seconds }),
+        );
+        for (const id of timeCards.filter(
+          (id) => !effects.some((e) => e.id === id),
+        )) {
+          const changed = puzzleSeconds(
+            cfg,
+            [...effects, effect(id)],
+            phase,
+            carry,
+          );
+          assert.ok(
+            ["T1", "T5"].includes(id) ? changed < seconds : changed > seconds,
+            `Time effect ${id} must survive the floor and ceiling`,
+          );
+        }
+      }
+      const baseline = puzzleSeconds(cfg, effects, phase, 0);
+      assert.ok(puzzleSeconds(cfg, effects, phase, -12) < baseline);
+      assert.ok(puzzleSeconds(cfg, effects, phase, 12) > baseline);
+    }
+  }
+  assert.ok(
+    Math.abs(
+      puzzleSeconds(cfg, [effect("T1"), effect("T5")], phaseAt(0, cfg), -12) -
+        62.05,
+    ) < 1e-9,
+  );
+  assert.equal(
+    puzzleSeconds(cfg, [], phaseAt(36, cfg), 0),
+    puzzleSeconds(cfg, [], phaseAt(1016, cfg), 0),
+  );
+});
+
+test("R3.2.2: generated encounters include all acts, architect pressure and distant survival above 60 s", () => {
+  const cfg = config();
+  const gen = new Generator();
+  const effects = [effect("T1"), effect("T5"), effect("D4", null, 2)];
+  for (const stage of [
+    ...Array.from({ length: 18 }, (_, index) => index),
+    1016,
+  ]) {
+    const result = gen.generate(
+      cfg,
+      effects,
+      phaseAt(stage, cfg),
+      0.25,
+      -12,
+      null,
+    );
+    assert.ok(result.puzzle, JSON.stringify(result.diagnostics));
+    assert.ok(result.puzzle.seconds >= 60);
+    assert.equal(
+      expressionValue(result.puzzle.expression),
+      result.puzzle.target,
+    );
+  }
 });

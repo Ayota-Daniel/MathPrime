@@ -23,12 +23,13 @@ export function renderEffects(effects: Effect[]): string {
     return `  ${effect.id} ${definition.name} niv.${effect.level} — ${duration}${effect.shieldUsed ? ', protection consommée' : ''}\n    ${terms.advantage} / ${terms.drawback}`;
   }).join('\n');
 }
-export function renderRules(puzzle: Puzzle): string {
+export function renderRules(puzzle: Puzzle, revealTarget = true): string {
   const rules = puzzle.rules;
   const obligations = Object.entries(rules.minimumOccurrences).map(([digit, count]) => `au moins ${count} occurrence(s) du ${digit}`);
   if (rules.requireSubtraction) obligations.push('au moins une soustraction');
   if (rules.maxMultiplications !== null) obligations.push(`maximum ${rules.maxMultiplications} multiplication(s)`);
-  return `Cible : ${puzzle.target}\nChiffres : ${rules.numbers.join(', ')} (répétition autorisée). Opérations : ${rules.operations.map(op => op === '*' ? '×' : op === '-' ? '−' : op).join(', ')}.\n` +
+  const target = revealTarget ? `Cible : ${puzzle.target}\n` : 'Cible masquée jusqu’au démarrage.\n';
+  return target + `Chiffres : ${rules.numbers.join(', ')} (répétition autorisée). Opérations : ${rules.operations.map(op => op === '*' ? '×' : op === '-' ? '−' : op).join(', ')}.\n` +
     `Sans parenthèses ; priorité à la multiplication.\nContraintes : ${obligations.join(' ; ') || 'aucune obligation supplémentaire'}.\n` +
     `Précision exigée : ${puzzle.minimumStars} étoile(s) minimum. Temps alloué : ${puzzle.seconds.toFixed(2)} s.\n` +
     `Bornes de validation : totaux de termes et termes multiplicatifs ≤ 500 en valeur absolue.\n` +
@@ -69,7 +70,7 @@ export function renderSession(session: PlaytestSession): string {
     `Vies ${run.lives}/${run.config.lives} | Indices ${run.hints}/${run.config.hints} | Score ${run.score}\n`;
   let content = '';
   if (session.screen === 'preparation' || session.screen === 'playing') {
-    content = `${phaseLabel(run)}\n${bossIntroduction(run)}${renderRules(run.current!)}`;
+    content = `${phaseLabel(run)}\n${bossIntroduction(run)}${renderRules(run.current!, session.screen === 'playing')}`;
     content += session.screen === 'preparation' ? 'PRÉPARATION : le temps ne passe pas. Tapez demarrer quand vous êtes prêt.'
       : `EN JEU — ${session.remainingSeconds().toFixed(1)} s restantes. Réponse définitive : soumettre EXPR.`;
   } else if (session.screen === 'result') {
