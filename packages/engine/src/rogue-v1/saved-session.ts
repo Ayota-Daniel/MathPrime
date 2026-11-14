@@ -4,7 +4,7 @@ import { PlaytestSession } from "./playtest/session";
 
 export const ROGUE_SAVE_KEY = "shortest:rogue:session";
 export const ROGUE_SAVE_VERSION = 2;
-export const ROGUE_RULESET = "rogue-v1-r3.2-1";
+export const ROGUE_RULESET = "rogue-v1-r3.2.2-1";
 export interface JournalEntry {
   at: number;
   command: string;
@@ -233,9 +233,11 @@ export function validateRogueSave(input: unknown): SaveValidation {
     return { status: "invalid", reason: "version" };
   if (raw.version !== 1 && raw.version !== 2)
     return { status: "incompatible", reason: "version" };
-  // Format 1 is the explicitly supported predecessor of this envelope, with the same journal contract.
+  // A version-one envelope is migratable only when its replay contract is explicit.
   const migrated = raw.version === 1;
-  if (migrated && raw.ruleset !== undefined && raw.ruleset !== ROGUE_RULESET)
+  if (typeof raw.ruleset !== "string")
+    return { status: migrated ? "incompatible" : "invalid", reason: "ruleset" };
+  if (raw.ruleset !== ROGUE_RULESET)
     return { status: "incompatible", reason: "ruleset" };
   const save = {
     ...raw,

@@ -33,7 +33,9 @@ export function offerDescription(offer: Offer, effects: Effect[]) {
     duration: effectDuration(offer.card),
   };
 }
-export function constraints(puzzle: RoguePuzzleView): string[] {
+export function constraints(
+  puzzle: Pick<RoguePuzzleView, "rules" | "minimumStars">,
+): string[] {
   const list = Object.entries(puzzle.rules.minimumOccurrences)
     .filter(([, count]) => count > 0)
     .map(([digit, count]) => `Au moins ${count} fois le chiffre ${digit}`);

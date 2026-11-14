@@ -1158,3 +1158,17 @@
     margin-left: 0;
   }
 }
+
+.rogue-hidden-target {
+  color: var(--rogue-muted, #667085);
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+.rogue-short-preparation h1 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+.rogue-rules summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+}

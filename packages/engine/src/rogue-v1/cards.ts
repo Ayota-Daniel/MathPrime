@@ -48,6 +48,7 @@ export const BALANCE = {
   perfectionOptimal: 0.35, perfectionOther: -0.20, perfectionUpgrade: 0.10,
   fragileSeconds: 8, fragileUpgrade: 4, durableUpgradeScore: 0.10,
   rhythmSeconds: 8, architectTimeFactor: 0.85,
+  survivalSecondsPerEncounter: 2, maximumSurvivalTimePenalty: 40,
 };
 export function multiplicationBudget(difficulty: Difficulty): number {
   return difficulty <= 2 ? 1 : difficulty <= 4 ? 2 : 3;
@@ -125,11 +126,32 @@ export function bossRuleVariants(rules: Rules, phase: Phase): RuleVariant[] {
 export function bossRules(rules: Rules, phase: Phase): Rules {
   return bossRuleVariants(rules, phase)[0]?.rules ?? additionalRule(rules, phase.difficulty);
 }
-export function puzzleSeconds(config: Config, effects: Effect[], phase: Phase, carry: number): number {
+export function puzzleSeconds(
+  config: Config,
+  effects: Effect[],
+  phase: Phase,
+  carry: number,
+): number {
   const seconds = effects.reduce((sum, e) => sum + CARDS[e.id].seconds, carry);
-  const factor = effects.reduce((product, e) => product * CARDS[e.id].timeFactor, 1);
-  const bossFactor = phase.boss && phase.act === 3 && phase.index >= 2 ? BALANCE.architectTimeFactor : 1;
-  return clamp((config.seconds[phase.difficulty - 1] + seconds - Math.max(0, phase.survival - 1) * 2) * factor * bossFactor, config.minimumSeconds, config.maximumSeconds);
+  const factor = effects.reduce(
+    (product, e) => product * CARDS[e.id].timeFactor,
+    1,
+  );
+  const bossFactor =
+    phase.boss && phase.act === 3 && phase.index >= 2
+      ? BALANCE.architectTimeFactor
+      : 1;
+  const survivalPenalty = Math.min(
+    BALANCE.maximumSurvivalTimePenalty,
+    Math.max(0, phase.survival - 1) * BALANCE.survivalSecondsPerEncounter,
+  );
+  return clamp(
+    (config.seconds[phase.difficulty - 1] + seconds - survivalPenalty) *
+      factor *
+      bossFactor,
+    config.minimumSeconds,
+    config.maximumSeconds,
+  );
 }
 export function scoreCoefficient(effects: Effect[], optimal: boolean, config: Config): number {
   // Integer percentage points keep score rounding independent of effect iteration order.

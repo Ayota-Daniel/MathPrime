@@ -22,12 +22,19 @@ export type RogueAction =
     }
   | { type: "submit"; expression: string }
   | { type: "choose"; index: number };
-export interface RoguePuzzleView {
-  target: number;
+export type RogueIntroduction =
+  "run" | "act" | "boss" | "survival" | "changes" | null;
+export interface RoguePuzzleRulesView {
   rules: Rules;
   seconds: number;
   minimumStars: number;
+  introduction: RogueIntroduction;
 }
+export type RoguePuzzleView = RoguePuzzleRulesView &
+  (
+    | { state: "preparation"; target?: never }
+    | { state: "playing"; target: number }
+  );
 export interface RogueResultView {
   target: number;
   bossReward: number | null;
@@ -167,7 +174,7 @@ export class RogueController {
             } else
               this.storageNotice =
                 result.status === "incompatible"
-                  ? "Sauvegarde Rogue incompatible : une nouvelle run peut la remplacer avec confirmation."
+                  ? "Sauvegarde Rogue incompatible avec les nouvelles durées (minimum 60 s). Elle est conservée ; une nouvelle run peut la remplacer avec confirmation."
                   : "Sauvegarde Rogue invalide : aucune progression restaurée.";
           }
         } catch {
@@ -440,7 +447,6 @@ export class RogueController {
       };
     const run = session.run;
     const attempt = session.attempts[session.attempts.length - 1];
-    const puzzle = run.current;
     const phase = phaseAt(attempt?.stage ?? run.stage, run.config);
     const reward = [...run.events]
       .reverse()
@@ -466,15 +472,11 @@ export class RogueController {
       majorReward: Boolean(
         reward && (reward.detail as { major: boolean }).major,
       ),
-      remaining: Math.ceil(session.remainingSeconds()),
-      puzzle: puzzle
-        ? {
-            target: puzzle.target,
-            rules: JSON.parse(JSON.stringify(puzzle.rules)) as Rules,
-            seconds: puzzle.seconds,
-            minimumStars: puzzle.minimumStars,
-          }
-        : null,
+      remaining:
+        session.screen === "playing"
+          ? Math.ceil(session.remainingSeconds())
+          : 0,
+      puzzle: this.projectPuzzle(),
       afterResult: session.screen === "result" ? run.status : null,
       result:
         session.screen === "result" && attempt
@@ -519,5 +521,42 @@ export class RogueController {
       endCause: run.endCause,
       nextSeconds: run.nextSeconds,
     };
+  }
+  private projectPuzzle(): RoguePuzzleView | null {
+    const session = this.session;
+    const puzzle = session?.run.current;
+    if (
+      !session ||
+      !puzzle ||
+      !["preparation", "playing"].includes(session.screen)
+    )
+      return null;
+    const visible: RoguePuzzleRulesView = {
+      rules: JSON.parse(JSON.stringify(puzzle.rules)) as Rules,
+      seconds: puzzle.seconds,
+      minimumStars: puzzle.minimumStars,
+      introduction: this.introduction(),
+    };
+    return session.screen === "playing"
+      ? { ...visible, state: "playing", target: puzzle.target }
+      : { ...visible, state: "preparation" };
+  }
+  private introduction(): RogueIntroduction {
+    const session = this.session!;
+    const previous = session.attempts[session.attempts.length - 2];
+    if (!previous) return "run";
+    const phase = phaseAt(session.run.stage, session.run.config);
+    const before = phaseAt(previous.stage, session.run.config);
+    if (phase.survival && !before.survival) return "survival";
+    if (phase.act !== before.act) return "act";
+    if (phase.boss && !before.boss) return "boss";
+    const build = (effects: Effect[]) =>
+      effects.map(({ id, level }) => [id, level]);
+    const changed =
+      JSON.stringify(previous.puzzle.rules) !==
+        JSON.stringify(session.run.current!.rules) ||
+      JSON.stringify(build(previous.effectsBefore)) !==
+        JSON.stringify(build(session.run.effects));
+    return changed ? "changes" : null;
   }
 }

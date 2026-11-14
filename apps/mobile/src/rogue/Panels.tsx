@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Text, View, TextInput } from "react-native";
 import { CARDS } from "@shortest/engine/rogue-v1";
 import type {
@@ -85,16 +85,25 @@ export function NativeHome({ view, disabled, send }: PanelProps) {
 
 export function NativePuzzle({ view, disabled, send }: PanelProps) {
   const puzzle = view.puzzle!;
+  const preparing = puzzle.state === "preparation";
+  const [showRules, setShowRules] = useState(puzzle.introduction === "run");
+  useEffect(() => {
+    setShowRules(
+      puzzle.state === "preparation" && puzzle.introduction === "run",
+    );
+  }, [puzzle.state, puzzle.introduction, view.stage]);
   return (
     <View style={[s.card, view.phase.boss && s.boss]}>
       <Text style={s.title}>
         {view.phase.boss
           ? BOSS_NAMES[view.phase.act - 1]
-          : view.screen === "preparation"
-            ? "Préparez votre rencontre"
+          : preparing
+            ? puzzle.introduction === "run"
+              ? "Prêt pour votre run ?"
+              : "Prochaine épreuve"
             : "Atteignez la cible"}
       </Text>
-      {view.phase.boss && (
+      {preparing && view.phase.boss && puzzle.introduction === "boss" && (
         <Text style={s.body}>
           {view.phase.act === 1
             ? "Une solution optimale en phase 1 donne +8 s à la prochaine tentative de phase 2."
@@ -103,14 +112,36 @@ export function NativePuzzle({ view, disabled, send }: PanelProps) {
               : "Le build, la précision, puis une dernière phase sous pression."}
         </Text>
       )}
-      <Text style={s.caption}>CIBLE À ATTEINDRE</Text>
-      <Text style={s.target}>{puzzle.target}</Text>
+      {preparing && puzzle.introduction === "act" && (
+        <Text style={s.body}>
+          Acte {view.phase.act}. Vérifiez les contraintes de cette étape.
+        </Text>
+      )}
+      {preparing && puzzle.introduction === "survival" && (
+        <Text style={s.body}>
+          Votre victoire est acquise. La survie ajoute progressivement de la
+          pression.
+        </Text>
+      )}
+      {preparing && puzzle.introduction === "changes" && (
+        <Text style={s.body}>
+          Votre build ou vos contraintes ont changé. Vérifiez-les avant de
+          partir.
+        </Text>
+      )}
+      {puzzle.state === "playing" ? (
+        <>
+          <Text style={s.caption}>CIBLE À ATTEINDRE</Text>
+          <Text style={s.target}>{puzzle.target}</Text>
+        </>
+      ) : (
+        <Text style={s.caption}>
+          Cible masquée jusqu’au démarrage du chronomètre.
+        </Text>
+      )}
       <View style={s.rules}>
         <Text style={s.bold}>
           {puzzle.rules.numbers.join(" · ")} avec + − ×
-        </Text>
-        <Text style={s.caption}>
-          Chiffres réutilisables, sans parenthèses. Multiplication prioritaire.
         </Text>
         {constraints(puzzle).map((rule) => (
           <Text key={rule} style={s.rule}>
@@ -118,10 +149,23 @@ export function NativePuzzle({ view, disabled, send }: PanelProps) {
           </Text>
         ))}
       </View>
-      {view.screen === "preparation" ? (
+      <Button
+        label={showRules ? "Fermer les règles de base" : "Règles de base"}
+        onPress={() => setShowRules(!showRules)}
+      />
+      {showRules && (
+        <Text style={s.caption}>
+          Chiffres réutilisables, sans parenthèses. Multiplication prioritaire.
+          Visez une expression courte.
+        </Text>
+      )}
+      {preparing ? (
         <>
           <Text style={s.body}>
-            {puzzle.seconds} secondes. Le temps commence au clic.
+            {puzzle.seconds.toLocaleString("fr-FR", {
+              maximumFractionDigits: 2,
+            })}{" "}
+            secondes. Le temps commence au clic.
           </Text>
           <Button
             label={

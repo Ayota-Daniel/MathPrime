@@ -54,19 +54,21 @@ test('R2.1: preparation is untimed, starts explicitly, deadline expires without 
   const { session, clock, notifications } = fixture();
   clock.advance(100_000);
   assert.equal(session.run.elapsed, 0);
-  assert.equal(session.remainingSeconds(), 35);
+  assert.equal(session.remainingSeconds(), 95);
   assert.equal(clock.jobs.size, 0);
+  assert.ok(!renderSession(session).includes(`Cible : ${session.run.current!.target}`));
   session.command('demarrer');
+  assert.ok(renderSession(session).includes(`Cible : ${session.run.current!.target}`));
   const stale = [...clock.jobs.values()][0].callback;
   clock.advance(12_000);
-  assert.equal(session.remainingSeconds(), 23);
+  assert.equal(session.remainingSeconds(), 83);
   session.command('effets');
   assert.equal(session.run.elapsed, 12);
-  clock.advance(23_000);
+  clock.advance(83_000);
   assert.equal(session.screen, 'result');
   assert.equal(session.run.lives, 2);
   assert.equal(session.attempts[0].cause, 'timeout');
-  assert.equal(session.attempts[0].elapsedSeconds, 35);
+  assert.equal(session.attempts[0].elapsedSeconds, 95);
   stale(); stale();
   clock.advance(100_000);
   assert.equal(notifications(), 1);
@@ -83,7 +85,7 @@ test('R2.1: preparation is untimed, starts explicitly, deadline expires without 
 test('R2.1: deadline wins input races and quit at a deadline still closes the session', () => {
   const { session, clock } = fixture();
   session.command('demarrer');
-  clock.time = 35_001; // Simulates a delayed event loop before the timer callback.
+  clock.time = 95_001; // Simulates a delayed event loop before the timer callback.
   session.command(`soumettre ${session.run.current!.expression}`);
   assert.equal(session.run.lives, 2);
   assert.equal(session.attempts[0].expression, null);
@@ -91,7 +93,7 @@ test('R2.1: deadline wins input races and quit at a deadline still closes the se
   assert.equal(session.report().outcome, 'abandoned');
   const other = fixture();
   other.session.command('demarrer');
-  other.clock.time = 40_000;
+  other.clock.time = 100_000;
   other.session.command('quitter');
   assert.equal(other.session.screen, 'ended');
   assert.equal(other.clock.jobs.size, 0);

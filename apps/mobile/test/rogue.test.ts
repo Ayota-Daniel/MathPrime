@@ -78,7 +78,7 @@ test("Android: reopen via native adapter and AppState-like wake expires once wit
   await second.hydrate();
   assert.equal(second.getSnapshot().hasSaved, true);
   await second.dispatch({ type: "continue" }, second.getSnapshot().revision);
-  assert.equal(second.getSnapshot().remaining, 23);
+  assert.equal(second.getSnapshot().remaining, 83);
   assert.equal(second.getSnapshot().hints, 2);
   second.suspend();
   wall += 100_000;
@@ -97,8 +97,6 @@ test("Android: touch insertion replaces selection and descriptions show exact co
     selection: { start: 3, end: 3 },
   });
   const rules = constraints({
-    target: 1,
-    seconds: 35,
     minimumStars: 2,
     rules: {
       numbers: [3, 5, 7],
@@ -116,4 +114,39 @@ test("Android: touch insertion replaces selection and descriptions show exact co
   );
   assert.match(card.operation, /D1/);
   assert.match(card.operation, /Serment du 7/);
+});
+
+
+test("Android: preparation restores hidden and start reveals target with its full budget", async () => {
+  const raw = rawStorage();
+  let wall = 1_000_000;
+  const clock = { now: () => 0, schedule: () => 0, cancel: () => {} };
+  const env = { civilNow: () => wall, newId: () => "android-preparation" };
+  const first = new RogueController(clock, createNativeRogueStorage(raw), env);
+  await first.hydrate();
+  await first.dispatch({ type: "new", seed: 42 }, first.getSnapshot().revision);
+  assert.equal("target" in first.getSnapshot().puzzle!, false);
+  assert.equal(first.getSnapshot().remaining, 0);
+  first.dispose();
+  wall += 900_000;
+  const restored = new RogueController(
+    clock,
+    createNativeRogueStorage(raw),
+    env,
+  );
+  await restored.hydrate();
+  await restored.dispatch(
+    { type: "continue" },
+    restored.getSnapshot().revision,
+  );
+  const prepared = restored.getSnapshot();
+  assert.equal(prepared.puzzle!.state, "preparation");
+  assert.equal("target" in prepared.puzzle!, false);
+  assert.equal(prepared.remaining, 0);
+  await restored.dispatch({ type: "start" }, prepared.revision);
+  const active = restored.getSnapshot();
+  assert.equal(active.puzzle!.state, "playing");
+  assert.equal(typeof active.puzzle!.target, "number");
+  assert.equal(active.remaining, 95);
+  restored.dispose();
 });

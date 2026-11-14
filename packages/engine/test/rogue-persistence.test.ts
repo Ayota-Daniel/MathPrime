@@ -105,12 +105,13 @@ async function fixture(shared = memory(), clock = new ManualClock()) {
   const send = (action: RogueAction) =>
     controller.dispatch(action, view().revision);
   async function win() {
+    await send({ type: "start" });
     const puzzle = view().puzzle!;
+    if (puzzle.state !== "playing") throw new Error("Start before solving");
     const expression = solveRules(
       puzzle.rules,
       DEFAULT_CONFIG.search,
     ).solutions.get(puzzle.target)!.expression;
-    await send({ type: "start" });
     clock.advance(1_123.456);
     await send({ type: "submit", expression });
     assert.equal(view().result?.success, true);
@@ -134,8 +135,9 @@ test("R3.2: save during puzzle, deterministic restore, hidden witnesses and elap
   let f = await fixture();
   assert.equal(f.view().hasSaved, false);
   await f.send({ type: "new", seed: 42 });
-  const target = f.view().puzzle!.target;
+  assert.equal("target" in f.view().puzzle!, false);
   await f.send({ type: "start" });
+  const target = f.view().puzzle!.target!;
   f.clock.advance(5_111.123);
   await f.send({ type: "hint" });
   const raw = f.shared.values.get(ROGUE_SAVE_KEY);
@@ -147,7 +149,7 @@ test("R3.2: save during puzzle, deterministic restore, hidden witnesses and elap
   assert.equal(f.view().storageError, "");
   assert.equal(f.view().puzzle!.target, target);
   assert.equal(f.view().hints, 2);
-  assert.equal(f.view().remaining, 20);
+  assert.equal(f.view().remaining, 80);
   const expression = solveRules(
     f.view().puzzle!.rules,
     DEFAULT_CONFIG.search,
@@ -175,7 +177,7 @@ test("R3.2: offline expiration costs one life only, repeated reloads do not dupl
   await f.next();
   assert.equal(f.view().screen, "preparation");
   f = await reopen(f, 900_000);
-  assert.equal(f.view().remaining, 35);
+  assert.equal(f.view().remaining, 0);
   assert.equal(f.view().lives, 2);
   f.controller.dispose();
 });
@@ -201,9 +203,9 @@ test("R3.2: background/foreground resumes from civil time without resetting time
   assert.equal(f.clock.jobs.size, 0);
   f.clock.civil += 12_000;
   await f.controller.wake();
-  assert.equal(f.view().remaining, 23);
+  assert.equal(f.view().remaining, 83);
   f.controller.suspend();
-  f.clock.civil += 30_000;
+  f.clock.civil += 100_000;
   await f.controller.wake();
   assert.equal(f.view().lives, 2);
   assert.equal(f.view().failures, 1);
@@ -281,13 +283,13 @@ test("R3.2: invalid syntax stays replayable; corrupt, incompatible and altered c
   f.controller.dispose();
 });
 
-test("R3.2: version-one envelope migrates without modifying the preexisting profile", async () => {
+test("R3.2: version-one envelope with an explicit current contract migrates without modifying the preexisting profile", async () => {
   let f = await fixture();
   f.shared.values.set("shortest:save:v3", { xp: 777, dailyDone: "2026-11-13" });
   await f.send({ type: "new", seed: 42 });
   await f.win();
   const raw = f.shared.values.get(ROGUE_SAVE_KEY) as Record<string, unknown>;
-  const { ruleset, clockAdjusted, ...legacy } = raw;
+  const { clockAdjusted, ...legacy } = raw;
   f.shared.values.set(ROGUE_SAVE_KEY, { ...legacy, version: 1 });
   f = await reopen(f, 0);
   assert.equal(f.view().score, 100);
@@ -491,10 +493,102 @@ test("R3.2: refresh while a timer start is being saved cannot expose uncommitted
   f.clock.advance(5_000);
   f.controller.refresh();
   assert.equal(f.view().screen, "preparation");
-  assert.equal(f.view().remaining, 35);
+  assert.equal(f.view().remaining, 0);
   gate.release();
   await committing;
   assert.equal(f.view().screen, "playing");
-  assert.equal(f.view().remaining, 30);
+  assert.equal(f.view().remaining, 90);
   f.controller.dispose();
+});
+
+test("R3.2.2: start publishes target and timer together, without generating again", async () => {
+  const f = await fixture();
+  const { Generator } = await import("../src/rogue-v1/generator");
+  const original = Generator.prototype.generate;
+  let generations = 0;
+  Generator.prototype.generate = function (...args) {
+    generations++;
+    return original.apply(this, args);
+  };
+  try {
+    await f.send({ type: "new", seed: 42 });
+    assert.equal(generations, 1);
+    assert.equal(f.view().puzzle?.state, "preparation");
+    assert.equal("target" in f.view().puzzle!, false);
+    assert.equal(f.view().remaining, 0);
+    f.clock.advance(1_000_000);
+    await f.send({ type: "start" });
+    assert.equal(generations, 1);
+    const active = f.view().puzzle!;
+    assert.equal(active.state, "playing");
+    assert.equal(active.target, 41);
+    assert.equal(f.view().remaining, 95);
+    assert.equal(f.clock.jobs.size, 1);
+    f.clock.advance(10_000);
+    f.controller.refresh();
+    assert.equal(f.view().remaining, 85);
+  } finally {
+    Generator.prototype.generate = original;
+    f.controller.dispose();
+  }
+});
+
+test("R3.2.2: every preparation, including bosses and survival, conceals the target after restore", async () => {
+  let f = await fixture();
+  await f.send({ type: "new", seed: 42 });
+  for (let stage = 0; stage < 18; stage++) {
+    assert.equal(f.view().puzzle?.state, "preparation");
+    assert.equal("target" in f.view().puzzle!, false);
+    assert.ok(!JSON.stringify(f.view()).includes('"target"'));
+    assert.ok(f.view().puzzle!.seconds >= 60);
+    if (stage === 0) assert.equal(f.view().puzzle!.introduction, "run");
+    if (stage === 1) assert.equal(f.view().puzzle!.introduction, null);
+    if (f.view().phase.boss && f.view().phase.index > 0)
+      assert.notEqual(f.view().puzzle!.introduction, "boss");
+    if (stage === 16) assert.equal(f.view().puzzle!.introduction, "survival");
+    f = await reopen(f, 500_000);
+    assert.equal("target" in f.view().puzzle!, false);
+    assert.equal(f.view().remaining, 0);
+    await f.win();
+    await f.next();
+    if (f.view().screen === "victory") await f.send({ type: "survival" });
+  }
+  assert.equal(f.view().officialVictory, true);
+  f.controller.dispose();
+});
+
+test("R3.2.2: historical saves remain untouched until a confirmed replacement", async () => {
+  const { readFileSync } = await import("node:fs");
+  const archived = JSON.parse(
+    readFileSync(
+      new URL("./fixtures/r3.2-saves.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  for (const state of ["preparation", "playing", "timeout"]) {
+    const raw = archived[state];
+    assert.equal(validateRogueSave(raw).status, "incompatible");
+    const shared = memory();
+    shared.values.set(ROGUE_SAVE_KEY, raw);
+    shared.values.set("shortest:save:v3", { xp: 777 });
+    const before = JSON.stringify(raw);
+    const f = await fixture(shared);
+    assert.equal(f.view().hasSaved, false);
+    assert.match(f.view().storageNotice, /incompatible.*60 s/);
+    await f.send({ type: "new", seed: 7 });
+    assert.equal(JSON.stringify(shared.values.get(ROGUE_SAVE_KEY)), before);
+    assert.equal(f.view().screen, "home");
+    await f.send({ type: "new", seed: 7, replace: true });
+    assert.equal(
+      validateRogueSave(shared.values.get(ROGUE_SAVE_KEY)).status,
+      "valid",
+    );
+    assert.equal("target" in f.view().puzzle!, false);
+    assert.equal(f.view().puzzle!.seconds, 95);
+    assert.deepEqual(shared.values.get("shortest:save:v3"), { xp: 777 });
+    f.controller.dispose();
+  }
+  const legacy = { ...archived.playing, version: 1 };
+  delete legacy.ruleset;
+  assert.equal(validateRogueSave(legacy).status, "incompatible");
 });
