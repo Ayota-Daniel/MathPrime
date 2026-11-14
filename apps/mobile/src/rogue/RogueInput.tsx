@@ -1,23 +1,31 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ComponentRef } from "react";
-import { TextInput, Text, View, StyleSheet } from "react-native";
+import { TextInput, Text, View, StyleSheet, Keyboard } from "react-native";
 import { evaluate } from "@shortest/engine";
 import type {
   RogueAction,
   RogueView,
 } from "@shortest/engine/rogue-v1/controller";
 import { Button, Tile } from "../components/ui";
-import { insertToken } from "./presentation";
+import { editExpression } from "@shortest/engine/rogue-v1";
+import type { ExpressionAction, Rules } from "@shortest/engine/rogue-v1";
 
-export function RogueInput({
-  view,
+export function NativeExpressionInput({
+  rules,
   busy,
-  send,
+  onSubmit,
+  onEdit,
+  practice = false,
 }: {
-  view: RogueView;
+  rules: Rules;
   busy: boolean;
-  send: (action: RogueAction) => void;
+  onSubmit: (expression: string) => void;
+  onEdit?: (expression: string) => void;
+  practice?: boolean;
 }) {
+  useEffect(() => {
+    Keyboard.dismiss();
+  }, []);
   const [text, setText] = useState("");
   const cursor = useRef({ start: 0, end: 0 });
   const [selection, setSelection] = useState<
@@ -31,24 +39,29 @@ export function RogueInput({
   const value = /^[357](?:[+*\-][357])*$/.test(normalized)
     ? evaluate(normalized)
     : "—";
-  function token(value: string) {
-    const edit = insertToken(text, cursor.current, value);
-    if (edit.text.length > 150) return;
-    cursor.current = edit.selection;
-    setText(edit.text);
-    setSelection(edit.selection);
+  function edit(action: ExpressionAction) {
+    if (busy) return;
+    const result = editExpression(
+      text,
+      cursor.current,
+      action,
+      rules.operations,
+    );
+    cursor.current = result.selection;
+    setText(result.text);
+    onEdit?.(result.text);
+    setSelection(result.selection);
     input.current?.focus();
   }
-  function erase() {
-    const selection = cursor.current;
-    const from =
-      selection.start === selection.end
-        ? Math.max(0, selection.start - 1)
-        : selection.start;
-    setText(text.slice(0, from) + text.slice(selection.end));
-    cursor.current = { start: from, end: from };
-    setSelection(cursor.current);
-    input.current?.focus();
+  function rejectExternalEdit() {
+    const preserved = { ...cursor.current };
+    input.current?.setNativeProps({ text });
+    Keyboard.dismiss();
+    requestAnimationFrame(() => {
+      cursor.current = preserved;
+      setSelection(preserved);
+      input.current?.focus();
+    });
   }
   return (
     <View style={{ gap: 12 }}>
@@ -57,13 +70,13 @@ export function RogueInput({
         ref={input}
         accessibilityLabel="Votre expression"
         value={text}
-        onChangeText={(value) => {
-          setText(value);
-          setSelection(undefined);
-        }}
+        showSoftInputOnFocus={false}
+        contextMenuHidden
+        onChangeText={rejectExternalEdit}
         selection={selection}
         onSelectionChange={(event) => {
           cursor.current = event.nativeEvent.selection;
+          setSelection(event.nativeEvent.selection);
         }}
         style={styles.input}
         placeholder="3 + 5 × 7…"
@@ -75,50 +88,105 @@ export function RogueInput({
         returnKeyType="done"
         blurOnSubmit={false}
         onSubmitEditing={() => {
-          if (text && !busy) send({ type: "submit", expression: text });
+          if (text && !busy) onSubmit(text);
         }}
       />
       <Text style={styles.muted}>Valeur calculée : {value}</Text>
+      <Text style={styles.muted}>
+        Touchez le champ pour placer le curseur. Les flèches déplacent le
+        curseur ; Sélectionner étend le segment à corriger.
+      </Text>
+      <View style={styles.row}>
+        {(
+          [
+            ["gauche", -1],
+            ["droite", 1],
+          ] as const
+        ).map(([label, direction]) => (
+          <Button
+            key={label}
+            label={direction < 0 ? "← Curseur" : "Curseur →"}
+            disabled={busy}
+            onPress={() => {
+              const position = Math.max(
+                0,
+                Math.min(
+                  text.length,
+                  (direction < 0 ? cursor.current.start : cursor.current.end) +
+                    direction,
+                ),
+              );
+              cursor.current = { start: position, end: position };
+              setSelection(cursor.current);
+              input.current?.focus();
+            }}
+          />
+        ))}
+        <Button
+          label="Sélectionner"
+          disabled={busy || !text}
+          onPress={() => {
+            const start = Math.max(
+              0,
+              Math.min(
+                cursor.current.start,
+                cursor.current.end,
+                text.length - 1,
+              ),
+            );
+            const end = Math.min(
+              text.length,
+              Math.max(
+                start + 1,
+                cursor.current.end +
+                  (cursor.current.end > cursor.current.start ? 1 : 0),
+              ),
+            );
+            cursor.current = { start, end };
+            setSelection(cursor.current);
+            input.current?.focus();
+          }}
+        />
+      </View>
       <View
         collapsable={false}
         pointerEvents={busy ? "none" : "auto"}
         style={{ gap: 10 }}
       >
         <View style={styles.row}>
-          {view.puzzle!.rules.numbers.map((n) => (
+          {rules.numbers.map((n) => (
             <Tile
               key={n}
               label={String(n)}
               kind="num"
-              onPress={() => token(String(n))}
+              onPress={() => edit({ type: "insert", token: String(n) })}
             />
           ))}
         </View>
         <View style={styles.row}>
-          {view.puzzle!.rules.operations.map((op) => (
+          {rules.operations.map((op) => (
             <Tile
               key={op}
               label={op === "*" ? "×" : op === "-" ? "−" : "+"}
               kind="op"
-              onPress={() => token(op)}
+              onPress={() => edit({ type: "insert", token: op })}
             />
           ))}
         </View>
       </View>
       <View style={styles.row}>
         <View style={{ flex: 1 }}>
-          <Button label="Effacer" disabled={busy || !text} onPress={erase} />
+          <Button
+            label="Effacer"
+            disabled={busy || !text}
+            onPress={() => edit({ type: "erase" })}
+          />
         </View>
         <View style={{ flex: 1 }}>
           <Button
             label="Vider"
             disabled={busy || !text}
-            onPress={() => {
-              setText("");
-              cursor.current = { start: 0, end: 0 };
-              setSelection(cursor.current);
-              input.current?.focus();
-            }}
+            onPress={() => edit({ type: "clear" })}
           />
         </View>
       </View>
@@ -126,12 +194,33 @@ export function RogueInput({
         label="Valider ma réponse"
         variant="primary"
         disabled={busy || !text}
-        onPress={() => send({ type: "submit", expression: text })}
+        onPress={() => onSubmit(text)}
       />
-      <Text style={styles.muted}>
-        Une réponse définitive incorrecte peut coûter une vie. Sans parenthèses,
-        multiplication prioritaire.
-      </Text>
+      {!practice && (
+        <Text style={styles.muted}>
+          Une réponse définitive incorrecte peut coûter une vie. Sans
+          parenthèses, multiplication prioritaire.
+        </Text>
+      )}
+    </View>
+  );
+}
+export function RogueInput({
+  view,
+  busy,
+  send,
+}: {
+  view: RogueView;
+  busy: boolean;
+  send: (action: RogueAction) => void;
+}) {
+  return (
+    <View style={{ gap: 12 }}>
+      <NativeExpressionInput
+        rules={view.puzzle!.rules}
+        busy={busy}
+        onSubmit={(expression) => send({ type: "submit", expression })}
+      />
       <Button
         label={`Indice partiel · ${view.hints} restant(s)`}
         disabled={busy || view.hints === 0}

@@ -9,6 +9,8 @@ import {
   Swords,
 } from "lucide-react";
 import { evaluate } from "@shortest/engine";
+import { editExpression } from "@shortest/engine/rogue-v1";
+import type { ExpressionAction, Rules } from "@shortest/engine/rogue-v1";
 import { Button, Tile } from "../ui";
 import { TimerBar } from "../TimerBar";
 import type { RogueView, WebAction, WebPuzzle } from "../../rogue/controller";
@@ -75,42 +77,43 @@ export function PuzzleRules({
     </div>
   );
 }
-function MathEntry({
-  view,
+export function RogueExpressionInput({
+  rules,
   busy,
-  send,
+  onSubmit,
+  onEdit,
+  practice = false,
 }: {
-  view: RogueView;
+  rules: Rules;
   busy: boolean;
-  send: (action: WebAction) => void;
+  onSubmit: (expression: string) => void;
+  onEdit?: (expression: string) => void;
+  practice?: boolean;
 }) {
   const [input, setInput] = useState("");
   const field = useRef<HTMLInputElement>(null);
   useEffect(() => {
     setInput("");
     field.current?.focus();
-  }, [view.stage]);
-  function insert(value: string) {
+  }, []);
+  function edit(action: ExpressionAction) {
+    if (busy) return;
     const start = field.current?.selectionStart ?? input.length;
     const end = field.current?.selectionEnd ?? start;
-    if (input.length - (end - start) + value.length > 150) return;
-    setInput(input.slice(0, start) + value + input.slice(end));
+    const result = editExpression(
+      input,
+      { start, end },
+      action,
+      rules.operations,
+    );
+    setInput(result.text);
+    onEdit?.(result.text);
     requestAnimationFrame(() => {
       field.current?.focus();
       field.current?.setSelectionRange(
-        start + value.length,
-        start + value.length,
+        result.selection.start,
+        result.selection.end,
       );
-    });
-  }
-  function erase() {
-    const start = field.current?.selectionStart ?? input.length;
-    const end = field.current?.selectionEnd ?? start;
-    const from = start === end ? Math.max(0, start - 1) : start;
-    setInput(input.slice(0, from) + input.slice(end));
-    requestAnimationFrame(() => {
-      field.current?.focus();
-      field.current?.setSelectionRange(from, from);
     });
   }
   const normalized = input
@@ -123,7 +126,7 @@ function MathEntry({
       className="rogue-math-entry"
       onSubmit={(event) => {
         event.preventDefault();
-        if (input && !busy) send({ type: "submit", expression: input });
+        if (input && !busy) onSubmit(input);
       }}
     >
       <label htmlFor="rogue-expression">Votre expression</label>
@@ -135,7 +138,21 @@ function MathEntry({
         spellCheck={false}
         maxLength={150}
         value={input}
-        onChange={(event) => setInput(event.target.value)}
+        onChange={(event) => {
+          setInput(event.target.value);
+          onEdit?.(event.target.value);
+        }}
+        onKeyDown={(event) => {
+          if (
+            ["+", "-", "*", "×", "−"].includes(event.key) &&
+            !event.ctrlKey &&
+            !event.metaKey &&
+            !event.altKey
+          ) {
+            event.preventDefault();
+            edit({ type: "insert", token: event.key });
+          }
+        }}
         placeholder="À vous de jouer…"
         aria-describedby="rogue-expression-help"
         disabled={busy}
@@ -147,25 +164,25 @@ function MathEntry({
         <span>Entrée pour valider</span>
       </div>
       <div className="rogue-keypad">
-        {view.puzzle!.rules.numbers.map((digit) => (
+        {rules.numbers.map((digit) => (
           <Tile
             key={digit}
             label={String(digit)}
             kind="num"
             disabled={busy}
             onPress={() => {
-              if (!busy) insert(String(digit));
+              if (!busy) edit({ type: "insert", token: String(digit) });
             }}
           />
         ))}
-        {view.puzzle!.rules.operations.map((op) => (
+        {rules.operations.map((op) => (
           <Tile
             key={op}
             label={op === "*" ? "×" : op === "-" ? "−" : "+"}
             kind="op"
             disabled={busy}
             onPress={() => {
-              if (!busy) insert(op);
+              if (!busy) edit({ type: "insert", token: op });
             }}
           />
         ))}
@@ -174,7 +191,7 @@ function MathEntry({
         <Button
           type="button"
           disabled={busy || !input}
-          onClick={erase}
+          onClick={() => edit({ type: "erase" })}
           icon={<Delete size={16} />}
         >
           Effacer
@@ -182,10 +199,7 @@ function MathEntry({
         <Button
           type="button"
           disabled={busy || !input}
-          onClick={() => {
-            setInput("");
-            field.current?.focus();
-          }}
+          onClick={() => edit({ type: "clear" })}
           icon={<RotateCcw size={15} />}
         >
           Vider
@@ -200,10 +214,12 @@ function MathEntry({
       >
         Valider ma réponse
       </Button>
-      <p className="rogue-footnote">
-        Une réponse définitive incorrecte coûte une vie. Les erreurs de syntaxe
-        ne sont pas soumises.
-      </p>
+      {!practice && (
+        <p className="rogue-footnote">
+          Une réponse définitive incorrecte coûte une vie. Les erreurs de
+          syntaxe ne sont pas soumises.
+        </p>
+      )}
     </form>
   );
 }
@@ -322,7 +338,12 @@ export function RoguePuzzle({
               Il reste moins de six secondes.
             </p>
           )}
-          <MathEntry view={view} busy={busy} send={send} />
+          <RogueExpressionInput
+            key={`${view.seed}-${view.stage}`}
+            rules={puzzle.rules}
+            busy={busy}
+            onSubmit={(expression) => send({ type: "submit", expression })}
+          />
           <div className="rogue-hints">
             <Button
               disabled={busy || view.hints === 0}

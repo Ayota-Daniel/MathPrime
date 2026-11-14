@@ -5,6 +5,7 @@ import {
   validateRogueSave,
   ROGUE_SAVE_KEY,
 } from "@shortest/engine/rogue-v1/persistence";
+import { ROGUE_STORE_KEY } from "@shortest/engine/rogue-v1/storage";
 import { createNativeRogueStorage } from "../src/rogue/adapter";
 import {
   constraints,
@@ -87,7 +88,7 @@ test("Android: reopen via native adapter and AppState-like wake expires once wit
   assert.equal(second.getSnapshot().result?.cause, "timeout");
   await second.wake();
   assert.equal(second.getSnapshot().lives, 2);
-  const json = raw.values.get(ROGUE_SAVE_KEY)!;
+  const json = raw.values.get(ROGUE_STORE_KEY)!;
   assert.ok(!json.includes("3+3+5*7"));
   second.dispose();
 });
@@ -115,7 +116,6 @@ test("Android: touch insertion replaces selection and descriptions show exact co
   assert.match(card.operation, /D1/);
   assert.match(card.operation, /Serment du 7/);
 });
-
 
 test("Android: preparation restores hidden and start reveals target with its full budget", async () => {
   const raw = rawStorage();
@@ -149,4 +149,38 @@ test("Android: preparation restores hidden and start reveals target with its ful
   assert.equal(typeof active.puzzle!.target, "number");
   assert.equal(active.remaining, 95);
   restored.dispose();
+});
+
+test("Android: session and archives persist in one value; deletion preserves the active run and profile", async () => {
+  const raw = rawStorage();
+  let ids = 0;
+  const clock = { now: () => 0, schedule: () => 0, cancel: () => {} };
+  const env = {
+    civilNow: () => 1_800_000_000_000,
+    newId: () => `native-history-${++ids}`,
+  };
+  const controller = new RogueController(
+    clock,
+    createNativeRogueStorage(raw),
+    env,
+  );
+  raw.values.set("shortest:save:v3", '{"xp":777}');
+  await controller.hydrate();
+  const send = (action: Parameters<typeof controller.dispatch>[0]) =>
+    controller.dispatch(action, controller.getSnapshot().revision);
+  await send({ type: "new", seed: 28 });
+  await send({ type: "new", seed: 29, replace: true });
+  await send({ type: "abandon" });
+  const stored = JSON.parse(raw.values.get(ROGUE_STORE_KEY)!);
+  assert.equal(stored.archives.length, 2);
+  assert.equal(stored.archives[1].status, "interrupted");
+  assert.equal(stored.archives[0].status, "abandoned");
+  assert.equal(validateRogueSave(stored.active).status, "valid");
+  await send({ type: "home" });
+  await send({ type: "delete-archive", id: stored.archives[0].id });
+  const after = JSON.parse(raw.values.get(ROGUE_STORE_KEY)!);
+  assert.deepEqual(after.active, stored.active);
+  assert.equal(after.archives.length, 1);
+  assert.equal(raw.values.get("shortest:save:v3"), '{"xp":777}');
+  controller.dispose();
 });

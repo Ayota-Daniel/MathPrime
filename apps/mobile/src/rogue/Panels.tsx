@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { Text, View, TextInput } from "react-native";
-import { CARDS } from "@shortest/engine/rogue-v1";
+import { NativeDiagnostics } from "./Extras";
+import {
+  CARDS,
+  presentCard,
+  offeredMultiplicationLimit,
+} from "@shortest/engine/rogue-v1";
 import type {
   RogueAction,
   RogueView,
@@ -9,7 +14,6 @@ import { Button, Stars } from "../components/ui";
 import { RogueInput } from "./RogueInput";
 import {
   BOSS_NAMES,
-  cardDescription,
   constraints,
   effectDuration,
   offerDescription,
@@ -207,9 +211,11 @@ export function NativeResult({ view, disabled, send }: PanelProps) {
             ? "Une nouvelle chance"
             : "Fin de parcours"}
       </Text>
+      <NativeDiagnostics errors={result.diagnostics} />
       {!result.success && (
         <Text style={s.body}>
-          {FAILURE[result.cause ?? ""] ?? "Tentative terminée."}
+          {!result.diagnostics.length &&
+            (FAILURE[result.cause ?? ""] ?? "Tentative terminée.")}
           {result.livesLost === 0
             ? " Votre assurance a protégé votre vie."
             : ""}
@@ -282,9 +288,22 @@ export function NativeRewards({ view, disabled, send }: PanelProps) {
             <Text style={s.caption}>
               {card.operation} · {offer.card}
             </Text>
-            <Text style={s.title}>{card.name}</Text>
+            <Text style={s.title}>
+              {card.name} · Niveau {card.level}
+            </Text>
+            {offer.card === "D2" && (
+              <Text style={s.bold}>
+                Prochaine épreuve : maximum{" "}
+                {offeredMultiplicationLimit(view.phase.difficulty, card.level)}{" "}
+                multiplication(s).
+              </Text>
+            )}
             <Text style={s.gain}>{card.advantage}</Text>
             <Text style={s.body}>{card.drawback}</Text>
+            {card.currentLimit && (
+              <Text style={s.bold}>{card.currentLimit}</Text>
+            )}
+            {card.advanced && <CardHelp text={card.advanced} />}
             <Text style={s.caption}>{card.duration}</Text>
             <Button
               label="Choisir cette carte"
@@ -377,12 +396,11 @@ export function NativeBuild({ view, disabled, send }: PanelProps) {
         <Text style={s.caption}>Aucune carte active.</Text>
       )}
       {view.effects.map((effect) => {
-        const card = cardDescription(effect.id, effect.level);
+        const card = presentCard(effect.id, effect.level, view.puzzle?.rules);
         return (
           <View key={effect.id} style={s.effect}>
             <Text style={s.bold}>
-              {card.name}
-              {effect.level > 1 ? " II" : ""}
+              {card.name} · Niveau {effect.level}
             </Text>
             <Text style={s.caption}>
               {effectDuration(effect.id, effect.remaining)}
@@ -390,9 +408,26 @@ export function NativeBuild({ view, disabled, send }: PanelProps) {
             </Text>
             <Text style={s.gain}>{card.advantage}</Text>
             <Text style={s.body}>{card.drawback}</Text>
+            {card.currentLimit && (
+              <Text style={s.bold}>{card.currentLimit}</Text>
+            )}
+            {card.advanced && <CardHelp text={card.advanced} />}
           </View>
         );
       })}
     </View>
+  );
+}
+
+function CardHelp({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button
+        label={open ? "Masquer l’aide avancée" : "Aide avancée"}
+        onPress={() => setOpen(!open)}
+      />
+      {open && <Text style={s.caption}>{text}</Text>}
+    </>
   );
 }

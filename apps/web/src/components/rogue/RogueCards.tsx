@@ -12,8 +12,12 @@ import {
   Lightbulb,
   Repeat2,
 } from "lucide-react";
-import { CARDS, MAJOR_UPGRADES } from "@shortest/engine/rogue-v1";
-import type { CardId, Effect, Offer } from "@shortest/engine/rogue-v1";
+import {
+  CARDS,
+  presentCard,
+  offeredMultiplicationLimit,
+} from "@shortest/engine/rogue-v1";
+import type { CardId, Effect, Offer, Rules } from "@shortest/engine/rogue-v1";
 import { Button } from "../ui";
 import type { RogueView } from "../../rogue/controller";
 
@@ -31,21 +35,6 @@ const ICONS = {
   E2: Heart,
   E3: Repeat2,
 };
-function cardTerms(id: CardId, level = 1) {
-  const terms =
-    level > 1 && id in MAJOR_UPGRADES
-      ? MAJOR_UPGRADES[id as keyof typeof MAJOR_UPGRADES]
-      : CARDS[id];
-  return id === "D2"
-    ? {
-        ...terms,
-        drawback:
-          level > 1
-            ? "Budget de multiplications réduit d’une unité. La limite exacte est annoncée avant chaque épreuve."
-            : "Nombre de multiplications limité selon la difficulté. La limite exacte est annoncée avant chaque épreuve.",
-      }
-    : terms;
-}
 function duration(id: CardId, remaining = CARDS[id].duration): string {
   if (remaining === null) return "Pour toute la run";
   const unit = CARDS[id].expiresOn === "success" ? "réussite" : "tentative";
@@ -55,17 +44,19 @@ export function RogueCard({
   id,
   level = 1,
   operation,
+  nextLimit,
   busy,
   onSelect,
 }: {
   id: CardId;
   level?: number;
   operation?: string;
+  nextLimit?: number;
   busy?: boolean;
   onSelect?: () => void;
 }) {
   const card = CARDS[id];
-  const terms = cardTerms(id, level);
+  const terms = presentCard(id, level);
   const Icon = ICONS[id];
   const family = id[0] === "D" ? "durable" : id[0] === "T" ? "tempo" : "pact";
   return (
@@ -86,13 +77,22 @@ export function RogueCard({
       {operation && <p className="rogue-operation">{operation}</p>}
       <h3>
         {card.name}
-        {level > 1 && <span className="rogue-level"> II</span>}
+        <span className="rogue-level"> · Niveau {level}</span>
       </h3>
       <p className="rogue-card-gain">
         <ArrowUpRight size={16} aria-hidden="true" />
         {terms.advantage}
       </p>
       <p className="rogue-card-cost">{terms.drawback}</p>
+      {nextLimit !== undefined && (
+        <p>Prochaine épreuve : maximum {nextLimit} multiplication(s).</p>
+      )}
+      {terms.advanced && (
+        <details>
+          <summary>Aide avancée</summary>
+          <p>{terms.advanced}</p>
+        </details>
+      )}
       <p className="rogue-card-duration">
         <Timer size={13} aria-hidden="true" />
         {duration(id)}
@@ -147,6 +147,17 @@ export function RogueRewards({
                 : 1
             }
             operation={offerOperation(offer)}
+            nextLimit={
+              offer.card === "D2"
+                ? offeredMultiplicationLimit(
+                    view.phase.difficulty,
+                    offer.kind === "upgrade"
+                      ? (view.effects.find((effect) => effect.id === "D2")
+                          ?.level ?? 1) + 1
+                      : 1,
+                  )
+                : undefined
+            }
             busy={busy}
             onSelect={() => choose(index + 1)}
           />
@@ -166,7 +177,13 @@ export function RogueRewards({
     </section>
   );
 }
-export function ActiveEffects({ effects }: { effects: Effect[] }) {
+export function ActiveEffects({
+  effects,
+  rules,
+}: {
+  effects: Effect[];
+  rules?: Rules;
+}) {
   return (
     <section className="rogue-effects" aria-label="Cartes actives">
       <div className="rogue-section-heading">
@@ -182,22 +199,28 @@ export function ActiveEffects({ effects }: { effects: Effect[] }) {
       )}
       {effects.map((effect) => {
         const Icon = ICONS[effect.id];
-        const terms = cardTerms(effect.id, effect.level);
+        const terms = presentCard(effect.id, effect.level, rules);
         return (
           <details key={effect.id} className="rogue-active-card">
             <summary>
               <Icon size={17} aria-hidden="true" />
               <span>
                 {CARDS[effect.id].name}
-                {effect.level > 1 ? " II" : ""}
+                {` · Niveau ${effect.level}`}
                 <small>
-                  {duration(effect.id, effect.remaining)}
+                  {duration(effect.id, effect.remaining)} {terms.currentLimit}
                   {effect.shieldUsed ? " · protection utilisée" : ""}
                 </small>
               </span>
             </summary>
             <p className="rogue-card-gain">{terms.advantage}</p>
             <p>{terms.drawback}</p>
+            {terms.advanced && (
+              <details>
+                <summary>Aide avancée</summary>
+                <p>{terms.advanced}</p>
+              </details>
+            )}
           </details>
         );
       })}

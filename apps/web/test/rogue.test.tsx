@@ -460,3 +460,68 @@ test("R3.2.2: every preparation hides the target in rendered Web markup", () => 
   }
   f.controller.dispose();
 });
+
+test("R4.1: archives render distinct status, date, progress and card levels without exposing replay data", async () => {
+  const { RogueHistory } = await import("../src/components/rogue/RogueExtras");
+  const html = renderToStaticMarkup(
+    <RogueHistory
+      busy={false}
+      onDelete={() => {}}
+      entries={[
+        {
+          id: "archived-run",
+          date: 1_800_000_000_000,
+          seed: 28,
+          score: 850,
+          acts: [1, 2],
+          successes: 5,
+          failures: 1,
+          bosses: [1],
+          cards: [{ id: "D2", level: 2 }],
+          status: "interrupted",
+        },
+      ]}
+    />,
+  );
+  for (const word of [
+    "Interrompue",
+    "850",
+    "28",
+    "5",
+    "niveau 2",
+    "Supprimer cette archive",
+  ])
+    assert.ok(html.includes(word));
+  assert.ok(!html.includes("journal"));
+  assert.ok(!html.includes("Victoire"));
+});
+
+test("R4.1: rule failure exposes the exact multiplication budget and optional secondary errors", async () => {
+  const { RogueDiagnostics } =
+    await import("../src/components/rogue/RogueExtras");
+  const html = renderToStaticMarkup(
+    <RogueDiagnostics
+      errors={[
+        { code: "multiplication-budget", used: 2, allowed: 1 },
+        { code: "subtraction-required", used: 0, required: 1 },
+      ]}
+    />,
+  );
+  assert.match(html, /2 utilisées, maximum 1/);
+  assert.match(html, /Autres règles non respectées/);
+  assert.match(html, /Soustraction obligatoire/);
+  assert.ok(!html.includes("solution"));
+});
+
+test("R4.1: active D2 level II shows the actual zero budget and its real score bonus", () => {
+  const html = renderToStaticMarkup(
+    <ActiveEffects
+      effects={[{ id: "D2", level: 2, remaining: null, shieldUsed: false }]}
+      rules={{ ...DEFAULT_CONFIG.rules, maxMultiplications: 0 }}
+    />,
+  );
+  assert.match(html, /maximum 0 multiplication/);
+  assert.match(html, /Niveau 2/);
+  assert.match(html, /35 % score/);
+  assert.match(html, /Aide avancée/);
+});

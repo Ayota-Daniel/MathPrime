@@ -17,6 +17,7 @@ import type { RogueView, WebAction } from "../../rogue/controller";
 import { Button } from "../ui";
 import { Stars } from "../Stars";
 import { RogueCard } from "./RogueCards";
+import { RogueDiagnostics } from "./RogueExtras";
 import { BOSS_NAMES } from "./RoguePuzzle";
 
 type Actions = {
@@ -254,10 +255,12 @@ export function RogueResult({ view, busy, send }: Actions) {
       </h1>
       {!result.success && (
         <p>
-          {CAUSES[result.cause ?? ""] ?? "Cette tentative est terminée."}
+          {!result.diagnostics.length &&
+            (CAUSES[result.cause ?? ""] ?? "Cette tentative est terminée.")}
           {view.lives === 0 && " Vous avez épuisé vos vies."}
         </p>
       )}
+      <RogueDiagnostics errors={result.diagnostics} />
       <div className="rogue-result-expression">
         <span>Cible {result.target}</span>
         <strong>

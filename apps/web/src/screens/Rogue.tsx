@@ -4,6 +4,7 @@ import { ArrowLeft, LoaderCircle, Swords, X } from "lucide-react";
 import type { WebAction } from "../rogue/controller";
 import { useRogueSession } from "../rogue/useRogueSession";
 import { ActiveEffects, RogueRewards } from "../components/rogue/RogueCards";
+import { RogueExtras, RogueDiagnostics } from "../components/rogue/RogueExtras";
 import { RoguePuzzle } from "../components/rogue/RoguePuzzle";
 import {
   RogueProgress,
@@ -119,7 +120,9 @@ export function Rogue() {
             Préparation en cours…
           </p>
         )}
-        {(error || view.message || view.storageError) && (
+        {(error ||
+          (view.message && !view.diagnostics.length) ||
+          view.storageError) && (
           <p className="rogue-error" role="alert">
             {error || view.message || view.storageError}
           </p>
@@ -129,6 +132,7 @@ export function Rogue() {
             Réessayer la sauvegarde
           </Button>
         )}
+        <RogueDiagnostics errors={view.diagnostics} />
         {view.storageNotice && <p role="status">{view.storageNotice}</p>}
         <div
           className={
@@ -139,11 +143,18 @@ export function Rogue() {
         >
           <div className="rogue-main-panel">
             {view.screen === "home" && (
-              <RogueWelcome
-                view={view}
-                busy={busy || !view.hydrated || Boolean(view.storageError)}
-                send={send}
-              />
+              <>
+                <RogueExtras
+                  entries={view.history}
+                  busy={busy || Boolean(view.storageError)}
+                  onDelete={(id) => send({ type: "delete-archive", id })}
+                />
+                <RogueWelcome
+                  view={view}
+                  busy={busy || !view.hydrated || Boolean(view.storageError)}
+                  send={send}
+                />
+              </>
             )}
             {(view.screen === "preparation" || view.screen === "playing") &&
               view.puzzle && (
@@ -186,7 +197,10 @@ export function Rogue() {
           </div>
           {hasRun && (
             <aside className="rogue-sidebar">
-              <ActiveEffects effects={view.effects} />
+              <ActiveEffects
+                effects={view.effects}
+                rules={view.puzzle?.rules}
+              />
               <div className="rogue-side-note">
                 <span>Visez juste. Puis plus court.</span>
                 <p>
@@ -219,7 +233,7 @@ export function Rogue() {
         </h2>
         <p>
           {replacement !== null
-            ? "L’ancienne session sera remplacée par une nouvelle run."
+            ? "L’ancienne run sera archivée avant son remplacement. Une partie inachevée sera marquée interrompue."
             : blocker.status === "blocked"
               ? view.storageError
                 ? "Seul un état déjà enregistré pourra être repris. L’action en erreur ne peut pas être garantie."

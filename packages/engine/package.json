@@ -17,7 +17,7 @@
   },
   "scripts": {
     "build:puzzles": "tsx scripts/build-puzzles.ts",
-    "test": "node --import tsx --input-type=module -e \"await import('./test/characterization.test.ts'); await import('./test/competitive.test.ts'); await import('./test/rogue-v1.test.ts'); await import('./test/rogue-playtest.test.ts'); await import('./test/rogue-persistence.test.ts')\"",
+    "test": "node --import tsx --input-type=module -e \"await import('./test/characterization.test.ts'); await import('./test/competitive.test.ts'); await import('./test/rogue-v1.test.ts'); await import('./test/rogue-playtest.test.ts'); await import('./test/rogue-persistence.test.ts'); await import('./test/rogue-quality-of-life.test.ts')\"",
     "typecheck": "tsc --noEmit && tsc --noEmit -p ../../supabase/tsconfig.json && tsc --noEmit -p tsconfig.playtest.json",
     "simulate:rogue-v1": "node --import tsx scripts/simulate-rogue-v1.ts",
     "playtest:rogue-v1": "node --import tsx scripts/playtest-rogue-v1.ts"

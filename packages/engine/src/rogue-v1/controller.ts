@@ -1,3 +1,11 @@
+import { archiveRun, appendArchives, isConcluded } from "./run-history";
+import type { RunArchive } from "./run-history";
+import {
+  answerViolations,
+  expressionViolations,
+  describeViolation,
+} from "./diagnostics";
+import type { RuleViolation } from "./diagnostics";
 import { phaseAt, totalStages } from "./index";
 import type { Effect, Offer, Phase, Rules, Run } from "./index";
 import { DurableSession, validateRogueSave } from "./saved-session";
@@ -21,7 +29,8 @@ export type RogueAction =
         | "retry";
     }
   | { type: "submit"; expression: string }
-  | { type: "choose"; index: number };
+  | { type: "choose"; index: number }
+  | { type: "delete-archive"; id: string };
 export type RogueIntroduction =
   "run" | "act" | "boss" | "survival" | "changes" | null;
 export interface RoguePuzzleRulesView {
@@ -36,6 +45,7 @@ export type RoguePuzzleView = RoguePuzzleRulesView &
     | { state: "playing"; target: number }
   );
 export interface RogueResultView {
+  diagnostics: RuleViolation[];
   target: number;
   bossReward: number | null;
   expression: string | null;
@@ -50,6 +60,8 @@ export interface RogueResultView {
   expired: string[];
 }
 export interface RogueView {
+  history: RunArchive[];
+  diagnostics: RuleViolation[];
   revision: number;
   hydrated: boolean;
   hasSaved: boolean;
@@ -82,6 +94,8 @@ export interface RogueView {
   nextSeconds: number;
 }
 const EMPTY_VIEW: RogueView = {
+  history: [],
+  diagnostics: [],
   revision: 0,
   hydrated: true,
   hasSaved: false,
@@ -122,6 +136,11 @@ export class RogueController {
   }
   private repository: RogueSaveRepository | null;
   private saved: RogueSave | null = null;
+  private history: RunArchive[] = [];
+  private pendingArchive: RunArchive | null = null;
+  private pendingDeletion: string | null = null;
+  private inputDiagnostics: RuleViolation[] = [];
+  private memoryArchivedId: string | null = null;
   private storageError = "";
   private pendingWrite = false;
   private committedView: RogueView | null = null;
@@ -167,9 +186,18 @@ export class RogueController {
             const result = validateRogueSave(raw);
             if (result.status === "valid") {
               this.saved = result.save;
-              if (result.migrated) {
-                await this.repository.write(result.save);
-                this.storageNotice = "Ancienne sauvegarde migrée.";
+              if (
+                result.migrated ||
+                (isConcluded(result.save) && !this.repository.activeArchived())
+              ) {
+                await this.repository.write(
+                  result.save,
+                  isConcluded(result.save)
+                    ? [archiveRun(result.save, this.environment)]
+                    : [],
+                );
+                if (result.migrated)
+                  this.storageNotice = "Ancienne sauvegarde migrée.";
               }
             } else
               this.storageNotice =
@@ -181,6 +209,7 @@ export class RogueController {
           this.storageError =
             "Impossible de lire la sauvegarde Rogue. Réessayez avant de jouer.";
         }
+        this.history = this.repository.history();
         this.hydrated = true;
         this.committedView = this.project();
         this.publish(true);
@@ -195,6 +224,7 @@ export class RogueController {
   private onTimeout = (): void => {
     this.message = "";
     if (!this.repository) {
+      this.archiveMemoryConclusion();
       this.publish(true);
       return;
     }
@@ -207,7 +237,12 @@ export class RogueController {
     this.pendingWrite = true;
     try {
       const snapshot = this.durable.capture();
-      await this.repository.write(snapshot);
+      const summaries = this.pendingArchive ? [this.pendingArchive] : [];
+      if (isConcluded(snapshot))
+        summaries.push(archiveRun(snapshot, this.environment));
+      await this.repository.write(snapshot, summaries);
+      this.pendingArchive = null;
+      this.history = this.repository.history();
       this.saved = snapshot;
       this.storageError = "";
       this.committedView = this.project();
@@ -281,7 +316,16 @@ export class RogueController {
     return this.enqueue(async () => {
       if (expectedRevision !== this.revision || !this.hydrated) return;
       if (this.storageError && action.type !== "retry") return;
+      if (action.type === "delete-archive" && this.view.screen === "home") {
+        this.pendingDeletion = action.id;
+        await this.deleteArchive();
+        return;
+      }
       if (action.type === "retry") {
+        if (this.pendingDeletion) {
+          await this.deleteArchive();
+          return;
+        }
         if (this.durable) await this.commit();
         else {
           this.initialization = null;
@@ -306,8 +350,22 @@ export class RogueController {
       }
     });
   }
+  private async deleteArchive(): Promise<void> {
+    try {
+      await this.repository!.deleteArchive(this.pendingDeletion!);
+      this.history = this.repository!.history();
+      this.pendingDeletion = null;
+      this.storageError = "";
+      this.committedView = this.project();
+    } catch {
+      this.storageError =
+        "Suppression impossible. L’historique est conservé ; réessayez ou rechargez.";
+    }
+    this.publish(true);
+  }
   private execute(action: RogueAction): void {
     this.message = "";
+    this.inputDiagnostics = [];
     if (action.type === "new") {
       if (
         (this.isActive() || this.saved || this.storageNotice) &&
@@ -324,6 +382,17 @@ export class RogueController {
         this.message =
           "Choisissez une graine entière entre 0 et 4 294 967 295.";
         return;
+      }
+      const previous = this.durable?.capture() ?? this.saved;
+      if (
+        previous &&
+        (this.repository
+          ? !this.repository.activeArchived()
+          : previous.id !== this.memoryArchivedId)
+      ) {
+        const archive = archiveRun(previous, this.environment, true);
+        if (this.repository) this.pendingArchive = archive;
+        else this.history = appendArchives(this.history, [archive]);
       }
       this.durable?.pause();
       this.durable = new DurableSession(
@@ -345,11 +414,27 @@ export class RogueController {
           this.storageNotice =
             "Horloge civile reculée : le puzzle en cours a expiré par sécurité, une seule fois.";
       }
+    } else if (action.type === "delete-archive") {
+      this.history = this.history.filter((entry) => entry.id !== action.id);
     } else if (action.type === "home") {
       if (this.isActive()) return;
       this.durable = null;
     } else this.apply(action);
+    if (!this.repository) this.archiveMemoryConclusion();
     if (!this.repository && this.connected) this.durable?.resume();
+  }
+  private archiveMemoryConclusion(): void {
+    if (
+      !this.durable ||
+      !["ended", "result"].includes(this.durable.game.screen)
+    )
+      return;
+    const snapshot = this.durable.capture();
+    if (!isConcluded(snapshot) || snapshot.id === this.memoryArchivedId) return;
+    this.history = appendArchives(this.history, [
+      archiveRun(snapshot, this.environment),
+    ]);
+    this.memoryArchivedId = snapshot.id;
   }
   private apply(action: RogueAction): void {
     if (
@@ -357,7 +442,8 @@ export class RogueController {
       action.type === "new" ||
       action.type === "home" ||
       action.type === "continue" ||
-      action.type === "retry"
+      action.type === "retry" ||
+      action.type === "delete-archive"
     )
       return;
     if (action.type === "submit" && action.expression.length > 150) {
@@ -380,9 +466,26 @@ export class RogueController {
           ? `choisir ${action.index}`
           : commands[action.type];
     this.durable!.command(command);
+    if (
+      action.type === "submit" &&
+      this.session.screen === "playing" &&
+      this.session.run.current
+    ) {
+      const expression = action.expression
+        .replace(/\s/g, "")
+        .replace(/×/g, "*")
+        .replace(/−/g, "-");
+      this.inputDiagnostics = expressionViolations(
+        expression,
+        this.session.run.current.rules,
+        this.session.run.config.search.magnitude,
+      );
+    }
     // Hint text has its own persistent list. Other messages describe invalid syntax/choices.
     if (!["hint", "choose"].includes(action.type))
-      this.message = this.session.message;
+      this.message = this.inputDiagnostics.length
+        ? describeViolation(this.inputDiagnostics[0])
+        : this.session.message;
   }
   refresh = (): void => {
     if (
@@ -399,7 +502,10 @@ export class RogueController {
       if (this.repository) {
         this.durable?.pause();
         void this.enqueue(() => this.commit());
-      } else this.publish(true);
+      } else {
+        this.archiveMemoryConclusion();
+        this.publish(true);
+      }
     } else if (
       Math.ceil(this.session.remainingSeconds()) !== this.view.remaining
     )
@@ -426,6 +532,8 @@ export class RogueController {
   private project(): RogueView {
     const session = this.session;
     const persistence = {
+      history: JSON.parse(JSON.stringify(this.history)) as RunArchive[],
+      diagnostics: this.inputDiagnostics,
       hydrated: this.hydrated,
       hasSaved: Boolean(this.saved),
       savedSummary: this.saved
@@ -481,6 +589,19 @@ export class RogueController {
       result:
         session.screen === "result" && attempt
           ? {
+              diagnostics:
+                attempt.outcome === "failure" &&
+                attempt.expression &&
+                attempt.cause !== "timeout"
+                  ? answerViolations(
+                      attempt.expression,
+                      attempt.puzzle.rules,
+                      run.config.search.magnitude,
+                      attempt.puzzle.target,
+                      attempt.puzzle.operands,
+                      attempt.puzzle.minimumStars,
+                    )
+                  : [],
               target: attempt.puzzle.target,
               bossReward:
                 attempt.outcome === "success"
