@@ -50,3 +50,7 @@ La branche part de la PR #14 fusionnée et conserve les 75 références original
 | RG-07 | Offres Android compactes, avantage/coût/durée/niveau visibles, explications avancées repliables ; budget D2 fourni par le helper partagé. | T3, D2 I puis amélioration II joués ; court défilement possible pour les offres longues au petit format. Aucun effet de carte modifié. |
 | AR-02 | Emplacements et icônes neutres en attendant l’identification exacte de la mascotte. | DA-03 reste inchangée. Aucun animal des PNG réemployé comme asset officiel et aucune nouvelle espèce inventée. |
 | QA-01 | Captures natives et navigateur, avant/après et comparaisons documentaires avec les véritables PNG. | [Rapport R4.3B](R4.3B-visual-integration.md), [journal QA](../design-qa.md). Émulateur uniquement, sans validation physique ou écoute audio. R4.3C reste la revue visuelle et le polish ; R4.4/R4.5 conservent toute la production artistique et sonore prévue. |
+
+## Correctif R4.3B.1
+
+La conformité de l’intégration R4.3B reste soumise à revue utilisateur. Les tests techniques et le verdict initial du journal QA ne constituent pas une acceptation artistique. Le [correctif de lisibilité](R4.3B.1-readability.md) isole les contextes des panneaux sombres accessibles depuis l’accueil, conserve la palette et amorce uniquement la migration Tailwind de deux panneaux Web. Le [plan de maintenance](R4.3B.1-style-maintenance.md) propose les lots suivants et la conversion progressive NativeWind ; aucun code natif ni contrat moteur/stockage n’est changé dans ce correctif.

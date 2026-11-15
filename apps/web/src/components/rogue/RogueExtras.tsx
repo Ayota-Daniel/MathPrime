@@ -11,6 +11,9 @@ import type { RuleViolation, RunArchive } from "@shortest/engine/rogue-v1";
 import { Button } from "../ui";
 import { RogueExpressionInput } from "./RoguePuzzle";
 
+const darkPanelClasses =
+  "rogue-dark-surface rounded-rogue-panel border border-rogue-line bg-rogue-surface p-7 text-rogue-ink max-[700px]:px-4 max-[700px]:py-5";
+
 export function RogueDiagnostics({ errors }: { errors: RuleViolation[] }) {
   if (!errors.length) return null;
   return (
@@ -40,7 +43,7 @@ export function RogueHistory({
 }) {
   const [pending, setPending] = useState<string | null>(null);
   return (
-    <section aria-label="Historique des runs" className="rogue-puzzle-panel">
+    <section aria-label="Historique des runs" className={darkPanelClasses}>
       <h2>Historique des runs</h2>
       <p>
         Les 50 dernières runs sont conservées sur cet appareil. Les plus
@@ -101,7 +104,7 @@ function RogueTutorial() {
   const [step, setStep] = useState(0);
   const [round, setRound] = useState(0);
   return (
-    <section aria-label="Didacticiel du pavé" className="rogue-puzzle-panel">
+    <section aria-label="Didacticiel du pavé" className={darkPanelClasses}>
       <h2>Didacticiel du pavé</h2>
       <p>Aucun chronomètre, aucune vie ni sauvegarde de run modifiée.</p>
       <p role="status">{EXPRESSION_TUTORIAL[step]}</p>
@@ -141,7 +144,7 @@ export function RogueExtras({
 }) {
   const [panel, setPanel] = useState<"history" | "tutorial" | null>(null);
   return (
-    <div className="rogue-extras">
+    <div className="rogue-extras mb-6 grid gap-4">
       <div className="rogue-input-tools">
         <Button
           onClick={() => setPanel(panel === "history" ? null : "history")}

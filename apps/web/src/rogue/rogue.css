@@ -27,17 +27,22 @@
   --ink: var(--r-aubergine);
   --secondary: var(--r-mutedLight);
   --line: #decbd0;
+  --focus: var(--r-aubergine);
   min-height: 100vh;
   width: 100%;
   color: var(--ink);
   background: var(--r-ivory);
   font-family: Nunito, system-ui, sans-serif;
 }
-.rogue-in-run {
+.rogue-in-run,
+.rogue-dark-surface {
   --surface: var(--r-panel);
   --ink: var(--r-ivory);
   --secondary: var(--r-muted);
   --line: var(--r-border);
+  --focus: var(--r-focus);
+}
+.rogue-in-run {
   background: var(--r-night);
 }
 .rogue-web * {
@@ -69,6 +74,7 @@
 }
 .rogue-web button,
 .rogue-web input,
+.rogue-web select,
 .rogue-web summary,
 .rogue-web a {
   -webkit-tap-highlight-color: transparent;
@@ -91,7 +97,11 @@
   box-shadow: 0 0 0 2px var(--r-gold);
 }
 .rogue-web button:disabled {
-  opacity: 0.45;
+  opacity: 1;
+  color: var(--secondary);
+  background: var(--surface);
+  border-style: dashed;
+  box-shadow: none;
   cursor: not-allowed;
 }
 .rogue-web button.bg-pri {
@@ -102,11 +112,18 @@
   font-size: 19px;
   font-weight: 800;
 }
+.rogue-web button.bg-pri:disabled {
+  color: var(--secondary);
+  background: var(--surface);
+  border-color: var(--line);
+  box-shadow: none;
+}
 .rogue-web :is(button, input, summary, a):focus-visible {
-  outline: 3px solid var(--r-focus);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
-.rogue-web input {
+.rogue-web input,
+.rogue-web select {
   font-family: inherit;
   color: var(--ink);
   border: 1px solid var(--line);
@@ -512,13 +529,13 @@
   margin: 8px 0;
 }
 .rogue-side-note {
-  color: var(--r-muted);
+  color: var(--secondary);
   padding: 10px;
   font-size: 13px;
 }
 .rogue-side-note span {
   font-weight: 800;
-  color: var(--r-ivory);
+  color: var(--ink);
 }
 .rogue-puzzle-panel,
 .rogue-result,
@@ -722,7 +739,7 @@
 }
 .rogue-keypad button {
   background: var(--r-ivory);
-  color: var(--r-aubergine) !important;
+  color: var(--r-aubergine);
   border-color: var(--r-gold);
   font-size: 44px;
   font-weight: 800;
@@ -887,8 +904,8 @@
 .rogue-final-score span {
   color: var(--r-muted);
 }
-.rogue-official {
-  color: var(--r-success) !important;
+.rogue-web .rogue-official {
+  color: var(--r-success);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -956,11 +973,6 @@
 .rogue-dialog button {
   width: 100%;
   margin-top: 10px;
-}
-.rogue-extras {
-  display: grid;
-  gap: 16px;
-  margin-bottom: 24px;
 }
 .rogue-extras [role="alertdialog"] {
   padding: 16px;

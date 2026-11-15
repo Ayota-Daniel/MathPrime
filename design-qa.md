@@ -1,5 +1,9 @@
 # R4.3B — Comparaison visuelle d’intégration
 
+## Rectification R4.3B.1
+
+La conformité visuelle de R4.3B n’est pas acceptée par l’utilisateur. La passe initiale ci-dessous a manqué le contraste du didacticiel sur l’accueil : aubergine sur bleu, 1,15:1. Son verdict ne vaut donc pas validation de l’intégration. Le [correctif ciblé](docs/R4.3B.1-readability.md) rétablit les contextes sombres, mesure les couleurs résolues et documente trois états avant/après. La revue artistique utilisateur reste ouverte ; les observations R4.3B suivantes sont conservées comme historique technique.
+
 ## Cible et preuves
 
 Références véritables : `@references/MathPrime-maquettes-v2-Classic-2026-11-06/web/06-rogue-jeu.png` (1672 × 941 px) et `mobile/06-rogue-jeu.png` (852 × 1846 px), inventoriées avec leurs empreintes dans [R4.3A-assets.json](docs/R4.3A-assets.json). Références d’offres, boss, jalons et victoire consultées également. Les 75 PNG originaux sont accessibles et leurs empreintes vérifiées.
@@ -38,7 +42,7 @@ Normalisation : la planche Android retire uniquement 48 px de barre système hau
 
 ## Résultat et suivi
 
-Aucun P0/P1/P2 visuel ou fonctionnel restant identifié dans le périmètre et les formats contrôlés. Les adaptations de contenu R4.2, de curseur/sélection et de placeholder neutre sont explicitement requises. La revue utilisateur R4.3C reste distincte de ce contrôle d’intégration.
+La conclusion initiale « aucun P0/P1/P2 restant identifié » était trop large : le défaut de contraste du didacticiel contredit cette conclusion. Le correctif R4.3B.1 est documenté séparément ; aucune acceptation artistique n’est déduite des tests techniques. Les adaptations de contenu R4.2, de curseur/sélection et de placeholder neutre sont explicitement requises. La revue utilisateur R4.3C reste distincte de ce contrôle d’intégration.
 
 P3 à revoir en R4.3C : rythme vertical au grand format, raffinement des rayons et surfaces, longueur des libellés, présentation du compteur cumulé en survie, affinage optique de la fonte par rapport aux PNG. Ce sont des ajustements de polish, pas une nouvelle direction. L’identification de l’animal et la production illustrée/sonore restent des décisions de R4.4/R4.5.
 
@@ -46,4 +50,4 @@ Contrôle technique : 150 tests, trois typechecks, Web production et Android nat
 
 Checklist de livraison : preuves avant/après et références comparées ; interactions revérifiées ; limites consignées ; confidentialité du contenu et du diff contrôlée ; commit et PR vers `modernization`, sans fusion automatique.
 
-final result: passed
+final result: blocked
