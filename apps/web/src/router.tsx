@@ -19,7 +19,7 @@ function Layout() {
   useAudioSettings(); // applique sound/music selon les réglages
   return (
     <div className={reduce ? 'reduce-motion' : ''}>
-      <div className={`mx-auto ${roguePage ? 'max-w-[1080px]' : 'max-w-app'} min-h-screen flex flex-col bg-bg`}><Outlet /></div>
+      <div className={`mx-auto ${roguePage ? 'rogue-shell' : 'max-w-app'} min-h-screen flex flex-col bg-bg`}><Outlet /></div>
     </div>
   );
 }

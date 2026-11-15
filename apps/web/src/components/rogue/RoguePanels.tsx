@@ -93,8 +93,8 @@ export function RogueWelcome({
             />
           </label>
         </div>
-        <div className="rogue-hero-glyph" aria-hidden="true">
-          7<span>×</span>
+        <div className="rogue-mascot-slot" aria-hidden="true">
+          <Sparkles size={60} />
         </div>
       </section>
       <section className="rogue-how" aria-label="Le parcours d’une run">
@@ -197,6 +197,9 @@ export function RogueProgress({ view }: { view: RogueView }) {
             ? "Victoire officielle acquise"
             : `${Math.min(view.successes, view.total)} / ${view.total} épreuves réussies`}
         </span>
+        {view.puzzle?.state === "playing" && (
+          <span className="rogue-mobile-target">Cible {view.puzzle.target}</span>
+        )}
         {view.screen === "playing" ? (
           <span
             role="timer"
@@ -246,7 +249,7 @@ export function RogueResult({ view, busy, send }: Actions) {
       </span>
       <h1 id="rogue-title" tabIndex={-1}>
         {result.bossReward
-          ? "Un cap de franchi."
+          ? `Acte ${view.phase.act} terminé.`
           : result.success
             ? "Bien joué."
             : view.lives === 0
@@ -299,6 +302,14 @@ export function RogueResult({ view, busy, send }: Actions) {
         <p className="rogue-boss-reward">
           <Trophy size={16} aria-hidden="true" />+{result.bossReward} points de
           victoire de boss, déjà inclus ci-dessus.
+        </p>
+      )}
+      {result.bossReward !== null && (
+        <p>
+          Ce boss reste dans votre bilan.{" "}
+          {view.phase.act < 3
+            ? `Prochaine étape : acte ${view.phase.act + 1}.`
+            : "Les trois boss sont vaincus."}
         </p>
       )}
       {view.nextSeconds !== 0 && (

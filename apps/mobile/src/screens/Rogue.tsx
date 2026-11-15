@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ComponentRef } from "react";
 import {
   Alert,
@@ -10,12 +10,17 @@ import {
   Text,
   View,
   ActivityIndicator,
+  useWindowDimensions,
 } from "react-native";
+import { useFonts } from "expo-font";
+import { StatusBar } from "expo-status-bar";
+import { rogue } from "@shortest/tokens";
+import { RogueDetails } from "../rogue/Details";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStack } from "../../App";
 import type { RogueAction } from "@shortest/engine/rogue-v1/controller";
-import { Button } from "../components/ui";
+import { Button } from "../rogue/ui";
 import { useRogue } from "../rogue/useRogue";
 import {
   NativeHome,
@@ -34,6 +39,16 @@ export function Rogue({
   navigation,
 }: NativeStackScreenProps<RootStack, "Rogue">) {
   const { view, controller, busy, error, send: perform } = useRogue();
+  const [fontsLoaded, fontError] = useFonts({
+    NunitoRegular: require("../../../../packages/tokens/assets/fonts/Nunito_400Regular.ttf"),
+    NunitoBold: require("../../../../packages/tokens/assets/fonts/Nunito_700Bold.ttf"),
+    NunitoExtraBold: require("../../../../packages/tokens/assets/fonts/Nunito_800ExtraBold.ttf"),
+  });
+  const [details, setDetails] = useState(false);
+  const playing = view.screen === "playing";
+  const inRun = view.screen !== "home";
+  const compact = playing || view.screen === "reward";
+  const comfortable = useWindowDimensions().height >= rogue.roomyHeight;
   const content = useRef<ComponentRef<typeof ScrollView>>(null);
   const current = useRef({ busy, view });
   current.current = { busy, view };
@@ -109,29 +124,48 @@ export function Rogue({
     );
   }
   useEffect(() => {
+    setDetails(false);
     if (view.screen !== "playing") Keyboard.dismiss();
     const frame = requestAnimationFrame(() => {
       content.current?.scrollTo({ y: 0, animated: false });
     });
     return () => cancelAnimationFrame(frame);
   }, [view.screen, view.stage]);
+  // Wait for local font metrics before laying out controls on the first visit.
+  // The controller keeps its own clock; loading a font never pauses a run.
+  if (!fontsLoaded && !fontError) {
+    return (
+      <SafeAreaView style={s.safe}>
+        <ActivityIndicator
+          accessibilityLabel="Chargement de l’interface"
+          color={rogue.colors.aubergine}
+        />
+      </SafeAreaView>
+    );
+  }
   return (
-    <SafeAreaView style={s.safe} edges={["top", "bottom"]}>
+    <SafeAreaView style={[s.safe, inRun && s.night]} edges={["top", "bottom"]}>
+      <StatusBar style={inRun ? "light" : "dark"} />
       <View style={s.header}>
-        <Text accessibilityRole="header" style={s.brand}>
-          MathPrime · Rogue
+        <Text accessibilityRole="header" style={[s.brand, inRun && s.onNight]}>
+          {playing ? "Rogue" : "MathPrime · Rogue"}
         </Text>
-        <View style={{ minWidth: 70 }}>
-          <Button label="Menu" onPress={back} disabled={busy} />
+        {playing && (
+          <Button label="Détails" compact onPress={() => setDetails(true)} />
+        )}
+        <View style={{ minWidth: 64 }}>
+          <Button label="Menu" compact onPress={back} disabled={busy} />
         </View>
       </View>
       {view.screen !== "home" && (
-        <View style={s.hud}>
+        <View style={[s.hud, compact && s.compactHud]}>
           <View style={s.between}>
-            <Text style={s.bold}>
+            <Text style={[s.bold, playing && !comfortable && { fontSize: 12 }]}>
               ♥ {view.lives}/3 ◇ {view.hints} indices
             </Text>
-            <Text style={s.bold}>{view.score} pts</Text>
+            <Text style={[s.bold, playing && !comfortable && { fontSize: 12 }]}>
+              {view.score} pts
+            </Text>
           </View>
           <Text style={s.caption}>
             {view.phase.survival
@@ -139,7 +173,8 @@ export function Rogue({
               : `Acte ${view.phase.act} · ${view.phase.boss ? `Boss, phase ${view.phase.index + 1}` : `Puzzle ${view.phase.index + 1}/3`}`}{" "}
             · {view.successes}/{view.total} réussites
           </Text>
-          {view.encountersRemaining !== null &&
+          {!playing &&
+            view.encountersRemaining !== null &&
             ["preparation", "playing"].includes(view.screen) && (
               <Text style={s.caption}>
                 {view.encountersRemaining}{" "}
@@ -148,20 +183,30 @@ export function Rogue({
                   : "épreuve(s) avant le boss"}
               </Text>
             )}
-          <Text
-            style={[
-              s.timer,
-              view.remaining <= 5 && view.screen === "playing"
-                ? { color: "#aa314b" }
-                : null,
-            ]}
-          >
-            {view.screen === "playing"
-              ? `${view.remaining} s restantes`
-              : view.officialVictory
+          {!compact && (
+            <Text style={s.timer}>
+              {view.officialVictory
                 ? "Victoire officielle acquise"
                 : "Chronomètre en pause"}
-          </Text>
+            </Text>
+          )}
+          {(!compact || (playing && comfortable)) && (
+            <View style={s.between}>
+              {[1, 2, 3].map((act) => (
+                <Text
+                  key={act}
+                  style={[s.caption, view.phase.act === act && s.rule]}
+                >
+                  Acte {act}
+                  {view.defeatedBosses.includes(act)
+                    ? " · acquis"
+                    : view.phase.act === act
+                      ? " · actuel"
+                      : ""}
+                </Text>
+              ))}
+            </View>
+          )}
         </View>
       )}
       <KeyboardAvoidingView
@@ -174,11 +219,11 @@ export function Rogue({
           keyboardShouldPersistTaps="always"
           keyboardDismissMode="none"
           automaticallyAdjustKeyboardInsets
-          contentContainerStyle={s.content}
+          contentContainerStyle={playing ? s.compactContent : s.content}
         >
           {(!view.hydrated || busy) && (
             <ActivityIndicator
-              color="#514fc4"
+              color={rogue.colors.gold}
               accessibilityLabel="Chargement de la session"
             />
           )}
@@ -213,7 +258,15 @@ export function Rogue({
             </>
           )}
           {["preparation", "playing"].includes(view.screen) && view.puzzle && (
-            <NativePuzzle view={view} disabled={disabled} send={send} />
+            <NativePuzzle
+              view={view}
+              disabled={disabled}
+              send={send}
+              onHint={() => {
+                send({ type: "hint" });
+                setDetails(true);
+              }}
+            />
           )}
           {view.screen === "result" && (
             <NativeResult view={view} disabled={disabled} send={send} />
@@ -238,22 +291,34 @@ export function Rogue({
               disabled={disabled}
             />
           )}
-          {view.screen !== "home" && (
+          {view.screen !== "home" && !playing && (
             <NativeBuild view={view} disabled={disabled} send={send} />
           )}
-          {controller.isActive() && (
+          {controller.isActive() && !playing && (
             <Button
               label="Abandonner la run"
               disabled={busy}
               onPress={abandon}
             />
           )}
-          <Text style={s.caption}>
-            Sauvegarde locale · Aucun classement Rogue · Temps hors application
-            compté pendant le puzzle
-          </Text>
+          {!playing && (
+            <Text
+              style={[s.caption, !inRun && { color: rogue.colors.mutedLight }]}
+            >
+              Sauvegarde locale · Aucun classement Rogue · Temps hors
+              application compté pendant le puzzle
+            </Text>
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
+      <RogueDetails
+        visible={details}
+        close={() => setDetails(false)}
+        view={view}
+        disabled={disabled}
+        send={send}
+        abandon={abandon}
+      />
     </SafeAreaView>
   );
 }
