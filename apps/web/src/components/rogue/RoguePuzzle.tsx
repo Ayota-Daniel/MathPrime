@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import {
   Check,
@@ -7,12 +8,12 @@ import {
   RotateCcw,
   ShieldAlert,
   Swords,
+  Sparkles,
 } from "lucide-react";
 import { evaluate } from "@shortest/engine";
 import { editExpression } from "@shortest/engine/rogue-v1";
 import type { ExpressionAction, Rules } from "@shortest/engine/rogue-v1";
 import { Button, Tile } from "../ui";
-import { TimerBar } from "../TimerBar";
 import type { RogueView, WebAction, WebPuzzle } from "../../rogue/controller";
 
 export const BOSS_NAMES = [
@@ -83,19 +84,25 @@ export function RogueExpressionInput({
   onSubmit,
   onEdit,
   practice = false,
+  leading,
+  hintArea,
 }: {
   rules: Rules;
   busy: boolean;
   onSubmit: (expression: string) => void;
   onEdit?: (expression: string) => void;
   practice?: boolean;
+  leading?: ReactNode;
+  hintArea?: ReactNode;
 }) {
   const [input, setInput] = useState("");
   const field = useRef<HTMLInputElement>(null);
   useEffect(() => {
     setInput("");
-    field.current?.focus();
   }, []);
+  useEffect(() => {
+    if (!busy) field.current?.focus({ preventScroll: true });
+  }, [busy]);
   function edit(action: ExpressionAction) {
     if (busy) return;
     const start = field.current?.selectionStart ?? input.length;
@@ -109,7 +116,7 @@ export function RogueExpressionInput({
     setInput(result.text);
     onEdit?.(result.text);
     requestAnimationFrame(() => {
-      field.current?.focus();
+      field.current?.focus({ preventScroll: true });
       field.current?.setSelectionRange(
         result.selection.start,
         result.selection.end,
@@ -123,103 +130,110 @@ export function RogueExpressionInput({
   const complete = /^[357](?:[+*\-][357])*$/.test(normalized);
   return (
     <form
-      className="rogue-math-entry"
+      className={`rogue-math-entry${leading ? " rogue-entry-live" : ""}`}
       onSubmit={(event) => {
         event.preventDefault();
         if (input && !busy) onSubmit(input);
       }}
     >
-      <label htmlFor="rogue-expression">Votre expression</label>
-      <input
-        ref={field}
-        id="rogue-expression"
-        autoComplete="off"
-        autoCapitalize="off"
-        spellCheck={false}
-        maxLength={150}
-        value={input}
-        onChange={(event) => {
-          setInput(event.target.value);
-          onEdit?.(event.target.value);
-        }}
-        onKeyDown={(event) => {
-          if (
-            ["+", "-", "*", "×", "−"].includes(event.key) &&
-            !event.ctrlKey &&
-            !event.metaKey &&
-            !event.altKey
-          ) {
-            event.preventDefault();
-            edit({ type: "insert", token: event.key });
-          }
-        }}
-        placeholder="À vous de jouer…"
-        aria-describedby="rogue-expression-help"
-        disabled={busy}
-      />
-      <div id="rogue-expression-help" className="rogue-input-help">
-        <span>
-          Valeur : <strong>{complete ? evaluate(normalized) : "—"}</strong>
-        </span>
-        <span>Entrée pour valider</span>
+      <div className="rogue-calculation">
+        {leading}
+        <label htmlFor="rogue-expression">Votre expression</label>
+        <input
+          ref={field}
+          id="rogue-expression"
+          autoComplete="off"
+          autoCapitalize="off"
+          spellCheck={false}
+          maxLength={150}
+          value={input}
+          onChange={(event) => {
+            setInput(event.target.value);
+            onEdit?.(event.target.value);
+          }}
+          onKeyDown={(event) => {
+            if (
+              ["+", "-", "*", "×", "−"].includes(event.key) &&
+              !event.ctrlKey &&
+              !event.metaKey &&
+              !event.altKey
+            ) {
+              event.preventDefault();
+              edit({ type: "insert", token: event.key });
+            }
+          }}
+          placeholder="À vous de jouer…"
+          aria-describedby="rogue-expression-help"
+          disabled={busy}
+        />
+        <div id="rogue-expression-help" className="rogue-input-help">
+          <span>
+            Valeur : <strong>{complete ? evaluate(normalized) : "—"}</strong>
+          </span>
+          <span>Entrée pour valider</span>
+        </div>
+        <div className="rogue-input-tools">
+          <Button
+            type="button"
+            disabled={busy || !input}
+            onClick={() => edit({ type: "erase" })}
+            icon={<Delete size={16} />}
+          >
+            Effacer
+          </Button>
+          <Button
+            type="button"
+            disabled={busy || !input}
+            onClick={() => edit({ type: "clear" })}
+            icon={<RotateCcw size={15} />}
+          >
+            Vider
+          </Button>
+        </div>
       </div>
-      <div className="rogue-keypad">
-        {rules.numbers.map((digit) => (
-          <Tile
-            key={digit}
-            label={String(digit)}
-            kind="num"
-            disabled={busy}
-            onPress={() => {
-              if (!busy) edit({ type: "insert", token: String(digit) });
-            }}
-          />
-        ))}
-        {rules.operations.map((op) => (
-          <Tile
-            key={op}
-            label={op === "*" ? "×" : op === "-" ? "−" : "+"}
-            kind="op"
-            disabled={busy}
-            onPress={() => {
-              if (!busy) edit({ type: "insert", token: op });
-            }}
-          />
-        ))}
-      </div>
-      <div className="rogue-input-tools">
+      <div className="rogue-controls">
+        <div className="rogue-keypad">
+          {rules.numbers.map((digit) => (
+            <Tile
+              key={digit}
+              label={String(digit)}
+              kind="num"
+              disabled={busy}
+              onPress={() => {
+                if (!busy) edit({ type: "insert", token: String(digit) });
+              }}
+            />
+          ))}
+          {rules.operations.map((op) => (
+            <Tile
+              key={op}
+              label={op === "*" ? "×" : op === "-" ? "−" : "+"}
+              kind="op"
+              disabled={busy}
+              onPress={() => {
+                if (!busy) edit({ type: "insert", token: op });
+              }}
+            />
+          ))}
+        </div>
+        {hintArea}
         <Button
-          type="button"
+          type="submit"
+          aria-label="Valider ma réponse"
+          variant="primary"
+          className="w-full"
           disabled={busy || !input}
-          onClick={() => edit({ type: "erase" })}
-          icon={<Delete size={16} />}
+          icon={<Check size={18} />}
         >
-          Effacer
+          Valider
         </Button>
-        <Button
-          type="button"
-          disabled={busy || !input}
-          onClick={() => edit({ type: "clear" })}
-          icon={<RotateCcw size={15} />}
-        >
-          Vider
-        </Button>
+        {!practice && (
+          <p className="rogue-footnote">
+            Une réponse définitive incorrecte coûte une vie. Les erreurs de
+            syntaxe ne sont pas soumises.
+          </p>
+        )}{" "}
       </div>
-      <Button
-        type="submit"
-        variant="primary"
-        className="w-full"
-        disabled={busy || !input}
-        icon={<Check size={18} />}
-      >
-        Valider ma réponse
-      </Button>
-      {!practice && (
-        <p className="rogue-footnote">
-          Une réponse définitive incorrecte coûte une vie. Les erreurs de
-          syntaxe ne sont pas soumises.
-        </p>
-      )}
     </form>
   );
 }
@@ -240,6 +254,85 @@ export function RoguePuzzle({
     "Les opérations changent la donne. Chaque phase ajoute une obligation compatible avec vos cartes.",
     "Le build, la précision, puis la pression : trois phases pour une victoire officielle.",
   ];
+  if (!preparing) {
+    return (
+      <section
+        className="rogue-puzzle-panel rogue-live"
+        aria-labelledby="rogue-title"
+      >
+        <div className="rogue-puzzle-heading">
+          <h1 id="rogue-title" tabIndex={-1}>
+            {boss ? BOSS_NAMES[view.phase.act - 1] : encounterName(view)}
+          </h1>
+          <span className="rogue-kicker">
+            {boss ? "Rencontre de boss" : "Chronomètre actif"}
+          </span>
+        </div>
+        <p className="rogue-base-rule">
+          Sans parenthèses · La multiplication est prioritaire
+        </p>
+        <RogueExpressionInput
+          key={`${view.seed}-${view.stage}`}
+          rules={puzzle.rules}
+          busy={busy}
+          onSubmit={(expression) => send({ type: "submit", expression })}
+          leading={
+            <>
+              <div className="rogue-target-time">
+                <div className="rogue-target">
+                  <span>Cible à atteindre</span>
+                  <strong>{puzzle.target}</strong>
+                </div>
+                <div
+                  role="timer"
+                  aria-label={`${view.remaining} secondes restantes`}
+                  className="rogue-clock"
+                >
+                  <span>Temps restant</span>
+                  <strong>
+                    {String(Math.floor(view.remaining / 60)).padStart(2, "0")}:
+                    {String(view.remaining % 60).padStart(2, "0")}
+                  </strong>
+                  <progress
+                    max={puzzle.seconds}
+                    value={view.remaining}
+                    aria-label="Temps restant"
+                  />
+                  {view.remaining <= 5 && (
+                    <p role="status">Temps critique · moins de six secondes</p>
+                  )}
+                </div>
+                <span className="rogue-mascot-slot" aria-hidden="true">
+                  <Sparkles size={36} />
+                </span>
+              </div>
+              <PuzzleRules puzzle={puzzle} />
+            </>
+          }
+          hintArea={
+            <div className="rogue-hints">
+              <Button
+                type="button"
+                disabled={busy || view.hints === 0}
+                icon={<Lightbulb size={18} />}
+                onClick={() => send({ type: "hint" })}
+              >
+                Indice partiel · {view.hints} restant{view.hints > 1 ? "s" : ""}
+              </Button>
+              <small>
+                −15 % au score de ce puzzle par indice. Le temps continue.
+              </small>
+              <ul aria-live="polite">
+                {view.hintMessages.map((message) => (
+                  <li key={message}>{message}</li>
+                ))}
+              </ul>
+            </div>
+          }
+        />
+      </section>
+    );
+  }
   return (
     <section
       className={`rogue-puzzle-panel${boss ? " rogue-boss-panel" : ""}${preparing && !puzzle.introduction ? " rogue-short-preparation" : ""}`}
@@ -285,84 +378,34 @@ export function RoguePuzzle({
           partir.
         </p>
       )}
-      {puzzle.state === "playing" ? (
-        <div className="rogue-target">
-          <span>Cible à atteindre</span>
-          <strong>{puzzle.target}</strong>
-        </div>
-      ) : (
-        <p className="rogue-hidden-target">
-          Cible masquée jusqu’au démarrage du chronomètre.
-        </p>
-      )}
+      <p className="rogue-hidden-target">
+        Cible masquée jusqu’au démarrage du chronomètre.
+      </p>
       <PuzzleRules
         puzzle={puzzle}
         showBaseRules={preparing && puzzle.introduction === "run"}
       />
-      {preparing ? (
-        <div className="rogue-prepare">
-          <p>
-            Vous avez{" "}
-            <strong>
-              {puzzle.seconds.toLocaleString("fr-FR", {
-                maximumFractionDigits: 2,
-              })}{" "}
-              secondes
-            </strong>
-            . Le temps commencera au clic.
-          </p>
-          <Button
-            variant="primary"
-            className="w-full"
-            disabled={busy}
-            icon={<Play size={18} />}
-            onClick={() => send({ type: "start" })}
-          >
-            {boss ? "Affronter cette phase" : "Commencer le puzzle"}
-          </Button>
-        </div>
-      ) : (
-        <>
-          <div
-            role="timer"
-            aria-label={`${view.remaining} secondes restantes`}
-            className="rogue-timer"
-          >
-            <TimerBar
-              secondsLeft={view.remaining}
-              maxSeconds={puzzle.seconds}
-            />
-          </div>
-          {view.remaining <= 5 && (
-            <p className="rogue-urgent" role="status">
-              Il reste moins de six secondes.
-            </p>
-          )}
-          <RogueExpressionInput
-            key={`${view.seed}-${view.stage}`}
-            rules={puzzle.rules}
-            busy={busy}
-            onSubmit={(expression) => send({ type: "submit", expression })}
-          />
-          <div className="rogue-hints">
-            <Button
-              disabled={busy || view.hints === 0}
-              icon={<Lightbulb size={17} />}
-              onClick={() => send({ type: "hint" })}
-            >
-              Indice partiel · {view.hints} restant{view.hints > 1 ? "s" : ""}
-            </Button>
-            <small>
-              −15 % au score de ce puzzle par indice. Le temps continue.
-            </small>
-            <ul aria-live="polite">
-              {view.hintMessages.map((message) => (
-                <li key={message}>{message}</li>
-              ))}
-            </ul>
-          </div>
-        </>
-      )}
+      <div className="rogue-prepare">
+        <p>
+          Vous avez{" "}
+          <strong>
+            {puzzle.seconds.toLocaleString("fr-FR", {
+              maximumFractionDigits: 2,
+            })}{" "}
+            secondes
+          </strong>
+          . Le temps commencera au clic.
+        </p>
+        <Button
+          variant="primary"
+          className="w-full"
+          disabled={busy}
+          icon={<Play size={18} />}
+          onClick={() => send({ type: "start" })}
+        >
+          {boss ? "Affronter cette phase" : "Commencer le puzzle"}
+        </Button>
+      </div>
     </section>
   );
 }

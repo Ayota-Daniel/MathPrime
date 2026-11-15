@@ -1,4 +1,4 @@
-import { colors, radius } from '@shortest/tokens';
+import { colors, radius, rogue } from '@shortest/tokens';
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
@@ -8,8 +8,15 @@ export default {
         bg: colors.bg, card: colors.card, ink: colors.ink, mut: colors.mut, line: colors.line,
         pri: colors.pri, 'pri-d': colors.priDark, ok: colors.ok, gold: colors.gold, err: colors.err,
         num: colors.num, op: colors.op,
+        rogue: {
+          surface: 'var(--surface)', ink: 'var(--ink)',
+          muted: 'var(--secondary)', line: 'var(--line)',
+        },
       },
-      borderRadius: { tile: `${radius.md}px`, card: `${radius.xl}px`, mode: `${radius.lg}px` },
+      borderRadius: {
+        tile: `${radius.md}px`, card: `${radius.xl}px`, mode: `${radius.lg}px`,
+        'rogue-panel': `${rogue.radius.panel}px`,
+      },
       fontFamily: {
         display: ['"Space Grotesk"', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace'],

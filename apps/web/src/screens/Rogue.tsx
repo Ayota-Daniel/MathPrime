@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+import { rogue } from "@shortest/tokens";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, LoaderCircle, Swords, X } from "lucide-react";
@@ -17,6 +19,14 @@ import { Button } from "../components/ui";
 import { audio } from "../lib/audio";
 import "../rogue/rogue.css";
 import { RoguePlaytestExport } from "../components/rogue/RoguePlaytestExport";
+
+const theme = {
+  ...Object.fromEntries(
+    Object.entries(rogue.colors).map(([name, color]) => [`--r-${name}`, color]),
+  ),
+  "--r-controlRadius": `${rogue.radius.control}px`,
+  "--r-motion": `${rogue.transitionMs}ms`,
+} as CSSProperties;
 
 export function Rogue() {
   const { view, busy, send: perform, controller, error } = useRogueSession();
@@ -39,7 +49,15 @@ export function Rogue() {
     else if (!showConfirmation && dialog.current?.open) dialog.current.close();
   }, [showConfirmation]);
   useEffect(() => {
-    container.current?.querySelector<HTMLElement>("#rogue-title")?.focus();
+    const frame = requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "auto" });
+      container.current
+        ?.querySelector<HTMLElement>(
+          view.screen === "playing" ? "#rogue-expression" : "#rogue-title",
+        )
+        ?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
   }, [view.screen, view.stage]);
   useEffect(() => {
     audio.switchMusic("rogue");
@@ -83,14 +101,17 @@ export function Rogue() {
   }
   const hasRun = view.screen !== "home";
   return (
-    <div className="rogue-web">
+    <div
+      className={`rogue-web ${hasRun ? "rogue-in-run" : "rogue-at-home"}`}
+      style={theme}
+    >
       <header className="rogue-header">
         <Link to="/" className="rogue-brand">
           <span className="rogue-brand-symbol">
             <Swords size={19} aria-hidden="true" />
           </span>
           <span>
-            Shortest<small>MathPrime · Rogue</small>
+            MathPrime<small>Rogue</small>
           </span>
         </Link>
         {controller.isActive() ? (
@@ -138,7 +159,7 @@ export function Rogue() {
         <div
           className={
             hasRun
-              ? `rogue-game-grid${view.screen === "reward" ? " rogue-draft-layout" : ""}`
+              ? `rogue-game-grid${view.screen === "reward" ? " rogue-draft-layout" : ""}${view.screen === "playing" ? " rogue-playing-layout" : ""}`
               : ""
           }
         >

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Text, View, TextInput } from "react-native";
+import { Text, View, TextInput, useWindowDimensions } from "react-native";
 import { NativeDiagnostics } from "./Extras";
 import {
   CARDS,
@@ -10,7 +10,7 @@ import type {
   RogueAction,
   RogueView,
 } from "@shortest/engine/rogue-v1/controller";
-import { Button, Stars } from "../components/ui";
+import { Button, Stars } from "./ui";
 import { RogueInput } from "./RogueInput";
 import {
   BOSS_NAMES,
@@ -19,6 +19,9 @@ import {
   offerDescription,
 } from "./presentation";
 import { s } from "./styles";
+import { Swords, Trophy } from "lucide-react-native";
+import type { Offer } from "@shortest/engine/rogue-v1";
+import { rogue } from "@shortest/tokens";
 type PanelProps = {
   view: RogueView;
   disabled: boolean;
@@ -87,7 +90,13 @@ export function NativeHome({ view, disabled, send }: PanelProps) {
   );
 }
 
-export function NativePuzzle({ view, disabled, send }: PanelProps) {
+export function NativePuzzle({
+  view,
+  disabled,
+  send,
+  onHint,
+}: PanelProps & { onHint: () => void }) {
+  const comfortable = useWindowDimensions().height >= rogue.roomyHeight;
   const puzzle = view.puzzle!;
   const preparing = puzzle.state === "preparation";
   const [showRules, setShowRules] = useState(puzzle.introduction === "run");
@@ -96,8 +105,64 @@ export function NativePuzzle({ view, disabled, send }: PanelProps) {
       puzzle.state === "preparation" && puzzle.introduction === "run",
     );
   }, [puzzle.state, puzzle.introduction, view.stage]);
+  if (!preparing) {
+    return (
+      <View style={{ gap: comfortable ? 8 : 4 }}>
+        <Text
+          style={[s.baseRule, comfortable && { fontSize: 20, lineHeight: 26 }]}
+        >
+          Sans parenthèses · Multiplication prioritaire
+        </Text>
+        <View style={s.targetTimer}>
+          <View>
+            <Text style={s.caption}>CIBLE À ATTEINDRE</Text>
+            <Text
+              style={[
+                s.liveTarget,
+                comfortable && { fontSize: 64, lineHeight: 72 },
+              ]}
+            >
+              {puzzle.target}
+            </Text>
+          </View>
+          <View
+            accessibilityRole="timer"
+            accessibilityLabel={`${view.remaining} secondes restantes`}
+          >
+            <Text style={s.caption}>
+              {view.remaining <= 5 ? "Temps critique" : "Temps restant"}
+            </Text>
+            <Text
+              style={[
+                s.liveTime,
+                view.remaining <= 5 && { color: rogue.colors.error },
+              ]}
+            >
+              {view.remaining} s
+            </Text>
+          </View>
+        </View>
+        <Text
+          style={[
+            s.compactRules,
+            comfortable && { fontSize: 14, lineHeight: 20 },
+          ]}
+        >
+          {compactConstraints(view).join(" · ") || "3 · 5 · 7 avec + − ×"}
+        </Text>
+        <RogueInput
+          key={`${view.seed}-${view.stage}`}
+          view={view}
+          busy={disabled}
+          send={send}
+          onHint={onHint}
+        />
+      </View>
+    );
+  }
   return (
     <View style={[s.card, view.phase.boss && s.boss]}>
+      {view.phase.boss && <Swords size={40} color={rogue.colors.gold} />}
       <Text style={s.title}>
         {view.phase.boss
           ? BOSS_NAMES[view.phase.act - 1]
@@ -133,16 +198,9 @@ export function NativePuzzle({ view, disabled, send }: PanelProps) {
           partir.
         </Text>
       )}
-      {puzzle.state === "playing" ? (
-        <>
-          <Text style={s.caption}>CIBLE À ATTEINDRE</Text>
-          <Text style={s.target}>{puzzle.target}</Text>
-        </>
-      ) : (
-        <Text style={s.caption}>
-          Cible masquée jusqu’au démarrage du chronomètre.
-        </Text>
-      )}
+      <Text style={s.caption}>
+        Cible masquée jusqu’au démarrage du chronomètre.
+      </Text>
       <View style={s.rules}>
         <Text style={s.bold}>
           {puzzle.rules.numbers.join(" · ")} avec + − ×
@@ -163,33 +221,38 @@ export function NativePuzzle({ view, disabled, send }: PanelProps) {
           Visez une expression courte.
         </Text>
       )}
-      {preparing ? (
-        <>
-          <Text style={s.body}>
-            {puzzle.seconds.toLocaleString("fr-FR", {
-              maximumFractionDigits: 2,
-            })}{" "}
-            secondes. Le temps commence au clic.
-          </Text>
-          <Button
-            label={
-              view.phase.boss ? "Affronter cette phase" : "Commencer le puzzle"
-            }
-            variant="primary"
-            disabled={disabled}
-            onPress={() => send({ type: "start" })}
-          />
-        </>
-      ) : (
-        <RogueInput
-          key={`${view.seed}-${view.stage}`}
-          view={view}
-          busy={disabled}
-          send={send}
+      <>
+        <Text style={s.body}>
+          {puzzle.seconds.toLocaleString("fr-FR", {
+            maximumFractionDigits: 2,
+          })}{" "}
+          secondes. Le temps commence au clic.
+        </Text>
+        <Button
+          label={
+            view.phase.boss ? "Affronter cette phase" : "Commencer le puzzle"
+          }
+          variant="primary"
+          disabled={disabled}
+          onPress={() => send({ type: "start" })}
         />
-      )}
+      </>
     </View>
   );
+}
+
+function compactConstraints(view: RogueView): string[] {
+  const puzzle = view.puzzle!;
+  const rules = puzzle.rules;
+  const labels = Object.entries(rules.minimumOccurrences)
+    .filter(([, count]) => count > 0)
+    .map(([digit, count]) => `${digit} : au moins ${count}`);
+  if (rules.requireSubtraction) labels.push("Soustraction requise");
+  if (rules.maxMultiplications !== null)
+    labels.push(`× : maximum ${rules.maxMultiplications}`);
+  if (puzzle.minimumStars > 1)
+    labels.push(`Minimum ${puzzle.minimumStars} étoiles`);
+  return labels;
 }
 
 export function NativeResult({ view, disabled, send }: PanelProps) {
@@ -202,6 +265,13 @@ export function NativeResult({ view, disabled, send }: PanelProps) {
         : "Rencontre suivante";
   return (
     <View style={s.card}>
+      {result.bossReward !== null && (
+        <>
+          <Text style={s.kicker}>JALON ATTEINT</Text>
+          <Trophy size={44} color={rogue.colors.gold} />
+          <Text style={s.heroTitle}>Acte {view.phase.act} terminé</Text>
+        </>
+      )}
       <Text accessibilityRole="header" style={s.title}>
         {result.success
           ? result.bossReward
@@ -239,6 +309,14 @@ export function NativeResult({ view, disabled, send }: PanelProps) {
           Récompense du boss : +{result.bossReward} points, déjà inclus.
         </Text>
       )}
+      {result.bossReward !== null && (
+        <Text style={s.body}>
+          Ce boss reste dans votre bilan.{" "}
+          {view.phase.act < 3
+            ? `Prochaine étape : acte ${view.phase.act + 1}.`
+            : "Les trois boss sont vaincus."}
+        </Text>
+      )}
       {view.nextSeconds !== 0 && (
         <Text style={s.body}>
           {view.nextSeconds > 0 ? "+" : ""}
@@ -262,57 +340,21 @@ export function NativeResult({ view, disabled, send }: PanelProps) {
 
 export function NativeRewards({ view, disabled, send }: PanelProps) {
   return (
-    <>
+    <View style={{ gap: 8 }}>
       <Text style={s.kicker}>
         {view.majorReward ? "RÉCOMPENSE MAJEURE" : "CHOIX TACTIQUE"}
       </Text>
       <Text style={s.title}>Quel risque vaut la peine ?</Text>
-      {view.offers.map((offer, index) => {
-        const card = offerDescription(offer, view.effects);
-        return (
-          <View
-            key={offer.id}
-            style={[
-              s.card,
-              {
-                borderTopWidth: 4,
-                borderTopColor:
-                  offer.card[0] === "D"
-                    ? "#615bc8"
-                    : offer.card[0] === "T"
-                      ? "#a76b25"
-                      : "#a83c54",
-              },
-            ]}
-          >
-            <Text style={s.caption}>
-              {card.operation} · {offer.card}
-            </Text>
-            <Text style={s.title}>
-              {card.name} · Niveau {card.level}
-            </Text>
-            {offer.card === "D2" && (
-              <Text style={s.bold}>
-                Prochaine épreuve : maximum{" "}
-                {offeredMultiplicationLimit(view.phase.difficulty, card.level)}{" "}
-                multiplication(s).
-              </Text>
-            )}
-            <Text style={s.gain}>{card.advantage}</Text>
-            <Text style={s.body}>{card.drawback}</Text>
-            {card.currentLimit && (
-              <Text style={s.bold}>{card.currentLimit}</Text>
-            )}
-            {card.advanced && <CardHelp text={card.advanced} />}
-            <Text style={s.caption}>{card.duration}</Text>
-            <Button
-              label="Choisir cette carte"
-              disabled={disabled}
-              onPress={() => send({ type: "choose", index: index + 1 })}
-            />
-          </View>
-        );
-      })}
+      {view.offers.map((offer, index) => (
+        <NativeOffer
+          key={offer.id}
+          offer={offer}
+          index={index}
+          view={view}
+          disabled={disabled}
+          send={send}
+        />
+      ))}
       {!view.offers.length && (
         <Text style={s.body}>
           Aucune offre admissible. Vous pouvez continuer.
@@ -323,7 +365,71 @@ export function NativeRewards({ view, disabled, send }: PanelProps) {
         disabled={disabled}
         onPress={() => send({ type: "choose", index: 0 })}
       />
-    </>
+    </View>
+  );
+}
+function NativeOffer({
+  offer,
+  index,
+  view,
+  disabled,
+  send,
+}: PanelProps & { offer: Offer; index: number }) {
+  const [expanded, setExpanded] = useState(false);
+  const card = offerDescription(offer, view.effects);
+  return (
+    <View
+      style={[
+        s.offer,
+        {
+          borderLeftWidth: 4,
+          borderLeftColor:
+            offer.card[0] === "D"
+              ? rogue.colors.operator
+              : offer.card[0] === "T"
+                ? rogue.colors.gold
+                : rogue.colors.coral,
+        },
+      ]}
+    >
+      <View style={{ flexDirection: "row", gap: 8 }}>
+        <View style={{ flex: 1, gap: 3 }}>
+          <Text style={s.caption}>
+            {card.operation} · {offer.card} · Niveau {card.level}
+          </Text>
+          <Text style={s.offerTitle}>{card.name}</Text>
+          <Text style={s.gain}>{card.advantage}</Text>
+          <Text style={s.caption}>{card.drawback}</Text>
+          {offer.card === "D2" && (
+            <Text style={s.rule}>
+              Prochaine épreuve : maximum{" "}
+              {offeredMultiplicationLimit(view.phase.difficulty, card.level)}{" "}
+              multiplication(s).
+            </Text>
+          )}
+          <Text style={s.caption}>{card.duration}</Text>
+        </View>
+        <View style={{ width: 88, gap: 6 }}>
+          <Button
+            label="Choisir"
+            accessibilityLabel="Choisir cette carte"
+            variant="primary"
+            compact
+            disabled={disabled}
+            onPress={() => send({ type: "choose", index: index + 1 })}
+          />
+          {card.advanced && (
+            <Button
+              label={expanded ? "Réduire" : "Détails"}
+              accessibilityLabel={`Aide avancée · ${card.name}`}
+              compact
+              onPress={() => setExpanded(!expanded)}
+            />
+          )}
+        </View>
+      </View>
+      {expanded && <Text style={s.body}>{card.advanced}</Text>}
+    </View>
   );
 }
 

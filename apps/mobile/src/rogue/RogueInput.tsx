@@ -1,12 +1,20 @@
 import { useEffect, useRef, useState } from "react";
-import type { ComponentRef } from "react";
-import { TextInput, Text, View, StyleSheet, Keyboard } from "react-native";
+import type { ComponentRef, ReactNode } from "react";
+import {
+  TextInput,
+  Text,
+  View,
+  StyleSheet,
+  Keyboard,
+  useWindowDimensions,
+} from "react-native";
+import { rogue } from "@shortest/tokens";
 import { evaluate } from "@shortest/engine";
 import type {
   RogueAction,
   RogueView,
 } from "@shortest/engine/rogue-v1/controller";
-import { Button, Tile } from "../components/ui";
+import { Button, Tile } from "./ui";
 import { editExpression } from "@shortest/engine/rogue-v1";
 import type { ExpressionAction, Rules } from "@shortest/engine/rogue-v1";
 
@@ -16,13 +24,16 @@ export function NativeExpressionInput({
   onSubmit,
   onEdit,
   practice = false,
+  hintButton,
 }: {
   rules: Rules;
   busy: boolean;
   onSubmit: (expression: string) => void;
   onEdit?: (expression: string) => void;
   practice?: boolean;
+  hintButton?: ReactNode;
 }) {
+  const comfortable = useWindowDimensions().height >= rogue.roomyHeight;
   useEffect(() => {
     Keyboard.dismiss();
   }, []);
@@ -64,8 +75,7 @@ export function NativeExpressionInput({
     });
   }
   return (
-    <View style={{ gap: 12 }}>
-      <Text style={styles.label}>Votre expression</Text>
+    <View style={{ gap: 4 }}>
       <TextInput
         ref={input}
         accessibilityLabel="Votre expression"
@@ -78,9 +88,9 @@ export function NativeExpressionInput({
           cursor.current = event.nativeEvent.selection;
           setSelection(event.nativeEvent.selection);
         }}
-        style={styles.input}
+        style={[styles.input, comfortable && { height: 60, fontSize: 36 }]}
         placeholder="3 + 5 × 7…"
-        placeholderTextColor="#687185"
+        placeholderTextColor={rogue.colors.muted}
         autoCorrect={false}
         autoCapitalize="none"
         maxLength={150}
@@ -92,10 +102,12 @@ export function NativeExpressionInput({
         }}
       />
       <Text style={styles.muted}>Valeur calculée : {value}</Text>
-      <Text style={styles.muted}>
-        Touchez le champ pour placer le curseur. Les flèches déplacent le
-        curseur ; Sélectionner étend le segment à corriger.
-      </Text>
+      {practice && (
+        <Text style={styles.muted}>
+          Touchez le champ pour placer le curseur. Les flèches déplacent le
+          curseur ; Sélectionner étend le segment à corriger.
+        </Text>
+      )}
       <View style={styles.row}>
         {(
           [
@@ -104,6 +116,7 @@ export function NativeExpressionInput({
           ] as const
         ).map(([label, direction]) => (
           <Button
+            compact
             key={label}
             label={direction < 0 ? "← Curseur" : "Curseur →"}
             disabled={busy}
@@ -123,6 +136,7 @@ export function NativeExpressionInput({
           />
         ))}
         <Button
+          compact
           label="Sélectionner"
           disabled={busy || !text}
           onPress={() => {
@@ -151,13 +165,14 @@ export function NativeExpressionInput({
       <View
         collapsable={false}
         pointerEvents={busy ? "none" : "auto"}
-        style={{ gap: 10 }}
+        style={{ gap: 4 }}
       >
         <View style={styles.row}>
           {rules.numbers.map((n) => (
             <Tile
               key={n}
               label={String(n)}
+              disabled={busy}
               kind="num"
               onPress={() => edit({ type: "insert", token: String(n) })}
             />
@@ -168,6 +183,7 @@ export function NativeExpressionInput({
             <Tile
               key={op}
               label={op === "*" ? "×" : op === "-" ? "−" : "+"}
+              disabled={busy}
               kind="op"
               onPress={() => edit({ type: "insert", token: op })}
             />
@@ -177,6 +193,7 @@ export function NativeExpressionInput({
       <View style={styles.row}>
         <View style={{ flex: 1 }}>
           <Button
+            compact
             label="Effacer"
             disabled={busy || !text}
             onPress={() => edit({ type: "erase" })}
@@ -184,24 +201,22 @@ export function NativeExpressionInput({
         </View>
         <View style={{ flex: 1 }}>
           <Button
+            compact
             label="Vider"
             disabled={busy || !text}
             onPress={() => edit({ type: "clear" })}
           />
         </View>
+        {hintButton && <View style={{ flex: 1 }}>{hintButton}</View>}
       </View>
       <Button
-        label="Valider ma réponse"
+        compact
+        label="Valider"
+        accessibilityLabel="Valider ma réponse"
         variant="primary"
         disabled={busy || !text}
         onPress={() => onSubmit(text)}
       />
-      {!practice && (
-        <Text style={styles.muted}>
-          Une réponse définitive incorrecte peut coûter une vie. Sans
-          parenthèses, multiplication prioritaire.
-        </Text>
-      )}
     </View>
   );
 }
@@ -209,58 +224,48 @@ export function RogueInput({
   view,
   busy,
   send,
+  onHint,
 }: {
   view: RogueView;
   busy: boolean;
   send: (action: RogueAction) => void;
+  onHint: () => void;
 }) {
   return (
-    <View style={{ gap: 12 }}>
-      <NativeExpressionInput
-        rules={view.puzzle!.rules}
-        busy={busy}
-        onSubmit={(expression) => send({ type: "submit", expression })}
-      />
-      <Button
-        label={`Indice partiel · ${view.hints} restant(s)`}
-        disabled={busy || view.hints === 0}
-        onPress={() => send({ type: "hint" })}
-      />
-      <Text style={styles.muted}>
-        −15 % au score par indice ; le temps continue.
-      </Text>
-      {view.hintMessages.map((message) => (
-        <Text
-          key={message}
-          accessibilityLiveRegion="polite"
-          style={styles.hint}
-        >
-          {message}
-        </Text>
-      ))}
-    </View>
+    <NativeExpressionInput
+      rules={view.puzzle!.rules}
+      busy={busy}
+      onSubmit={(expression) => send({ type: "submit", expression })}
+      hintButton={
+        <Button
+          compact
+          label={`Indice (${view.hints})`}
+          accessibilityLabel={`Indice partiel · ${view.hints} restant(s)`}
+          accessibilityHint="Moins 15 % au score de ce puzzle ; le temps continue."
+          disabled={busy || view.hints === 0}
+          onPress={onHint}
+        />
+      }
+    />
   );
 }
 const styles = StyleSheet.create({
-  row: { flexDirection: "row", gap: 10 },
-  label: { fontWeight: "600", color: "#53596d" },
+  row: { flexDirection: "row", gap: 6 },
   input: {
-    borderWidth: 1,
-    borderColor: "#c7c5dd",
-    borderRadius: 14,
-    padding: 15,
-    fontSize: 23,
+    borderBottomWidth: 3,
+    borderColor: rogue.colors.coral,
+    paddingHorizontal: 8,
+    paddingVertical: 0,
+    fontSize: 25,
+    height: 44,
+    fontFamily: rogue.font.display,
     textAlign: "center",
-    color: "#25243f",
-    backgroundColor: "#fff",
-    minHeight: 56,
+    color: rogue.colors.ivory,
   },
-  muted: { fontSize: 12, color: "#5a6b7b", lineHeight: 18 },
-  hint: {
-    padding: 13,
-    borderRadius: 12,
-    backgroundColor: "#fff5de",
-    color: "#685021",
-    lineHeight: 20,
+  muted: {
+    fontSize: 12,
+    color: rogue.colors.muted,
+    lineHeight: 16,
+    fontFamily: rogue.font.body,
   },
 });
