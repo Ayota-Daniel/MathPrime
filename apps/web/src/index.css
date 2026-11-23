@@ -2,11 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ---- CSS natif : réservé aux ANIMATIONS (Tailwind ne les gère pas finement) ---- */
-html, body, #root { height: 100%; margin: 0; background: theme('colors.bg'); }
+/* ---- Direction « Cahier » : papier quadrillé, encre, stylo rouge, surligneur ---- */
+html, body, #root { min-height: 100%; margin: 0; background: theme('colors.paper'); color: theme('colors.graphite'); }
+body {
+  font-family: 'Recursive', system-ui, sans-serif;
+  font-variation-settings: "CASL" 0, "MONO" 0;
+  -webkit-font-smoothing: antialiased;
+}
 
+@layer components {
+  /* fond quadrillé (26 px) */
+  .grid-paper {
+    background-color: theme('colors.paper');
+    background-image:
+      linear-gradient(theme('colors.grid') 1px, transparent 1px),
+      linear-gradient(90deg, theme('colors.grid') 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+  /* trois voix de Recursive : manuscrite (titres), chiffres (mono), texte (sans) */
+  .hand { font-variation-settings: "CASL" 1, "MONO" 0; }
+  .num  { font-variation-settings: "MONO" 1, "CASL" 0; font-variant-numeric: tabular-nums; }
+
+  /* feuille posée sur le cahier */
+  .sheet { @apply bg-sheet border-[1.5px] border-graphite rounded-sheet shadow-stamp; }
+
+  /* surligneur : trait jaune sur la moitié basse du texte */
+  .hl { background: linear-gradient(transparent 52%, theme('colors.hl') 52%, theme('colors.hl') 90%, transparent 90%); padding: 0 .2em; }
+
+  .pill { @apply inline-flex items-center gap-1.5 h-[34px] px-3 border-[1.5px] border-graphite rounded-full bg-sheet text-sm font-bold text-graphite no-underline; }
+
+  .btn { @apply flex items-center justify-center gap-2 min-h-[52px] rounded-sheet font-bold text-base cursor-pointer select-none no-underline; }
+  .btn-ink { @apply btn bg-ink text-white border-[1.5px] border-ink shadow-stamp hover:bg-ink-d disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-line { @apply btn bg-sheet text-graphite border-[1.5px] border-graphite; }
+  .btn-pen { @apply btn bg-sheet text-pen border-[1.5px] border-pen; }
+
+  .icon-btn { @apply grid place-items-center w-11 h-11 border-[1.5px] border-graphite rounded-sheet bg-sheet text-graphite shrink-0; }
+
+  .dashed-rows > * + * { border-top: 1px dashed theme('colors.dash'); }
+}
+
+:focus-visible { outline: 3px solid theme('colors.ink'); outline-offset: 2px; }
+
+/* ---- animations (en réponse à une action) ---- */
 @keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.anim-sheet-up { animation: sheet-up .22s ease; }
+.anim-sheet-up { animation: sheet-up .22s ease-out; }
 
 @keyframes shake { 10%,90%{transform:translateX(-2px)} 30%,70%{transform:translateX(4px)} 50%{transform:translateX(-5px)} }
 .anim-shake { animation: shake .35s; }
@@ -14,12 +53,12 @@ html, body, #root { height: 100%; margin: 0; background: theme('colors.bg'); }
 @keyframes time-pulse { 0%,100%{opacity:1} 50%{opacity:.55} }
 .anim-time-pulse { animation: time-pulse .9s ease-in-out infinite; }
 
-/* bouton tactile "Duolingo" : ombre qui s'enfonce */
-.btn-3d { box-shadow: 0 4px 0 theme('colors.pri-d'); transition: transform .06s, box-shadow .06s; }
-.btn-3d:active { transform: translateY(3px); box-shadow: 0 1px 0 theme('colors.pri-d'); }
+/* touche qui « s'enfonce » : l'ombre décalée disparaît */
+.press { transition: transform .06s, box-shadow .06s; }
+.press:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 theme('colors.graphite'); }
 
-.reduce-motion * { animation: none !important; transition: none !important; }
-
-/* apparition "pop" de la bannière record */
 @keyframes pop { 0%{transform:scale(.8);opacity:0} 60%{transform:scale(1.05)} 100%{transform:scale(1);opacity:1} }
 .anim-pop { animation: pop .4s ease; }
+
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after { animation: none !important; transition: none !important; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
