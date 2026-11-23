@@ -221,6 +221,15 @@ test("R3.1: cards render true tradeoffs, tactical and major labels, resources an
   );
   assert.match(rewards, /Choix tactique/);
   assert.match(rewards, /contrepartie/);
+  assert.equal(
+    (rewards.match(/type="radio"/g) ?? []).length,
+    f.view().offers.length,
+  );
+  for (const offer of f.view().offers) {
+    assert.ok(rewards.includes(`for="offer-${offer.id}"`));
+  }
+  assert.match(rewards, /<button[^>]*disabled[^>]*>Choisir cette évolution/);
+  assert.match(rewards, /Continuer sans carte/);
   f.send({ type: "choose", index: 1 });
   const active = renderToStaticMarkup(
     <ActiveEffects effects={f.view().effects} />,

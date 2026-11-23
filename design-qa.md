@@ -1,6 +1,27 @@
 # R4.3B — Comparaison visuelle d’intégration
 
-## Rectification R4.3B.1
+## Reprise Web depuis les maquettes
+
+**La PR attend la revue visuelle du développeur.** Le contrôle ci-dessous porte sur l’accueil Rogue, l’aide, le puzzle et le choix d’évolution du Web. Les essais natifs des sections historiques correspondent à la version précédente.
+
+| Écran et source Classic V2 sous `@references` | Écart repris et vérification dans le navigateur |
+|---|---|
+| [Accueil avec sauvegarde](docs/assets/R4.3B-web/accueil.jpg) · `web/01-accueil.png` | Titre aubergine sur papier ivoire et bandeau de parcours bleu. La reprise est l’action corail quand une session existe. La graine et le score proviennent de la sauvegarde. La référence montre l’accueil multimode, ici adapté à l’entrée Rogue. |
+| [Didacticiel](docs/assets/R4.3B-web/didacticiel.jpg) · `mobile/26-aide-modifier-calcul.png` | L’ancien panneau bleu pleine largeur a cédé la place à une aide centrée. Une consigne pêche précède le calcul éditable et le pavé. Les cinq étapes sont jouables. Le focus atteint « C’est compris » à la dernière validation, puis revient au bouton d’ouverture. |
+| [Boss en jeu](docs/assets/R4.3B-web/boss.jpg) · `web/06-rogue-jeu.png` | Progression des trois boss, bandeau de règles, cible et temps à gauche, ressources et pavé à droite, effets sous le calcul. La phase, les contraintes de la carte et du boss viennent du contrôleur. Les règles et les détails de carte se déplient. |
+| [Choix d’évolution](docs/assets/R4.3B-web/evolutions.jpg) · `mobile/08-rogue-evolution.png` | Trois offres en lignes. Le libellé entier sélectionne la carte, les flèches changent la sélection et une seule action corail la confirme. Le coût, le niveau et la durée sont lisibles avant de choisir. Le joueur peut aussi continuer sans carte. |
+
+**Comparaison.** Les références et les captures de l’application ont été ouvertes côte à côte en conservant leurs proportions. Le puzzle a été joué à 1 672 × 941 pixels CSS, la taille du PNG Web. L’aide et les cartes ont été examinées à 426 × 923, de mêmes proportions que les références de 852 × 1 846. Les JPEG du navigateur excluent une partie de la fenêtre occupée par la barre de défilement. La capture des offres suit une sélection au clavier, avec un léger défilement en haut de page. Les états comparent la composition. Les cibles, les cartes et les boss sont ceux de la version jouable.
+
+**Corrections après la première comparaison.** La barre de progression du didacticiel utilisait le vert du navigateur. Elle reprend maintenant le corail. Le focus de l’expression souligne la ligne de saisie. Sur un grand écran, la cible, le temps, les ressources et les contraintes utilisent des tailles adaptées à la largeur du plateau. Sur 360 × 800, les noms, les gains et les contreparties précèdent les métadonnées compactes des trois offres. Aucun débordement horizontal relevé sur les états étroits examinés.
+
+**Typographie, couleurs et images.** Nunito 400/700/800 est chargée localement. Les deux fonds WebP reproduisent les signes en marge et la vague basse de la référence pour environ 15 ko au total. Sur les surfaces opaques effectivement rendues, le contraste est de 11,45:1 pour la consigne de l’aide, 11,40:1 pour la cible, 8,47:1 pour le chronomètre et 4,95:1 pour le libellé de validation. Les textures sont examinées visuellement. Le texte foncé du bouton corail sert la lisibilité. L’identification exacte de la mascotte reste à confirmer. Les instructions interactives remplacent les exemples illustrés de l’ancien livret.
+
+**Parcours exercé.** Graine 42, erreur de syntaxe conservant les trois vies, puis réponses 41 et 16 et premier choix à 200 points. Deux présélections successives ont conservé ce score et le build vide. La confirmation de T3 a produit une seule carte et la contrainte de soustraction. Un indice sur la cible 18 a fait passer la réserve de 3 à 2. Le retour au menu suivi de la reprise a restitué 306 points et cette réserve. La phase 1 du Gardien a accepté `5×5×5−7+3−3` pour 118. L’historique vide, les cinq étapes du didacticiel et le retour du focus ont aussi été vérifiés sur le build de production.
+
+**Contrôles.** 150 tests réussis, dont le test Web étendu aux libellés de sélection, à la confirmation initialement désactivée et au passage sans carte. Typechecks moteur, Web et mobile, build Web de production et `git diff --check` réussis. Console de production sans erreur ni avertissement observé durant la vérification. Périmètre de cette reprise limité au Web. Android, les autres modes et la validation artistique globale restent hors de ce contrôle technique.
+
+## Historique · rectification R4.3B.1
 
 La conformité visuelle de R4.3B n’est pas acceptée par l’utilisateur. La passe initiale ci-dessous a manqué le contraste du didacticiel sur l’accueil : aubergine sur bleu, 1,15:1. Son verdict ne vaut donc pas validation de l’intégration. Le [correctif ciblé](docs/R4.3B.1-readability.md) rétablit les contextes sombres, mesure les couleurs résolues et documente trois états avant/après. La revue artistique utilisateur reste ouverte ; les observations R4.3B suivantes sont conservées comme historique technique.
 
@@ -50,4 +71,6 @@ Contrôle technique : 150 tests, trois typechecks, Web production et Android nat
 
 Checklist de livraison : preuves avant/après et références comparées ; interactions revérifiées ; limites consignées ; confidentialité du contenu et du diff contrôlée ; commit et PR vers `modernization`, sans fusion automatique.
 
-final result: blocked
+La décision historique R4.3B.1 bloquait la fusion pour revue artistique. Cette décision reste en attente du développeur. Le résultat qui suit concerne le contrôle technique de la reprise Web décrite en tête de ce document.
+
+final result: passed
