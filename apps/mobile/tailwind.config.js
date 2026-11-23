@@ -1,12 +1,12 @@
-const { colors, radius } = require('@shortest/tokens');
-/** @type {import('tailwindcss').Config} */
+const { cahier } = require('@shortest/tokens');
+/** @type {import('tailwindcss').Config} — palette « Cahier » (les écrans utilisent surtout des styles inline via components/ui). */
 module.exports = {
   content: ['./App.tsx', './src/**/*.{ts,tsx}'],
   presets: [require('nativewind/preset')],
   theme: { extend: {
-    colors: { bg: colors.bg, card: colors.card, ink: colors.ink, mut: colors.mut, line: colors.line,
-      pri: colors.pri, 'pri-d': colors.priDark, ok: colors.ok, gold: colors.gold, err: colors.err, num: colors.num, op: colors.op },
-    borderRadius: { tile: `${radius.md}px`, card: `${radius.xl}px`, mode: `${radius.lg}px` },
+    colors: { paper: cahier.paper, grid: cahier.grid, sheet: cahier.white, ink: cahier.ink, 'ink-soft': cahier.inkSoft,
+      graphite: cahier.graphite, mine: cahier.mine, dash: cahier.dash, ghost: cahier.ghost, pen: cahier.pen, hl: cahier.hl },
+    borderRadius: { sheet: '6px', cell: '4px' },
   } },
   plugins: [],
 };
