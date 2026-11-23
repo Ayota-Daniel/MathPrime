@@ -1,52 +1,64 @@
-import { useNavigate } from '@tanstack/react-router';
-import { ChevronLeft } from 'lucide-react';
 import type { Mode } from '@shortest/engine';
-import { TopBar } from '../components/TopBar';
+import { xpForRank } from '@shortest/engine';
 import { useGame } from '../store/game';
+import { TabBar } from '../components/TabBar';
+import { ScreenTitle, fmt } from '../components/ui';
 
-const LABELS: Record<Mode, string> = {
-  classic: 'Classique', daily: 'Daily', freeskill: 'Free Skill', rogue: 'Rogue', big3: 'Big 3', big5: 'Big 5', big7: 'Big 7',
-};
-const ORDER: Mode[] = ['classic', 'daily', 'freeskill', 'rogue', 'big3', 'big5', 'big7'];
+const ROWS: { mode: Mode; label: string; unit?: string }[] = [
+  { mode: 'classic', label: 'Classique' }, { mode: 'daily', label: 'Défi du jour', unit: ' j' },
+  { mode: 'freeskill', label: 'Free Skill' }, { mode: 'rogue', label: 'Rogue-like' },
+  { mode: 'big3', label: 'Big 3' }, { mode: 'big5', label: 'Big 5' }, { mode: 'big7', label: 'Big 7' },
+];
 
 export function Stats() {
-  const nav = useNavigate();
   const best = useGame((s) => s.bestByMode);
   const bestStreak = useGame((s) => s.bestStreakByMode);
   const stats = useGame((s) => s.stats);
   const xp = useGame((s) => s.xp);
   const rank = useGame((s) => s.rank());
-  const classicProgress = useGame((s) => s.classicProgress);
+  const lo = xpForRank(rank); const hi = xpForRank(rank + 1);
+  const frac = hi > lo ? Math.min(1, (xp - lo) / (hi - lo)) : 0;
+  const rate = stats.played ? `${Math.round((stats.perfect / stats.played) * 100)} %` : '—';
 
   return (
     <>
-      <TopBar />
-      <div className="flex-1 p-[18px] flex flex-col gap-[14px]">
-        <button className="flex items-center gap-[4px] text-mut font-semibold text-[14px]" onClick={() => nav({ to: '/' })}><ChevronLeft size={18} />Retour</button>
-        <h1 className="font-display font-bold text-[22px] m-0">Statistiques</h1>
+      <header className="px-5 pt-6 pb-1"><ScreenTitle>Statistiques</ScreenTitle></header>
+      <main className="flex flex-col pb-5">
+        <section className="sheet mx-5 mt-3.5 p-4">
+          <div className="flex justify-between items-baseline"><span className="text-[22px] font-black">Rang {rank}</span><span className="num text-mine text-sm font-semibold">{fmt(xp)} XP</span></div>
+          <div aria-hidden="true" className="mt-2.5 h-3 border-[1.5px] border-graphite rounded-[3px] overflow-hidden bg-paper">
+            <div className="h-full bg-ink" style={{ width: `${frac * 100}%` }} />
+          </div>
+          <div className="text-mine text-[13.5px] mt-2">Encore {fmt(Math.max(0, hi - xp))} XP pour le rang {rank + 1}</div>
+        </section>
 
-        <div className="grid grid-cols-3 gap-[10px]">
-          {[['XP', xp], ['Rang', rank], ['Niveau Classique', classicProgress + 1], ['Parties', stats.played], ['Parfaits (3★)', stats.perfect], ['Taux 3★', stats.played ? `${Math.round((stats.perfect / stats.played) * 100)}%` : '—']].map(([k, v]) => (
-            <div key={k} className="bg-card border border-line rounded-[14px] p-[12px] text-center">
-              <div className="font-display font-bold text-[20px]">{v}</div>
-              <div className="text-mut text-[11px]">{k}</div>
-            </div>
+        <div className="mx-5 mt-4 grid grid-cols-3 gap-2.5">
+          {[[fmt(stats.played), 'puzzles réussis'], [fmt(stats.perfect), 'optimaux'], [rate, 'taux optimal']].map(([v, k]) => (
+            <div key={k} className="sheet p-3"><div className="num text-2xl font-black">{v}</div><div className="text-mine text-[12.5px]">{k}</div></div>
           ))}
         </div>
 
-        <p className="font-semibold text-[13.5px] mt-[4px]">Meilleur score par mode</p>
-        <div className="bg-card border border-line rounded-card px-[16px]">
-          {ORDER.map((m) => (
-            <div key={m} className="flex items-center justify-between py-[12px] border-b border-line last:border-0">
-              <span className="text-[14px]">{LABELS[m]}</span>
-              <span className="flex gap-[14px] items-center">
-                <span className="font-mono font-bold">{best[m] ?? 0}</span>
-                <span className="text-mut text-[12px]">série {bestStreak[m] ?? 0}</span>
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+        <section className="sheet mx-5 mt-4 px-4 pt-0.5 pb-1.5">
+          <table className="w-full border-collapse text-[15px]">
+            <thead>
+              <tr className="text-mine text-[13px]"><th scope="col" className="text-left font-bold py-2.5">Mode</th><th scope="col" className="text-right font-bold">Record</th><th scope="col" className="text-right font-bold">Série max</th></tr>
+            </thead>
+            <tbody>
+              {ROWS.map(({ mode, label, unit }) => {
+                const b = best[mode] ?? 0;
+                return (
+                  <tr key={mode} className="border-t border-dashed border-dash">
+                    <td className="py-2.5">{label}</td>
+                    <td className="text-right">{b > 0 ? <b className="num">{fmt(b)}</b> : <span className="text-mine">pas encore joué</span>}</td>
+                    <td className="text-right num">{bestStreak[mode] ?? 0}{unit ?? ''}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </section>
+      </main>
+      <TabBar />
     </>
   );
 }

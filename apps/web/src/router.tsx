@@ -17,8 +17,8 @@ function Layout() {
   const reduce = useGame((s) => s.settings.reduceMotion);
   useAudioSettings(); // applique sound/music selon les réglages
   return (
-    <div className={reduce ? 'reduce-motion' : ''}>
-      <div className="mx-auto max-w-app min-h-screen flex flex-col bg-bg"><Outlet /></div>
+    <div className={`grid-paper min-h-screen ${reduce ? 'reduce-motion' : ''}`}>
+      <div className="mx-auto max-w-app min-h-screen flex flex-col"><Outlet /></div>
     </div>
   );
 }
