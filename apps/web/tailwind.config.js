@@ -7,7 +7,7 @@ export default {
       colors: {
         bg: colors.bg, card: colors.card, ink: colors.ink, mut: colors.mut, line: colors.line,
         pri: colors.pri, 'pri-d': colors.priDark, ok: colors.ok, gold: colors.gold, err: colors.err,
-        num: colors.num, op: colors.op,
+        num: colors.num, op: colors.op, panel: colors.panel,
         rogue: {
           surface: 'var(--surface)', ink: 'var(--ink)',
           muted: 'var(--secondary)', line: 'var(--line)',
@@ -18,9 +18,9 @@ export default {
         'rogue-panel': `${rogue.radius.panel}px`,
       },
       fontFamily: {
-        display: ['"Space Grotesk"', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Nunito', 'sans-serif'],
+        mono: ['Nunito', 'sans-serif'],
+        sans: ['Nunito', 'system-ui', 'sans-serif'],
       },
       maxWidth: { app: '430px' },
     },

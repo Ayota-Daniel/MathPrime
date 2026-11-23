@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Shortest",
+    "name": "MathPrime",
     "slug": "shortest",
     "scheme": "shortest",
     "version": "0.1.0",
@@ -18,7 +18,7 @@
       "package": "com.shortest.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#5B5BD6"
+        "backgroundColor": "#12346C"
       }
     },
     "web": {

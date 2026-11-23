@@ -1,5 +1,23 @@
 # R4.3B — Comparaison visuelle d’intégration
 
+## Refonte du jeu complet · Web et Android
+
+Le fond papier accompagne l’accueil, les niveaux, les puzzles Classic, Daily, Big Challenge et Free Skill, l’aide, les statistiques, le classement et les paramètres. L’entrée de Rogue reprend le papier, les rencontres et les évolutions utilisent la nuit. La revue artistique utilisateur reste ouverte.
+
+| Écrans contrôlés | Rendu et parcours observés |
+|---|---|
+| Accueil | L’accueil avant correction montrait encore « Shortest » sur fond gris. Les onglets Classic, Daily et Rogue ouvrent les parcours correspondants. « Tous les modes » donne accès à Big Challenge et Free Skill. Les six signes 3, 5, 7, +, − et × restent visibles dans les marges de l’accueil. [Avant](docs/assets/R4.3B-jeu/accueil-avant.jpg) · [Web paysage](docs/assets/R4.3B-jeu/web-accueil.jpg) · [Web portrait](docs/assets/R4.3B-jeu/web-accueil-portrait.jpg) · [Pixel 4 XL](docs/assets/R4.3B-jeu/android-accueil.jpg) |
+| Classic et progression | Sur Web et Android, `3 × 5 + 3 + 5` donne 23, trois étoiles et l’accès au niveau 2 après « Continuer ». Sur le Web, le niveau 1 reste rejouable. Les statistiques affichent le niveau 2 et trois étoiles après avoir rejoué le premier niveau. [Calcul Web](docs/assets/R4.3B-jeu/web-classic.jpg) · [Statistiques](docs/assets/R4.3B-jeu/web-statistiques.jpg) |
+| Daily, Big et Free Skill | Le Daily local affiche la cible 71 sur les deux plateformes le jour du contrôle. Le choix Big 7 ouvre la cible 6 avec le 7 obligatoire. Le chronomètre Free Skill natif passe de 52 à 49 s sur la cible 210. [Big 7 Android](docs/assets/R4.3B-jeu/android-big7.jpg) |
+| Rogue | En Web étroit, les réponses 41 et 16 donnent accès au premier choix à 200 points. La confirmation du Serment de soustraction ajoute une carte et sa contrainte. Sur Android, une reprise après expiration affiche deux vies et zéro point. Le bouton « Valider » inactif, auparavant sombre sur fond sombre, garde désormais un libellé clair et une bordure en pointillés. [Didacticiel Web](docs/assets/R4.3B-jeu/web-didacticiel.jpg) · [Puzzle Web](docs/assets/R4.3B-jeu/web-rogue.jpg) · [Évolutions](docs/assets/R4.3B-jeu/web-cartes.jpg) · [Natif avant](docs/assets/R4.3B-jeu/android-rogue-avant.jpg) · [Natif après](docs/assets/R4.3B-jeu/android-rogue.jpg) |
+| Navigation secondaire | Ouverture de l’aide, du classement local, des paramètres et des statistiques. À 360 × 800, le navigateur ne signale aucun débordement horizontal sur l’accueil, l’aide, le classement ou les paramètres. Sur le Pixel, Retour ramène au parcours précédent. |
+
+**Lisibilité.** Dans le puzzle Classic du build Web, les couleurs résolues par le navigateur donnent 12,22:1 pour la cible, 11,62:1 pour les chiffres, 9,63:1 pour les opérateurs, 4,95:1 pour « Valider » actif et 6,46:1 lorsqu’il est inactif. Ces mesures portent sur le texte de ces surfaces opaques. Les textures et les états de sélection ont aussi été examinés sur captures.
+
+**Écarts aux références.** Les illustrations de l’accueil utilisent les tuiles 3, 5 et 7 en attendant l’identification exacte de la mascotte. Les grands filigranes portrait diffèrent du trait et de la taille des signes des PNG V2. Le pavé Web reprend les deux colonnes du puzzle de référence. Le Pixel conserve une colonne et ses commandes tactiles. Les scores, étoiles et classements affichés sont ceux que les modes calculent réellement.
+
+**Contrôles.** 151 tests automatisés (130 moteur, 15 Web, 6 mobile), typechecks moteur/Web/mobile, build Web de production, APK release x86_64 sur Pixel_4_XL et contrôle du diff. Le test de régression couvre la relecture d’un niveau ouvert, les niveaux interdits et la conservation de la progression. Les captures Android sont redimensionnées proportionnellement pour le dépôt. Cet essai utilise des données locales de test et un identifiant d’installation Android distinct. Le classement en ligne, un appareil physique et une nouvelle partie complète de 16 rencontres restent hors de cette vérification visuelle. [Maintenance Tailwind et NativeWind](docs/R4.3B.1-style-maintenance.md)
+
 ## Reprise Web depuis les maquettes
 
 **La PR attend la revue visuelle du développeur.** Le contrôle ci-dessous porte sur l’accueil Rogue, l’aide, le puzzle et le choix d’évolution du Web. Les essais natifs des sections historiques correspondent à la version précédente.

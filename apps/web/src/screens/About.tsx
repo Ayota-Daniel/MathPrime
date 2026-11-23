@@ -1,24 +1,46 @@
-import { useNavigate } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import { ChevronLeft } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { TopBar } from '../components/TopBar';
 import { tableQuery } from '../data/puzzles';
-
 export function About() {
-  const nav = useNavigate();
   const { data } = useQuery(tableQuery('base'));
   return (
     <>
       <TopBar />
-      <div className="flex-1 p-[18px] flex flex-col gap-[14px]">
-        <button className="flex items-center gap-[4px] text-mut font-semibold text-[14px]" onClick={() => nav({ to: '/' })}><ChevronLeft size={18} />Retour</button>
-        <h1 className="font-display font-bold text-[22px] m-0">About</h1>
-        <div className="bg-card border border-line rounded-card p-[18px]">
-          <p className="text-[14px] leading-relaxed mt-0"><b>Shortest</b> — jeu de décomposition de nombres. Trouve l'expression la plus courte pour chaque cible (1–1000) avec 3, 5, 7 et +, −, ×, sans parenthèses, priorité standard.</p>
-          <p className="text-[13.5px] leading-relaxed text-mut">Puzzles pré-calculés hors-ligne (solveur BFS, optimalité garantie). Difficulté par paliers d'opérandes, calibrée pour un public aguerri. Le solveur n'est pas dans le bundle ; seul un mini-solveur borné sert au Rogue.</p>
-          <div className="flex items-center justify-between py-[14px] border-t border-line"><span className="text-mut text-[13.5px]">Cibles couvertes</span><b className="font-mono">{data?.length ?? '—'}/1000</b></div>
+      <main className="math-inner lesson-page">
+        <Link to="/" className="math-back">
+          <ChevronLeft size={18} />
+          Accueil
+        </Link>
+        <h1>Comment jouer</h1>
+        <p className="rule-strip">Atteins la cible, fais court.</p>
+        <div className="target-panel">
+          <small>Cible</small>
+          <strong>8</strong>
         </div>
-      </div>
+        <p>
+          Utilise 3, 5 et 7 avec +, − et ×. Tu peux réutiliser chaque chiffre.
+          La multiplication est prioritaire.
+        </p>
+        <p className="lesson-example">
+          3 × 5 − 7 = 8 <small>3 chiffres</small>
+        </p>
+        <p className="lesson-example">
+          3 + 5 = 8 <small>2 chiffres</small>
+        </p>
+        <p>À résultat égal, le calcul le plus court gagne le plus d’étoiles.</p>
+        <Link to="/" className="math-action">
+          C’est compris
+        </Link>
+        <details>
+          <summary>À propos de MathPrime</summary>
+          <p>
+            {data?.length ?? '…'} cibles dans la table de base. La progression
+            est enregistrée sur cet appareil.
+          </p>
+        </details>
+      </main>
     </>
   );
 }

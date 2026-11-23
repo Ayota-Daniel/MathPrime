@@ -1,24 +1,3 @@
-@font-face {
-  font-family: Nunito;
-  src: url("../../../../packages/tokens/assets/fonts/Nunito_400Regular.ttf")
-    format("truetype");
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: Nunito;
-  src: url("../../../../packages/tokens/assets/fonts/Nunito_700Bold.ttf")
-    format("truetype");
-  font-weight: 700;
-  font-display: swap;
-}
-@font-face {
-  font-family: Nunito;
-  src: url("../../../../packages/tokens/assets/fonts/Nunito_800ExtraBold.ttf")
-    format("truetype");
-  font-weight: 800;
-  font-display: swap;
-}
 .rogue-shell {
   max-width: none;
 }
@@ -31,8 +10,7 @@
   min-height: 100vh;
   width: 100%;
   color: var(--ink);
-  background: var(--r-ivory) url("./assets/rogue-paper.webp") center bottom /
-    cover fixed no-repeat;
+  background: var(--r-ivory) var(--paper-art) center / 100% 100% fixed no-repeat;
   font-family: Nunito, system-ui, sans-serif;
 }
 .rogue-in-run,
@@ -44,8 +22,7 @@
   --focus: var(--r-focus);
 }
 .rogue-in-run {
-  background: var(--r-night) url("./assets/rogue-night.webp") center bottom /
-    cover fixed no-repeat;
+  background: var(--r-night) var(--night-art) center / 100% 100% fixed no-repeat;
 }
 .rogue-web * {
   box-sizing: border-box;

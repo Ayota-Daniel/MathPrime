@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
   useWindowDimensions,
 } from "react-native";
-import { useFonts } from "expo-font";
+import { Backdrop } from "../components/GameScreen";
 import { StatusBar } from "expo-status-bar";
 import { rogue } from "@shortest/tokens";
 import { RogueDetails } from "../rogue/Details";
@@ -39,11 +39,6 @@ export function Rogue({
   navigation,
 }: NativeStackScreenProps<RootStack, "Rogue">) {
   const { view, controller, busy, error, send: perform } = useRogue();
-  const [fontsLoaded, fontError] = useFonts({
-    NunitoRegular: require("../../../../packages/tokens/assets/fonts/Nunito_400Regular.ttf"),
-    NunitoBold: require("../../../../packages/tokens/assets/fonts/Nunito_700Bold.ttf"),
-    NunitoExtraBold: require("../../../../packages/tokens/assets/fonts/Nunito_800ExtraBold.ttf"),
-  });
   const [details, setDetails] = useState(false);
   const playing = view.screen === "playing";
   const inRun = view.screen !== "home";
@@ -131,20 +126,9 @@ export function Rogue({
     });
     return () => cancelAnimationFrame(frame);
   }, [view.screen, view.stage]);
-  // Wait for local font metrics before laying out controls on the first visit.
-  // The controller keeps its own clock; loading a font never pauses a run.
-  if (!fontsLoaded && !fontError) {
-    return (
-      <SafeAreaView style={s.safe}>
-        <ActivityIndicator
-          accessibilityLabel="Chargement de l’interface"
-          color={rogue.colors.aubergine}
-        />
-      </SafeAreaView>
-    );
-  }
   return (
     <SafeAreaView style={[s.safe, inRun && s.night]} edges={["top", "bottom"]}>
+      <Backdrop dark={inRun} />
       <StatusBar style={inRun ? "light" : "dark"} />
       <View style={s.header}>
         <Text accessibilityRole="header" style={[s.brand, inRun && s.onNight]}>

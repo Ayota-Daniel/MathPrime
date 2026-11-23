@@ -887,3 +887,24 @@ test('la dernière défaite Rogue termine la run une seule fois', (context) => {
   ended.next();
   assert.equal(store.getState(), ended);
 });
+
+test('Classic peut rejouer un niveau ouvert sans perdre le plus haut niveau ni ses étoiles', () => {
+  const store = createGameStore(createMemoryStorage());
+  const table = JSON.parse(readFileSync(new URL('../data/puzzles.base.json', import.meta.url), 'utf8')) as Puzzle[];
+  store.setState({ classicProgress: 4, classicStars: { 2: 3 } });
+  const start = store.getState().start;
+  for (const requested of [undefined, -1, 1.5, 5]) {
+    start('classic', table, requested);
+    assert.equal(store.getState().session?.index, 4);
+  }
+  start('classic', table, 0);
+  const replay = store.getState().session!;
+  assert.equal(replay.index, 0);
+  enterExpression(store, replay.puzzle.expr);
+  store.getState().next();
+  assert.equal(store.getState().session?.index, 1);
+  assert.equal(store.getState().classicProgress, 4);
+  assert.deepEqual(store.getState().classicStars, { 0: 3, 2: 3 });
+  start('daily', table, 2);
+  assert.equal(store.getState().session?.index, 0);
+});

@@ -53,6 +53,7 @@ export function Button({
         style={[
           styles.label,
           primary && styles.primaryLabel,
+          disabled && styles.disabledLabel,
           primary && comfortable && { fontSize: 24 },
         ]}
       >
@@ -92,7 +93,11 @@ export function Tile({
       ]}
     >
       <Text
-        style={[styles.digit, comfortable && { fontSize: 44, lineHeight: 52 }]}
+        style={[
+          styles.digit,
+          disabled && styles.disabledLabel,
+          comfortable && { fontSize: 44, lineHeight: 52 },
+        ]}
       >
         {label}
       </Text>
@@ -142,7 +147,14 @@ const styles = StyleSheet.create({
     fontFamily: rogue.font.display,
     fontSize: 18,
   },
-  disabled: { opacity: 0.45 },
+  disabled: {
+    backgroundColor: c.night,
+    borderColor: c.border,
+    borderWidth: 1,
+    borderBottomWidth: 1,
+    borderStyle: "dashed",
+  },
+  disabledLabel: { color: c.muted },
   tile: {
     flex: 1,
     minHeight: 44,
