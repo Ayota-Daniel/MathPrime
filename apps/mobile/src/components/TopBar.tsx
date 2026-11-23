@@ -1,17 +1,58 @@
-import { View, Text } from 'react-native';
-import { useGame } from '../store';
-import type { Mode } from '@shortest/engine';
-export function TopBar({ streakMode }: { streakMode?: Mode }) {
-  const xp = useGame((s) => s.xp);
-  const rank = useGame((s) => s.rank());
-  const streak = useGame((s) => (streakMode ? s.streakByMode[streakMode] ?? 0 : 0));
+import { Pressable, View } from 'react-native';
+import {
+  BookOpen,
+  ChartNoAxesColumnIncreasing,
+  Settings,
+  Trophy,
+} from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStack } from '../../App';
+import { colors, rogue } from '@shortest/tokens';
+import { GameText } from './GameScreen';
+
+const links = [
+  { screen: 'Stats', name: 'Statistiques', Icon: ChartNoAxesColumnIncreasing },
+  { screen: 'Leaderboard', name: 'Classement', Icon: Trophy },
+  { screen: 'Help', name: 'Comment jouer', Icon: BookOpen },
+  { screen: 'Settings', name: 'Paramètres', Icon: Settings },
+] as const;
+export function TopBar() {
+  const nav = useNavigation<NativeStackNavigationProp<RootStack>>();
   return (
-    <View className="flex-row items-center justify-between px-[18px] py-[14px] border-b border-line bg-card">
-      <Text className="font-bold text-[17px]">◆ Shortest</Text>
-      <View className="flex-row gap-[8px]">
-        <Text className="text-[13px] font-semibold px-[9px] py-[5px] rounded-full bg-bg">🏆 {xp}</Text>
-        <Text className="text-[13px] font-semibold px-[9px] py-[5px] rounded-full bg-bg">🔥 {streak}</Text>
-        <Text className="text-[13px] font-semibold px-[9px] py-[5px] rounded-full bg-bg">Rang {rank}</Text>
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        borderBottomWidth: 1,
+        borderColor: colors.line,
+      }}
+    >
+      <GameText
+        accessibilityRole="header"
+        style={{ fontFamily: rogue.font.display, fontSize: 22 }}
+      >
+        MathPrime
+      </GameText>
+      <View style={{ flexDirection: 'row' }}>
+        {links.map(({ screen, name, Icon }) => (
+          <Pressable
+            key={screen}
+            accessibilityRole="button"
+            accessibilityLabel={name}
+            style={{
+              width: 40,
+              minHeight: 46,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            onPress={() => nav.navigate(screen)}
+          >
+            <Icon size={19} color={colors.ink} />
+          </Pressable>
+        ))}
       </View>
     </View>
   );

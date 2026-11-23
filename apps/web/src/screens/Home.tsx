@@ -1,46 +1,134 @@
-import { useEffect } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
+import { Link } from '@tanstack/react-router';
+import { ArrowRight, ChevronDown, LockKeyhole, Play, Star } from 'lucide-react';
+import {
+  featuredInfo,
+  featuredModes,
+  levelNumbers,
+  modeNames,
+  type FeaturedMode,
+} from '@shortest/tokens';
+import tiles from '../../../../packages/tokens/assets/math-tiles.png';
 import { audio } from '../lib/audio';
-import { Target, Calendar, Zap, Swords, Shield, Settings as Cog, Info, BarChart3, Trophy } from 'lucide-react';
-import { bigColor } from '@shortest/tokens';
 import { TopBar } from '../components/TopBar';
-import { ModeCard } from '../components/ModeCard';
-
-const MODES = [
-  { id: 'classic', name: 'Classique', tg: '100 niveaux, gate 3★, sans chrono', icon: Target, color: '#5B5BD6' },
-  { id: 'daily', name: 'Daily', tg: 'Un défi par jour', icon: Calendar, color: '#179C6B' },
-  { id: 'freeskill', name: 'Free Skill', tg: 'Chrono, difficulté adaptative', icon: Zap, color: '#E8A317' },
-  { id: 'rogue', name: 'Rogue', tg: '3 actes, 12 cartes, 3 boss', icon: Swords, color: '#E5484D' },
-] as const;
+import { useGame } from '../store/game';
 
 export function Home() {
-  const nav = useNavigate();
-  useEffect(() => { audio.switchMusic('main'); }, []);
-  const go = (mode: string) => mode === 'rogue' ? nav({ to: '/rogue' }) : nav({ to: '/play/$mode', params: { mode } });
+  const [tab, setTab] = useState<FeaturedMode>('classic');
+  const level = useGame((s) => s.classicProgress + 1);
+  const stars = useGame((s) =>
+    Object.values(s.classicStars).reduce((sum, value) => sum + value, 0),
+  );
+  const info = featuredInfo(tab, level);
+  useEffect(() => {
+    audio.switchMusic('main');
+  }, []);
   return (
     <>
       <TopBar />
-      <div className="flex-1 p-[18px] flex flex-col gap-[14px]">
-        <div>
-          <h1 className="font-display font-bold text-[22px] tracking-tight m-0">Écris-le le plus court</h1>
-          <p className="text-mut text-[13.5px] mt-[2px]">Atteins la cible avec 3, 5, 7 et +, −, ×. Le plus court gagne.</p>
-        </div>
-        <div className="grid grid-cols-2 gap-[12px]">
-          {MODES.map((m) => <ModeCard key={m.id} icon={<m.icon size={20} />} color={m.color} name={m.name} tagline={m.tg} onClick={() => go(m.id)} />)}
-        </div>
-        <p className="font-semibold text-[13.5px]">Big Challenge</p>
-        <div className="grid grid-cols-2 gap-[12px]">
-          {[3, 5, 7].map((x) => (
-            <ModeCard key={x} icon={<Shield size={20} />} color={bigColor[x]} name={`Big ${x}`} tagline={`Doit contenir un ${x}`} onClick={() => go(`big${x}`)} />
+      <main className="math-home">
+        <section className="home-intro">
+          <div>
+            <h1>
+              Ton prochain
+              <br />
+              déclic t’attend.
+            </h1>
+            <p>Le plaisir de trouver.</p>
+          </div>
+          <img src={tiles} alt="" width="240" height="160" />
+        </section>
+        <div className="mode-tabs" role="group" aria-label="Parcours">
+          {featuredModes.map((mode) => (
+            <button
+              key={mode}
+              aria-pressed={tab === mode}
+              onClick={() => {
+                audio.play('select');
+                setTab(mode);
+              }}
+            >
+              {modeNames[mode]}
+            </button>
           ))}
         </div>
-        <div className="grid grid-cols-2 gap-[12px]">
-          <ModeCard wide icon={<BarChart3 size={18} />} color="#179C6B" name="Statistiques" onClick={() => nav({ to: '/stats' })} />
-          <ModeCard wide icon={<Trophy size={18} />} color="#E8A317" name="Leaderboard" onClick={() => nav({ to: '/leaderboard' })} />
-          <ModeCard wide icon={<Cog size={18} />} color="#5A6B7B" name="Settings" onClick={() => nav({ to: '/settings' })} />
-          <ModeCard wide icon={<Info size={18} />} color="#16202C" name="About" onClick={() => nav({ to: '/about' })} />
-        </div>
-      </div>
+        <section className="journey-card" aria-label={modeNames[tab]}>
+          <div className="journey-title">
+            <small>{info.eyebrow}</small>
+            <h2>{modeNames[tab]}</h2>
+            <p>{info.detail}</p>
+            {tab === 'classic' && (
+              <strong>
+                <Star size={18} fill="currentColor" />
+                {stars} étoiles
+              </strong>
+            )}
+          </div>
+          {tab === 'classic' && (
+            <ol className="level-trail" aria-label="Progression Classic">
+              {levelNumbers(Math.max(1, Math.min(level - 2, 96)), 5).map(
+                (n) => (
+                  <li
+                    key={n}
+                    aria-label={`Niveau ${n}${n > level ? ' verrouillé' : ''}`}
+                    aria-current={n === level ? 'step' : undefined}
+                    className={n > level ? 'locked' : ''}
+                  >
+                    {n}
+                    <span>{n > level && <LockKeyhole size={13} />}</span>
+                  </li>
+                ),
+              )}
+            </ol>
+          )}
+          <div className="journey-actions">
+            {tab === 'rogue' ? (
+              <Link className="math-action" to="/rogue">
+                <Play size={17} />
+                {info.action}
+              </Link>
+            ) : (
+              <Link
+                className="math-action"
+                to="/play/$mode"
+                params={{ mode: tab }}
+              >
+                <Play size={17} />
+                {info.action}
+              </Link>
+            )}
+            {tab === 'classic' && (
+              <Link to="/niveaux">
+                Voir les niveaux <ArrowRight size={15} />
+              </Link>
+            )}
+          </div>
+        </section>
+        <details className="more-modes">
+          <summary>
+            <div>
+              <b>Tous les modes</b>
+              <small>Big Challenge et Free Skill</small>
+            </div>
+            <ChevronDown />
+          </summary>
+          <div className="other-modes">
+            <Link to="/big-challenge">
+              <b>Big Challenge</b>
+              <small>Choisis ton chiffre obligatoire</small>
+              <ArrowRight size={16} />
+            </Link>
+            <Link to="/play/$mode" params={{ mode: 'freeskill' }}>
+              <b>Free Skill</b>
+              <small>Entraînement chronométré</small>
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+        </details>
+        <Link className="home-help" to="/about">
+          Comment jouer ?
+        </Link>
+      </main>
     </>
   );
 }

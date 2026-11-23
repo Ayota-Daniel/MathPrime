@@ -1,42 +1,126 @@
-import { Pressable, Text, View } from 'react-native';
-import type { ReactNode } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Star } from 'lucide-react-native';
+import { colors, rogue } from '@shortest/tokens';
 import { audio } from '../audio';
 
-export const Card = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
-  <View className={`bg-card border border-line rounded-card p-[18px] ${className}`}>{children}</View>
-);
-
-export const Chip = ({ children, color = '#5B5BD6', bg = '#EEF0FF' }: { children: ReactNode; color?: string; bg?: string }) => (
-  <View className="px-[10px] py-[4px] rounded-full" style={{ backgroundColor: bg }}>
-    <Text className="text-[12px] font-semibold" style={{ color }}>{children}</Text>
-  </View>
-);
-
-export function Button({ label, variant = 'ghost', onPress, disabled }:
-  { label: string; variant?: 'primary' | 'ghost'; onPress: () => void; disabled?: boolean }) {
+type ActionProps = {
+  label: string;
+  variant?: 'primary' | 'ghost';
+  onPress: () => void;
+  disabled?: boolean;
+};
+export function Button({
+  label,
+  variant = 'ghost',
+  onPress,
+  disabled = false,
+}: ActionProps) {
   const primary = variant === 'primary';
   return (
-    <Pressable disabled={disabled} onPress={() => { void audio.play('select'); onPress(); }}
-      className={`rounded-tile py-[14px] items-center justify-center active:opacity-80 border
-        ${primary ? 'bg-pri border-pri' : 'bg-card border-line'} ${disabled ? 'opacity-50' : ''}`}
-      // ombre 3D (équivalent natif du btn-3d web)
-      style={primary ? { shadowColor: '#4646B8', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 1, shadowRadius: 0, elevation: 4 } : undefined}>
-      <Text className={`font-semibold text-[15px] ${primary ? 'text-white' : 'text-ink'}`}>{label}</Text>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      disabled={disabled}
+      style={[
+        styles.action,
+        primary && styles.primary,
+        disabled && styles.disabled,
+      ]}
+      android_ripple={{ color: '#eac9b7' }}
+      onPress={() => {
+        void audio.play('select');
+        onPress();
+      }}
+    >
+      <Text style={[styles.label, disabled && { color: colors.mut }]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
-
-export function Tile({ label, kind, onPress }: { label: string; kind: 'num' | 'op'; onPress: () => void }) {
+export function Tile({
+  label,
+  kind,
+  onPress,
+}: {
+  label: string;
+  kind: 'num' | 'op';
+  onPress: () => void;
+}) {
   return (
-    <Pressable onPress={() => { void audio.play('select'); onPress(); }}
-      className={`flex-1 rounded-tile py-[16px] items-center border border-line active:opacity-70 ${kind === 'num' ? 'bg-num' : 'bg-op'}`}>
-      <Text className="font-bold text-[22px]" style={{ color: kind === 'num' ? '#4646B8' : '#B5651d' }}>{label}</Text>
+    <Pressable
+      accessibilityRole="button"
+      style={[
+        styles.tile,
+        { backgroundColor: kind === 'num' ? colors.num : colors.op },
+      ]}
+      android_ripple={{ color: '#d9bfa8' }}
+      onPress={() => {
+        void audio.play('select');
+        onPress();
+      }}
+    >
+      <Text style={styles.digit}>{label}</Text>
     </Pressable>
   );
 }
-
-export const Stars = ({ value }: { value: number }) => (
-  <View className="flex-row gap-[6px]">
-    {[1, 2, 3].map((i) => <Text key={i} className="text-[26px]" style={{ color: i <= value ? '#E8A317' : '#D5DCE4' }}>★</Text>)}
-  </View>
-);
+export function Stars({ value }: { value: number }) {
+  return (
+    <View
+      accessible
+      accessibilityLabel={`${value} étoiles sur 3`}
+      style={{ flexDirection: 'row', gap: 8, justifyContent: 'center' }}
+    >
+      {[1, 2, 3].map((n) => (
+        <Star
+          key={n}
+          size={34}
+          color={n <= value ? '#A76C00' : colors.mut}
+          fill={n <= value ? '#FFD269' : 'transparent'}
+        />
+      ))}
+    </View>
+  );
+}
+const styles = StyleSheet.create({
+  action: {
+    minHeight: 44,
+    paddingVertical: 9,
+    paddingHorizontal: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderColor: colors.line,
+    borderWidth: 1,
+    borderRadius: 12,
+  },
+  primary: {
+    backgroundColor: colors.pri,
+    borderColor: colors.priDark,
+    borderBottomWidth: 3,
+  },
+  disabled: {
+    backgroundColor: colors.num,
+    borderColor: colors.line,
+    borderBottomWidth: 1,
+  },
+  label: {
+    color: colors.actionInk,
+    fontFamily: rogue.font.strong,
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  tile: {
+    flex: 1,
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 14,
+  },
+  digit: {
+    fontSize: 33,
+    lineHeight: 41,
+    fontFamily: rogue.font.display,
+    color: colors.ink,
+  },
+});

@@ -1,39 +1,121 @@
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { ScrollView, View, Pressable } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { colors, modeNames } from '@shortest/tokens';
 import type { RootStack } from '../../App';
-import type { Mode } from '@shortest/engine';
+import { GameText as Text, g } from '../components/GameScreen';
 import { useGame } from '../store';
+import { Back } from './Guide';
 
-const LABELS: Record<Mode, string> = { classic: 'Classique', daily: 'Daily', freeskill: 'Free Skill', rogue: 'Rogue', big3: 'Big 3', big5: 'Big 5', big7: 'Big 7' };
-const ORDER: Mode[] = ['classic', 'daily', 'freeskill', 'rogue', 'big3', 'big5', 'big7'];
+const modes = [
+  'classic',
+  'daily',
+  'freeskill',
+  'rogue',
+  'big3',
+  'big5',
+  'big7',
+] as const;
 
-export function Stats({ navigation }: NativeStackScreenProps<RootStack, 'Stats'>) {
-  const best = useGame((s) => s.bestByMode);
-  const bestStreak = useGame((s) => s.bestStreakByMode);
-  const stats = useGame((s) => s.stats);
-  const xp = useGame((s) => s.xp); const rank = useGame((s) => s.rank());
-  const cp = useGame((s) => s.classicProgress);
-  const cells: [string, string | number][] = [['XP', xp], ['Rang', rank], ['Niv. Classique', cp + 1], ['Parties', stats.played], ['Parfaits', stats.perfect], ['Taux 3★', stats.played ? `${Math.round((stats.perfect / stats.played) * 100)}%` : '—']];
+export function Stats({
+  navigation,
+}: NativeStackScreenProps<RootStack, 'Stats'>) {
+  const game = useGame();
+  const stars = Object.values(game.classicStars).reduce(
+    (sum, value) => sum + value,
+    0,
+  );
+  const metrics = [
+    ['XP', game.xp],
+    ['Rang', game.rank()],
+    ['Parties', game.stats.played],
+    ['Parfaits', game.stats.perfect],
+    [
+      'Taux de parfaits',
+      game.stats.played
+        ? Math.round((100 * game.stats.perfect) / game.stats.played) + ' %'
+        : '—',
+    ],
+  ];
   return (
-    <ScrollView className="flex-1 bg-bg" contentContainerStyle={{ padding: 18, gap: 14 }}>
-      <Pressable onPress={() => navigation.goBack()}><Text className="text-mut font-semibold">‹ Retour</Text></Pressable>
-      <Text className="font-bold text-[22px]">Statistiques</Text>
-      <View className="flex-row flex-wrap gap-[10px]">
-        {cells.map(([k, v]) => (
-          <View key={k} className="bg-card border border-line rounded-[14px] p-[12px] items-center" style={{ width: '31%' }}>
-            <Text className="font-bold text-[20px]">{v}</Text><Text className="text-mut text-[11px]">{k}</Text>
+    <ScrollView contentContainerStyle={g.wrap}>
+      <Back go={() => navigation.goBack()} />
+      <Text style={g.title}>Mes statistiques</Text>
+      <View style={g.blue}>
+        <Text style={[g.light, { fontSize: 25 }]}>Classic</Text>
+        <View style={g.between}>
+          <Text style={g.light}>Niveau {game.classicProgress + 1} / 100</Text>
+          <Text style={[g.light, { color: colors.accent }]}>
+            ★ {stars} / 300
+          </Text>
+        </View>
+        <View
+          style={{ height: 6, backgroundColor: '#536e98', borderRadius: 6 }}
+        >
+          <View
+            style={{
+              height: 6,
+              width: `${stars / 3}%`,
+              backgroundColor: colors.accent,
+              borderRadius: 6,
+            }}
+          />
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => navigation.navigate('Levels')}
+          style={{ alignSelf: 'center', padding: 10 }}
+        >
+          <Text style={[g.light, { textDecorationLine: 'underline' }]}>
+            Voir les niveaux
+          </Text>
+        </Pressable>
+      </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          gap: 12,
+          justifyContent: 'center',
+        }}
+      >
+        {metrics.map(([label, value]) => (
+          <View key={label} style={{ alignItems: 'center' }}>
+            <Text className="font-bold">{value}</Text>
+            <Text className="text-mut text-[12px]">{label}</Text>
           </View>
         ))}
       </View>
-      <Text className="font-semibold text-[13.5px]">Meilleur score par mode</Text>
-      <View className="bg-card border border-line rounded-card px-[16px]">
-        {ORDER.map((m) => (
-          <View key={m} className="flex-row items-center justify-between py-[12px] border-b border-line">
-            <Text className="text-[14px]">{LABELS[m]}</Text>
-            <View className="flex-row gap-[14px]"><Text className="font-bold">{best[m] ?? 0}</Text><Text className="text-mut text-[12px]">série {bestStreak[m] ?? 0}</Text></View>
+      <Text className="font-bold text-[19px]">Tes records</Text>
+      {modes.map((mode) => (
+        <View
+          key={mode}
+          style={[
+            g.between,
+            {
+              borderBottomWidth: 1,
+              borderColor: colors.line,
+              paddingVertical: 7,
+            },
+          ]}
+        >
+          <Text className="font-bold">{modeNames[mode]}</Text>
+          <View style={g.row}>
+            <Text className="text-mut">
+              Série {game.bestStreakByMode[mode] ?? 0}
+            </Text>
+            <Text className="font-bold">{game.bestByMode[mode] ?? 0} pts</Text>
           </View>
-        ))}
-      </View>
+        </View>
+      ))}
+      <Pressable
+        accessibilityRole="button"
+        style={{ padding: 12, alignItems: 'center' }}
+        onPress={() => navigation.navigate('Leaderboard')}
+      >
+        <Text style={{ textDecorationLine: 'underline' }}>
+          Voir le classement →
+        </Text>
+      </Pressable>
     </ScrollView>
   );
 }

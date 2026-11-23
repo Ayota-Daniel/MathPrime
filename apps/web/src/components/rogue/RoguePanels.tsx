@@ -7,7 +7,6 @@ import {
   Lightbulb,
   RotateCcw,
   ShieldCheck,
-  Sparkles,
   Swords,
   Trophy,
 } from "lucide-react";
@@ -33,10 +32,10 @@ export function RogueWelcome({
   const [seed, setSeed] = useState("42");
   return (
     <>
-      <section className="rogue-hero" aria-labelledby="rogue-title">
+      <section className="rogue-intro" aria-labelledby="rogue-title">
         <span className="rogue-kicker">
           <Swords size={17} aria-hidden="true" />
-          Rogue V1
+          Mode Rogue
         </span>
         <h1 id="rogue-title" tabIndex={-1}>
           Le calcul est simple.
@@ -47,23 +46,33 @@ export function RogueWelcome({
           Atteignez les cibles, construisez votre build et défiez trois boss.
           Chaque carte offre un avantage… avec sa contrepartie.
         </p>
-        <div className="rogue-hero-facts">
-          <span>
-            <Heart size={17} aria-hidden="true" />3 vies
-          </span>
-          <span>
-            <Lightbulb size={17} aria-hidden="true" />3 indices
-          </span>
-          <span>
-            <Flag size={17} aria-hidden="true" />3 actes
-          </span>
+      </section>
+      <section
+        className="rogue-hero rogue-dark-surface"
+        aria-label="Votre parcours"
+      >
+        <div className="rogue-journey">
+          <h2>{view?.hasSaved ? "Votre parcours" : "Commencer une run"}</h2>
+          {view?.savedSummary ? (
+            <p>
+              Graine {view.savedSummary.seed} · {view.savedSummary.score} points
+            </p>
+          ) : (
+            <div className="rogue-hero-facts">
+              <span>
+                <Heart size={17} aria-hidden="true" />3 vies
+              </span>
+              <span>
+                <Lightbulb size={17} aria-hidden="true" />3 indices
+              </span>
+              <span>
+                <Flag size={17} aria-hidden="true" />3 actes
+              </span>
+            </div>
+          )}
         </div>
         {view?.hasSaved && (
           <div className="rogue-resume">
-            <p>
-              Graine {view.savedSummary?.seed} · {view.savedSummary?.score}{" "}
-              points
-            </p>
             <Button
               disabled={busy}
               variant="primary"
@@ -75,7 +84,7 @@ export function RogueWelcome({
         )}
         <div className="rogue-start-row">
           <Button
-            variant="primary"
+            variant={view?.hasSaved ? "ghost" : "primary"}
             disabled={busy || !/^\d+$/.test(seed) || Number(seed) > 0xffffffff}
             onClick={() => send({ type: "new", seed: Number(seed) })}
             icon={<ArrowRight size={18} />}
@@ -92,9 +101,6 @@ export function RogueWelcome({
               maxLength={10}
             />
           </label>
-        </div>
-        <div className="rogue-hero-glyph" aria-hidden="true">
-          7<span>×</span>
         </div>
       </section>
       <section className="rogue-how" aria-label="Le parcours d’une run">
@@ -148,71 +154,6 @@ export function RogueWelcome({
     </>
   );
 }
-export function RogueProgress({ view }: { view: RogueView }) {
-  return (
-    <section className="rogue-hud" aria-label="État de la run">
-      <div className="rogue-resources">
-        <span aria-label={`${view.lives} vies restantes`}>
-          <Heart size={17} aria-hidden="true" /> <b>{view.lives}</b>
-          <small>/ 3 vies</small>
-        </span>
-        <span aria-label={`${view.hints} indices restants`}>
-          <Lightbulb size={17} aria-hidden="true" />
-          <b>{view.hints}</b>
-          <small>indices</small>
-        </span>
-        <span className="rogue-score">
-          <Trophy size={16} aria-hidden="true" />
-          <b>{view.score.toLocaleString("fr-FR")}</b>
-          <small>pts</small>
-        </span>
-      </div>
-      <div className="rogue-acts">
-        {[1, 2, 3].map((act) => (
-          <div
-            key={act}
-            className={
-              view.defeatedBosses.includes(act)
-                ? "complete"
-                : view.phase.act === act
-                  ? "current"
-                  : ""
-            }
-          >
-            <span>
-              {view.defeatedBosses.includes(act) ? (
-                <Check size={12} aria-hidden="true" />
-              ) : (
-                act
-              )}
-            </span>
-            Acte {act}
-            <Swords size={13} aria-hidden="true" />
-          </div>
-        ))}
-      </div>
-      <div className="rogue-progress-copy">
-        <span>
-          {view.officialVictory
-            ? "Victoire officielle acquise"
-            : `${Math.min(view.successes, view.total)} / ${view.total} épreuves réussies`}
-        </span>
-        {view.screen === "playing" ? (
-          <span
-            role="timer"
-            aria-label={`${view.remaining} secondes restantes`}
-          >
-            {view.remaining} s restantes
-          </span>
-        ) : (
-          view.phase.survival > 0 && (
-            <span>Survie +{Math.max(0, view.successes - view.total)}</span>
-          )
-        )}
-      </div>
-    </section>
-  );
-}
 const CAUSES: Record<string, string> = {
   timeout: "Le chronomètre est arrivé à zéro.",
   "wrong-target": "Votre expression n’atteint pas la cible.",
@@ -246,7 +187,7 @@ export function RogueResult({ view, busy, send }: Actions) {
       </span>
       <h1 id="rogue-title" tabIndex={-1}>
         {result.bossReward
-          ? "Un cap de franchi."
+          ? `Acte ${view.phase.act} terminé.`
           : result.success
             ? "Bien joué."
             : view.lives === 0
@@ -299,6 +240,14 @@ export function RogueResult({ view, busy, send }: Actions) {
         <p className="rogue-boss-reward">
           <Trophy size={16} aria-hidden="true" />+{result.bossReward} points de
           victoire de boss, déjà inclus ci-dessus.
+        </p>
+      )}
+      {result.bossReward !== null && (
+        <p>
+          Ce boss reste dans votre bilan.{" "}
+          {view.phase.act < 3
+            ? `Prochaine étape : acte ${view.phase.act + 1}.`
+            : "Les trois boss sont vaincus."}
         </p>
       )}
       {view.nextSeconds !== 0 && (

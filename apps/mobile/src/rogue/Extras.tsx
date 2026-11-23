@@ -9,7 +9,7 @@ import {
   describeViolation,
 } from "@shortest/engine/rogue-v1";
 import type { RuleViolation, RunArchive } from "@shortest/engine/rogue-v1";
-import { Button } from "../components/ui";
+import { Button } from "./ui";
 import { NativeExpressionInput } from "./RogueInput";
 import { s } from "./styles";
 
@@ -163,7 +163,7 @@ export function NativeExtras({
 }) {
   const [panel, setPanel] = useState<"history" | "tutorial" | null>(null);
   return (
-    <View style={{ gap: 16 }}>
+    <View style={s.card}>
       <Button
         label={`Historique des runs (${entries.length})`}
         onPress={() => setPanel(panel === "history" ? null : "history")}

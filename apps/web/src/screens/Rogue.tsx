@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+import { rogue } from "@shortest/tokens";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, LoaderCircle, Swords, X } from "lucide-react";
@@ -5,9 +7,9 @@ import type { WebAction } from "../rogue/controller";
 import { useRogueSession } from "../rogue/useRogueSession";
 import { ActiveEffects, RogueRewards } from "../components/rogue/RogueCards";
 import { RogueExtras, RogueDiagnostics } from "../components/rogue/RogueExtras";
+import { RogueProgress } from "../components/rogue/RogueProgress";
 import { RoguePuzzle } from "../components/rogue/RoguePuzzle";
 import {
-  RogueProgress,
   RogueResult,
   RogueSummary,
   RogueVictory,
@@ -17,6 +19,14 @@ import { Button } from "../components/ui";
 import { audio } from "../lib/audio";
 import "../rogue/rogue.css";
 import { RoguePlaytestExport } from "../components/rogue/RoguePlaytestExport";
+
+const theme = {
+  ...Object.fromEntries(
+    Object.entries(rogue.colors).map(([name, color]) => [`--r-${name}`, color]),
+  ),
+  "--r-controlRadius": `${rogue.radius.control}px`,
+  "--r-motion": `${rogue.transitionMs}ms`,
+} as CSSProperties;
 
 export function Rogue() {
   const { view, busy, send: perform, controller, error } = useRogueSession();
@@ -39,7 +49,15 @@ export function Rogue() {
     else if (!showConfirmation && dialog.current?.open) dialog.current.close();
   }, [showConfirmation]);
   useEffect(() => {
-    container.current?.querySelector<HTMLElement>("#rogue-title")?.focus();
+    const frame = requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "auto" });
+      container.current
+        ?.querySelector<HTMLElement>(
+          view.screen === "playing" ? "#rogue-expression" : "#rogue-title",
+        )
+        ?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
   }, [view.screen, view.stage]);
   useEffect(() => {
     audio.switchMusic("rogue");
@@ -82,16 +100,27 @@ export function Rogue() {
     }
   }
   const hasRun = view.screen !== "home";
+  const playtestExport = view.hasSaved && (
+    <RoguePlaytestExport
+      report={controller.exportPlaytest}
+      disabled={busy || Boolean(view.storageError)}
+    />
+  );
   return (
-    <div className="rogue-web">
+    <div
+      className={`rogue-web ${hasRun ? "rogue-in-run" : "rogue-at-home"}`}
+      style={theme}
+    >
       <header className="rogue-header">
         <Link to="/" className="rogue-brand">
           <span className="rogue-brand-symbol">
-            <Swords size={19} aria-hidden="true" />
+            {hasRun ? (
+              <ArrowLeft size={21} aria-hidden="true" />
+            ) : (
+              <Swords size={22} aria-hidden="true" />
+            )}
           </span>
-          <span>
-            Shortest<small>MathPrime · Rogue</small>
-          </span>
+          <span>{hasRun ? "Rogue" : "MathPrime"}</span>
         </Link>
         {controller.isActive() ? (
           <button
@@ -138,24 +167,24 @@ export function Rogue() {
         <div
           className={
             hasRun
-              ? `rogue-game-grid${view.screen === "reward" ? " rogue-draft-layout" : ""}`
+              ? `rogue-game-grid${view.screen === "reward" ? " rogue-draft-layout" : ""}${view.screen === "playing" ? " rogue-playing-layout" : ""}`
               : ""
           }
         >
           <div className="rogue-main-panel">
             {view.screen === "home" && (
-              <>
-                <RogueExtras
-                  entries={view.history}
-                  busy={busy || Boolean(view.storageError)}
-                  onDelete={(id) => send({ type: "delete-archive", id })}
-                />
+              <RogueExtras
+                entries={view.history}
+                busy={busy || Boolean(view.storageError)}
+                onDelete={(id) => send({ type: "delete-archive", id })}
+              >
                 <RogueWelcome
                   view={view}
                   busy={busy || !view.hydrated || Boolean(view.storageError)}
                   send={send}
                 />
-              </>
+                {playtestExport}
+              </RogueExtras>
             )}
             {(view.screen === "preparation" || view.screen === "playing") &&
               view.puzzle && (
@@ -196,28 +225,16 @@ export function Rogue() {
               />
             )}
           </div>
-          {hasRun && (
+          {hasRun && view.screen !== "playing" && (
             <aside className="rogue-sidebar">
               <ActiveEffects
                 effects={view.effects}
                 rules={view.puzzle?.rules}
               />
-              <div className="rogue-side-note">
-                <span>Visez juste. Puis plus court.</span>
-                <p>
-                  Les étoiles récompensent la longueur de votre réponse sous les
-                  contraintes actives. Aucun bonus général de vitesse.
-                </p>
-              </div>
             </aside>
           )}
         </div>
-        {view.hasSaved && ["home", "ended"].includes(view.screen) && (
-          <RoguePlaytestExport
-            report={controller.exportPlaytest}
-            disabled={busy || Boolean(view.storageError)}
-          />
-        )}
+        {view.screen === "ended" && playtestExport}
       </main>
       <footer className="rogue-footer">
         Rogue V1 · Sauvegarde automatique locale · Aucune synchronisation cloud

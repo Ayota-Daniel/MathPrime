@@ -4,6 +4,8 @@ import type { Mode } from '@shortest/engine';
 import { tableForMode, tableQuery } from './data/puzzles';
 import { useGame } from './store/game';
 import { useAudioSettings } from './lib/useAudio';
+import { BigChallenge } from './screens/BigChallenge';
+import { Levels } from './screens/Levels';
 import { Home } from './screens/Home';
 import { Play } from './screens/Play';
 import { Settings } from './screens/Settings';
@@ -19,13 +21,17 @@ function Layout() {
   useAudioSettings(); // applique sound/music selon les réglages
   return (
     <div className={reduce ? 'reduce-motion' : ''}>
-      <div className={`mx-auto ${roguePage ? 'max-w-[1080px]' : 'max-w-app'} min-h-screen flex flex-col bg-bg`}><Outlet /></div>
+      <div className={roguePage ? 'rogue-shell' : 'math-page'}>
+        <Outlet />
+      </div>
     </div>
   );
 }
 
 const rootRoute = createRootRoute({ component: Layout });
 const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: Home });
+const bigRoute = createRoute({ getParentRoute: () => rootRoute, path: '/big-challenge', component: BigChallenge });
+const levelsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/niveaux', component: Levels });
 const settingsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/settings', component: Settings });
 const aboutRoute = createRoute({ getParentRoute: () => rootRoute, path: '/about', component: About });
 const statsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/stats', component: Stats });
@@ -37,11 +43,15 @@ const rogueRoute = createRoute({ getParentRoute: () => rootRoute, path: '/rogue'
 });
 const playRoute = createRoute({
   getParentRoute: () => rootRoute, path: '/play/$mode',
+  validateSearch: (search: Record<string, unknown>): { niveau?: number } => {
+    const level = Number(search.niveau);
+    return Number.isInteger(level) && level >= 1 && level <= 100 ? { niveau: level } : {};
+  },
   beforeLoad: ({ params }) => { if (params.mode === 'rogue') throw redirect({ to: '/rogue', replace: true }); },
   loader: ({ params }) => queryClient.ensureQueryData(tableQuery(tableForMode(params.mode as Mode))),
   component: Play,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, rogueRoute, playRoute, settingsRoute, aboutRoute, statsRoute, leaderboardRoute]);
+const routeTree = rootRoute.addChildren([indexRoute, bigRoute, levelsRoute, rogueRoute, playRoute, settingsRoute, aboutRoute, statsRoute, leaderboardRoute]);
 export const router = createRouter({ routeTree });
 declare module '@tanstack/react-router' { interface Register { router: typeof router; } }

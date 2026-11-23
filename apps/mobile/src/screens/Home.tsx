@@ -1,61 +1,194 @@
-import { ScrollView, View, Text, Pressable } from 'react-native';
-import { Target, Calendar, Zap, Swords, Shield, BarChart3, Trophy, Settings as Cog, type LucideIcon } from 'lucide-react-native';
+import { useState } from 'react';
+import { View, Image, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { ChevronDown, LockKeyhole, Star } from 'lucide-react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import {
+  colors,
+  featuredInfo,
+  featuredModes,
+  levelNumbers,
+  modeNames,
+  rogue,
+  type FeaturedMode,
+} from '@shortest/tokens';
 import type { RootStack } from '../../App';
-import { bigColor } from '../theme';
 import { TopBar } from '../components/TopBar';
-import { audio } from '../audio';
+import { GameText as Text, g } from '../components/GameScreen';
+import { Button } from '../components/ui';
+import { useGame } from '../store';
 
-const MODES: { id: string; name: string; tg: string; color: string; icon: LucideIcon }[] = [
-  { id: 'classic', name: 'Classique', tg: '100 niveaux · gate 3★', color: '#5B5BD6', icon: Target },
-  { id: 'daily', name: 'Daily', tg: 'Un défi par jour', color: '#179C6B', icon: Calendar },
-  { id: 'freeskill', name: 'Free Skill', tg: 'Chrono · adaptatif', color: '#E8A317', icon: Zap },
-  { id: 'rogue', name: 'Rogue', tg: '3 actes · 12 cartes · 3 boss', color: '#E5484D', icon: Swords },
-];
-
-function ModeCard({ name, tg, color, icon: Icon, onPress }: { name: string; tg: string; color: string; icon: LucideIcon; onPress: () => void }) {
-  return (
-    <Pressable onPress={() => { void audio.play('select'); onPress(); }} className="flex-1 bg-card border border-line rounded-mode p-[14px] min-h-[104px] active:opacity-80">
-      <View className="w-[38px] h-[38px] rounded-[11px] mb-[8px] items-center justify-center" style={{ backgroundColor: color }}>
-        <Icon size={20} color="#FFFFFF" />
-      </View>
-      <Text className="font-semibold text-[15px]">{name}</Text>
-      <Text className="text-mut text-[12px]">{tg}</Text>
-    </Pressable>
+export function Home({
+  navigation,
+}: NativeStackScreenProps<RootStack, 'Home'>) {
+  const [tab, setTab] = useState<FeaturedMode>('classic');
+  const [more, setMore] = useState(false);
+  const level = useGame((s) => s.classicProgress + 1);
+  const stars = useGame((s) =>
+    Object.values(s.classicStars).reduce((sum, n) => sum + n, 0),
   );
-}
-
-function FlatBtn({ label, icon: Icon, color, onPress }: { label: string; icon: LucideIcon; color: string; onPress: () => void }) {
+  const info = featuredInfo(tab, level);
   return (
-    <Pressable onPress={() => { void audio.play('select'); onPress(); }} className="flex-1 bg-card border border-line rounded-mode p-[14px] flex-row items-center gap-[10px] active:opacity-80">
-      <View className="w-[30px] h-[30px] rounded-[9px] items-center justify-center" style={{ backgroundColor: color }}><Icon size={17} color="#FFFFFF" /></View>
-      <Text className="font-semibold">{label}</Text>
-    </Pressable>
-  );
-}
-
-export function Home({ navigation }: NativeStackScreenProps<RootStack, 'Home'>) {
-  const go = (mode: string) => mode === 'rogue' ? navigation.navigate('Rogue') : navigation.navigate('Play', { mode });
-  return (
-    <View className="flex-1 bg-bg">
+    <>
       <TopBar />
-      <ScrollView contentContainerStyle={{ padding: 18, gap: 14 }}>
-        <View>
-          <Text className="font-bold text-[22px]">Écris-le le plus court</Text>
-          <Text className="text-mut text-[13.5px] mt-[2px]">Atteins la cible avec 3, 5, 7 et +, −, ×. Le plus court gagne.</Text>
+      <ScrollView contentContainerStyle={g.wrap}>
+        <View style={g.between}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.title}>Ton prochain{'\n'}déclic t’attend.</Text>
+            <Text>Le plaisir de trouver.</Text>
+          </View>
+          <Image
+            source={require('../../../../packages/tokens/assets/math-tiles.png')}
+            accessible={false}
+            resizeMode="contain"
+            style={{ width: '34%', height: 110 }}
+          />
         </View>
-        <View className="flex-row gap-[12px]">{MODES.slice(0, 2).map((m) => <ModeCard key={m.id} {...m} onPress={() => go(m.id)} />)}</View>
-        <View className="flex-row gap-[12px]">{MODES.slice(2).map((m) => <ModeCard key={m.id} {...m} onPress={() => go(m.id)} />)}</View>
-        <Text className="font-semibold text-[13.5px]">Big Challenge</Text>
-        <View className="flex-row gap-[12px]">
-          {[3, 5, 7].map((x) => <ModeCard key={x} name={`Big ${x}`} tg={`Contient un ${x}`} color={bigColor[x]} icon={Shield} onPress={() => go(`big${x}`)} />)}
+        <View style={styles.tabs}>
+          {featuredModes.map((mode) => (
+            <Pressable
+              key={mode}
+              accessibilityRole="button"
+              accessibilityState={{ selected: tab === mode }}
+              onPress={() => setTab(mode)}
+              style={[styles.tab, tab === mode && { borderColor: colors.pri }]}
+            >
+              <Text style={{ fontFamily: rogue.font.display, fontSize: 19 }}>
+                {modeNames[mode]}
+              </Text>
+            </Pressable>
+          ))}
         </View>
-        <View className="flex-row gap-[12px]">
-          <FlatBtn label="Statistiques" icon={BarChart3} color="#179C6B" onPress={() => navigation.navigate('Stats')} />
-          <FlatBtn label="Leaderboard" icon={Trophy} color="#E8A317" onPress={() => navigation.navigate('Leaderboard')} />
+        <View style={g.blue}>
+          <Text style={[g.light, { textTransform: 'uppercase', fontSize: 12 }]}>
+            {info.eyebrow}
+          </Text>
+          <Text
+            style={[g.light, { fontFamily: rogue.font.display, fontSize: 33 }]}
+          >
+            {modeNames[tab]}
+          </Text>
+          <Text style={g.light}>{info.detail}</Text>
+          {tab === 'classic' && (
+            <>
+              <View style={g.row}>
+                <Star size={16} color={colors.accent} fill={colors.accent} />
+                <Text style={g.light}>{stars} étoiles</Text>
+              </View>
+              <View style={styles.trail}>
+                {levelNumbers(Math.max(1, Math.min(level - 2, 96)), 5).map(
+                  (n) => (
+                    <View
+                      key={n}
+                      style={[
+                        styles.step,
+                        n > level && { backgroundColor: colors.op },
+                        n === level && { borderColor: colors.pri },
+                      ]}
+                    >
+                      <Text style={{ fontFamily: rogue.font.display }}>
+                        {n}
+                      </Text>
+                      {n > level && (
+                        <LockKeyhole size={12} color={colors.ink} />
+                      )}
+                    </View>
+                  ),
+                )}
+              </View>
+              <Pressable
+                accessibilityRole="button"
+                style={{ alignSelf: 'center', padding: 10 }}
+                onPress={() => navigation.navigate('Levels')}
+              >
+                <Text style={[g.light, { textDecorationLine: 'underline' }]}>
+                  Voir les niveaux
+                </Text>
+              </Pressable>
+            </>
+          )}
         </View>
-        <FlatBtn label="Settings" icon={Cog} color="#5A6B7B" onPress={() => navigation.navigate('Settings')} />
+        <Button
+          variant="primary"
+          label={info.action}
+          onPress={() =>
+            tab === 'rogue'
+              ? navigation.navigate('Rogue')
+              : navigation.navigate('Play', { mode: tab })
+          }
+        />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ expanded: more }}
+          onPress={() => setMore(!more)}
+          style={[g.between, styles.more]}
+        >
+          <View>
+            <Text style={styles.section}>Tous les modes</Text>
+            <Text>Big Challenge et Free Skill</Text>
+          </View>
+          <ChevronDown color={colors.ink} size={19} />
+        </Pressable>
+        {more && (
+          <>
+            <Button
+              label="Big Challenge"
+              onPress={() => navigation.navigate('BigChallenge')}
+            />
+            <Button
+              label="Free Skill"
+              onPress={() => navigation.navigate('Play', { mode: 'freeskill' })}
+            />
+          </>
+        )}
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => navigation.navigate('Help')}
+          style={{ padding: 12, alignItems: 'center' }}
+        >
+          <Text style={{ textDecorationLine: 'underline' }}>
+            Comment jouer ?
+          </Text>
+        </Pressable>
       </ScrollView>
-    </View>
+    </>
   );
 }
+const styles = StyleSheet.create({
+  title: {
+    fontFamily: rogue.font.display,
+    fontSize: 31,
+    lineHeight: 34,
+    color: colors.ink,
+  },
+  tabs: { flexDirection: 'row', justifyContent: 'space-around' },
+  tab: {
+    borderBottomWidth: 4,
+    borderColor: 'transparent',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+  },
+  trail: {
+    flexDirection: 'row',
+    gap: 6,
+    justifyContent: 'center',
+    marginTop: 7,
+  },
+  step: {
+    flex: 1,
+    maxWidth: 54,
+    height: 45,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.num,
+  },
+  section: { fontFamily: rogue.font.display, fontSize: 19 },
+  more: {
+    paddingVertical: 12,
+    borderColor: colors.line,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+  },
+});

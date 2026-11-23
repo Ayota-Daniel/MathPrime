@@ -1,135 +1,190 @@
 import { useEffect } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStack } from '../../App';
-import type { Mode } from '@shortest/engine';
-import { evaluate, operandCount, exprTokens } from '@shortest/engine';
+import {
+  evaluate,
+  operandCount,
+  exprTokens,
+  hintStarCeiling,
+  type Mode,
+} from '@shortest/engine';
+import { colors, formatCalculation, modeNames, rogue } from '@shortest/tokens';
 import { useGame } from '../store';
 import { loadTable } from '../data';
 import { audio } from '../audio';
-import { TopBar } from '../components/TopBar';
-import { Card, Button, Tile, Chip } from '../components/ui';
+import { Button, Tile } from '../components/ui';
 import { TimerBar } from '../components/TimerBar';
-import { ConditionBanner } from '../components/ConditionBanner';
 import { FeedbackSheet } from '../components/FeedbackSheet';
+import { GameText as Text, g } from '../components/GameScreen';
+import { Back } from './Guide';
 
-const sym = (o: string) => (o === '*' ? '×' : o === '-' ? '−' : '+');
-const liveValue = (input: string): string => { try { return /[+\-*]$|^$/.test(input) ? '—' : String(evaluate(input)); } catch { return '—'; } };
-
-export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'Play'>) {
+function valueOf(input: string) {
+  try {
+    return !input || /[+*\-]$/.test(input) ? '—' : evaluate(input);
+  } catch {
+    return '—';
+  }
+}
+export function Play({
+  route,
+  navigation,
+}: NativeStackScreenProps<RootStack, 'Play'>) {
   const mode = route.params.mode as Mode;
-  const { session, rogueSelectionFailed, start, press, del, clear, submit, next, tick, hint, chooseModifier, clearSoftFeedback, quit } = useGame();
-
-  useEffect(() => { if (mode === 'rogue') { navigation.replace('Rogue'); return; } start(mode, loadTable(mode)); void audio.switchMusic('main'); }, [mode, start, navigation]);
-
-  // timer Free Skill + bip "tick" sous 5 s
+  const level = route.params.niveau;
+  const {
+    session: s,
+    start,
+    press,
+    del,
+    clear,
+    submit,
+    next,
+    tick,
+    hint,
+    clearSoftFeedback,
+    quit,
+  } = useGame();
+  useEffect(() => {
+    if (mode === 'rogue') {
+      navigation.replace('Rogue');
+      return;
+    }
+    start(mode, loadTable(mode), level === undefined ? undefined : level - 1);
+    void audio.switchMusic('main');
+  }, [mode, level, start, navigation]);
   useEffect(() => {
     if (mode !== 'freeskill') return;
-    const id = setInterval(() => {
-      const s = useGame.getState().session;
-      if (s && !s.feedback && s.secondsLeft <= 5 && s.secondsLeft > 0) void audio.play('tick');
+    const timer = setInterval(() => {
+      const now = useGame.getState().session;
+      if (now && !now.feedback && now.secondsLeft <= 5 && now.secondsLeft > 0)
+        void audio.play('tick');
       tick();
     }, 1000);
-    return () => clearInterval(id);
+    return () => clearInterval(timer);
   }, [mode, tick]);
-
-  if (mode === 'rogue') return null;
-  if (rogueSelectionFailed || session?.rogue?.over) {
-    return (
-      <View className="flex-1 bg-bg">
-        <TopBar streakMode="rogue" />
-        <View className="flex-1 items-center justify-center p-[18px] gap-[6px]">
-          <Text className="font-bold text-[22px]">Run terminé</Text>
-          {rogueSelectionFailed && <Text className="text-mut">Aucun puzzle trouvé dans les limites de recherche.</Text>}
-          <Text className="text-mut">Survécu à {session?.rogue?.solved ?? 0} puzzles.</Text>
-          <Text className="font-bold text-[60px] text-gold">{session?.rogue?.score ?? 0}</Text>
-          <View className="w-[220px] mt-[18px]"><Button variant="primary" label="Rejouer" onPress={() => start('rogue', loadTable('rogue'))} /></View>
-          <Pressable className="mt-[10px]" onPress={() => { quit(); navigation.goBack(); }}><Text className="text-pri font-semibold">Menu</Text></Pressable>
-        </View>
-      </View>
-    );
-  }
-
-  if (!session) return null;
-  const s = session; const p = s.puzzle;
-
-  if (s.draft) {
-    return (
-      <View className="flex-1 bg-bg">
-        <TopBar streakMode="rogue" />
-        <ScrollView contentContainerStyle={{ padding: 18, gap: 12 }}>
-          <Text className="font-bold text-[22px]">Choisis une contrainte</Text>
-          <Text className="text-mut text-[13.5px]">Elle s'applique à la suite. Les malus rapportent plus.</Text>
-          {s.draft.map((m) => (
-            <Pressable key={m.id} onPress={() => { void audio.play('select'); chooseModifier(m); }}
-              className="border border-line rounded-[16px] p-[16px] flex-row items-center gap-[12px] active:opacity-80">
-              <View className="w-[38px] h-[38px] rounded-[11px] items-center justify-center" style={{ backgroundColor: m.kind === 'boon' ? '#179C6B' : '#E5484D' }}>
-                <Text className="text-white font-bold">{m.kind === 'boon' ? '+' : '×'}</Text>
-              </View>
-              <View className="flex-1">
-                <Text className="font-semibold">{m.label}</Text>
-                <Text className="text-mut text-[12px]">{m.kind === 'boon' ? 'Avantage' : 'Malus'} · score ×{m.scoreMult}</Text>
-              </View>
-            </Pressable>
-          ))}
-        </ScrollView>
-      </View>
-    );
-  }
-
-  const fb = s.feedback;
+  if (!s || s.mode !== mode || mode === 'rogue') return null;
+  const tokens = exprTokens(s.puzzle.expr);
   return (
-    <View className="flex-1 bg-bg">
-      <TopBar streakMode={mode} />
-      <ScrollView contentContainerStyle={{ padding: 18, gap: 12 }}>
-        <Pressable onPress={() => { quit(); navigation.goBack(); }}><Text className="text-mut font-semibold">‹ Quitter</Text></Pressable>
-
-        <ConditionBanner mode={mode} rules={s.rules} lives={s.rogue?.lives} mods={s.rogue?.mods} />
-        {mode === 'freeskill' && <TimerBar secondsLeft={s.secondsLeft} maxSeconds={s.maxSeconds} />}
-
-        <Card>
-          <View className="items-center gap-[4px] pb-[14px] pt-[8px]">
-            <Text className="text-mut text-[12px] font-semibold">CIBLE</Text>
-            <Text className="font-bold text-[60px]">{p.target}</Text>
-            <View className="flex-row gap-[6px] mt-[4px]">
-              <Chip>Niveau {p.difficulty}</Chip>
-              <Chip bg="#FBEFE0" color="#B5651d">optimal · {s.optimalOperands}</Chip>
-            </View>
+    <ScrollView contentContainerStyle={[g.wrap, { gap: 8 }]}>
+      <Back
+        label={
+          mode === 'classic'
+            ? 'Niveaux'
+            : mode.startsWith('big')
+              ? 'Big Challenge'
+              : 'Accueil'
+        }
+        go={() => {
+          quit();
+          if (mode === 'classic') navigation.popTo('Levels');
+          else navigation.goBack();
+        }}
+      />
+      <Text style={g.title}>{modeNames[mode]}</Text>
+      <Text style={g.sub}>
+        {mode === 'classic'
+          ? `Niveau ${s.index + 1} / 100`
+          : mode === 'daily'
+            ? s.dailyDate
+            : mode === 'freeskill'
+              ? `Difficulté ${s.level} / 5`
+              : `Chiffre ${s.rules.required.join(', ')} obligatoire`}
+      </Text>
+      {s.feedback ? (
+        <FeedbackSheet
+          fb={s.feedback}
+          input={s.input}
+          onContinue={next}
+          onRetry={clearSoftFeedback}
+        />
+      ) : (
+        <>
+          <View style={g.strip}>
+            <Text
+              style={{ textAlign: 'center', fontFamily: rogue.font.strong }}
+            >
+              Sans parenthèses · La multiplication est prioritaire
+            </Text>
           </View>
-
-          <View className="min-h-[40px] items-center justify-center border-b border-dashed border-line py-[6px]">
-            <Text className="font-bold text-[24px]">{s.input || <Text className="text-[#AEBccB] text-[15px]">touche les tuiles…</Text>}</Text>
+          <View style={[g.blue, { padding: 10, gap: 0 }]}>
+            <Text style={[g.light, { textAlign: 'center' }]}>Cible</Text>
+            <Text style={g.value}>{s.puzzle.target}</Text>
+            {mode === 'freeskill' ? (
+              <TimerBar secondsLeft={s.secondsLeft} maxSeconds={s.maxSeconds} />
+            ) : (
+              <Text style={[g.light, { textAlign: 'center' }]}>
+                Minimum · {s.optimalOperands} chiffres
+              </Text>
+            )}
           </View>
-          <View className="flex-row justify-between mt-[8px]">
-            <Text className="text-[13px] text-mut">vaut <Text className="text-ink font-bold">{liveValue(s.input)}</Text></Text>
-            <Text className="text-[13px] text-mut">{s.input ? `${operandCount(s.input)} chiffre(s)` : ''}</Text>
+          <Text
+            style={{
+              textAlign: 'center',
+              fontFamily: rogue.font.display,
+              fontSize: s.input ? 28 : 18,
+              minHeight: 40,
+              borderBottomWidth: 3,
+              borderColor: colors.pri,
+            }}
+          >
+            {s.input ? formatCalculation(s.input) : 'Construis ton expression…'}
+          </Text>
+          <View style={g.between}>
+            <Text>Résultat · {valueOf(s.input)}</Text>
+            <Text>{operandCount(s.input)} chiffres</Text>
           </View>
-
-          <View className="flex-row gap-[10px] mt-[14px]">
-            {s.rules.numbers.map((n) => <Tile key={n} label={String(n)} kind="num" onPress={() => press(String(n))} />)}
+          <View style={g.row}>
+            {s.rules.numbers.map((n) => (
+              <Tile
+                key={n}
+                kind="num"
+                label={String(n)}
+                onPress={() => press(String(n))}
+              />
+            ))}
           </View>
-          <View className="flex-row gap-[10px] mt-[10px]">
-            {s.rules.operations.map((o) => <Tile key={o} label={sym(o)} kind="op" onPress={() => press(o)} />)}
+          <View style={g.row}>
+            {s.rules.operations.map((op) => (
+              <Tile
+                key={op}
+                kind="op"
+                label={formatCalculation(op)}
+                onPress={() => press(op)}
+              />
+            ))}
           </View>
-
+          <View style={g.between}>
+            <Button label="Vider" onPress={clear} />
+            <Button label="Effacer" onPress={del} />
+            <Button
+              label="Indice"
+              onPress={hint}
+              disabled={s.hintsUsed >= tokens.length}
+            />
+          </View>
           {s.hintsUsed > 0 && (
-            <Text className="mt-[10px] text-center text-[13px] text-mut">
-              indice : <Text className="font-bold text-ink">{exprTokens(s.puzzle.expr).slice(0, s.hintsUsed).join('')}…</Text>
+            <Text style={g.sub}>
+              Indice ·{' '}
+              {formatCalculation(tokens.slice(0, s.hintsUsed).join(''))}… ·
+              maximum {hintStarCeiling(s.hintsUsed, tokens.length)}★
             </Text>
           )}
-          <View className="flex-row gap-[10px] mt-[10px]">
-            <View className="flex-1"><Button label="Effacer" onPress={del} /></View>
-            <View className="flex-1"><Button label="Vider" onPress={clear} /></View>
-            <View className="flex-1"><Button label="Indice" onPress={hint} disabled={s.hintsUsed >= exprTokens(s.puzzle.expr).length} /></View>
-          </View>
-          <View className="mt-[10px]"><Button variant="primary" label={s.dailySaving ? 'Enregistrement…' : 'Valider'} onPress={submit} disabled={!s.input || s.dailySaving} /></View>
-        </Card>
-
-        {s.mode === 'daily' && s.dailyTraining && <Text className="text-center text-mut text-[12px]">Défi du jour déjà validé : entraînement sans nouvelle récompense.</Text>}
-        <Text className="text-center text-mut text-[13px]">Score : <Text className="text-ink font-bold">{s.rogue ? s.rogue.score : s.score}</Text>{mode === 'freeskill' ? ` · niveau ${s.level}` : ''}</Text>
-      </ScrollView>
-
-      {fb && <FeedbackSheet fb={fb} input={s.input} onContinue={next} onRetry={clearSoftFeedback} />}
-    </View>
+          <Button
+            label={s.dailySaving ? 'Enregistrement…' : 'Valider'}
+            variant="primary"
+            disabled={!s.input || s.dailySaving}
+            onPress={submit}
+          />
+          <Text style={g.sub}>
+            Score · {s.score}
+            {mode === 'freeskill' && ` · Série ${s.streak}`}
+            {mode === 'daily' &&
+              s.dailyTraining &&
+              ' · Entraînement sans nouvelle récompense'}
+          </Text>
+        </>
+      )}
+    </ScrollView>
   );
 }

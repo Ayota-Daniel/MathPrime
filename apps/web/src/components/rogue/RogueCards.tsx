@@ -1,8 +1,8 @@
+import { useState } from "react";
 import {
   ArrowUpRight,
   Heart,
   ShieldCheck,
-  Sparkles,
   Swords,
   Timer,
   Hash,
@@ -46,38 +46,56 @@ export function RogueCard({
   operation,
   nextLimit,
   busy,
-  onSelect,
+  choice,
 }: {
   id: CardId;
   level?: number;
   operation?: string;
   nextLimit?: number;
   busy?: boolean;
-  onSelect?: () => void;
+  choice?: { id: string; selected: boolean; select: () => void };
 }) {
   const card = CARDS[id];
   const terms = presentCard(id, level);
   const Icon = ICONS[id];
   const family = id[0] === "D" ? "durable" : id[0] === "T" ? "tempo" : "pact";
+  const familyName = {
+    durable: "Durable",
+    tempo: "Temporaire",
+    pact: "Échange",
+  }[family];
   return (
-    <article className={`rogue-card rogue-card-${family}`}>
+    <article
+      className={`rogue-card rogue-card-${family}${choice ? " rogue-offer" : ""}`}
+    >
+      {choice && (
+        <input
+          type="radio"
+          name="rogue-evolution"
+          id={`offer-${choice.id}`}
+          checked={choice.selected}
+          onChange={choice.select}
+          disabled={busy}
+        />
+      )}
       <div className="rogue-card-top">
         <span className="rogue-card-icon">
           <Icon size={22} aria-hidden="true" />
         </span>
-        <span className="rogue-eyebrow">
-          {id} ·{" "}
-          {family === "durable"
-            ? "Durable"
-            : family === "tempo"
-              ? "Temporaire"
-              : "Échange"}
-        </span>
+        {!choice && (
+          <span className="rogue-eyebrow">
+            {id} · {familyName}
+          </span>
+        )}
       </div>
       {operation && <p className="rogue-operation">{operation}</p>}
       <h3>
-        {card.name}
-        <span className="rogue-level"> · Niveau {level}</span>
+        {choice ? (
+          <label htmlFor={`offer-${choice.id}`}>{card.name}</label>
+        ) : (
+          card.name
+        )}
+        {!choice && <span className="rogue-level"> · Niveau {level}</span>}
       </h3>
       <p className="rogue-card-gain">
         <ArrowUpRight size={16} aria-hidden="true" />
@@ -95,21 +113,17 @@ export function RogueCard({
       )}
       <p className="rogue-card-duration">
         <Timer size={13} aria-hidden="true" />
+        {choice && `Niveau ${level} · ${familyName} · `}
         {duration(id)}
       </p>
-      {onSelect && (
-        <Button disabled={busy} onClick={onSelect} className="w-full mt-auto">
-          Choisir cette carte
-        </Button>
-      )}
     </article>
   );
 }
-function offerOperation(offer: Offer): string {
+function offerOperation(offer: Offer): string | undefined {
   if (offer.kind === "upgrade") return "Améliorer votre carte";
   if (offer.kind === "replace" && offer.replaces)
     return `Remplace ${CARDS[offer.replaces].name} (${offer.replaces})`;
-  return "Ajouter à votre build";
+  return undefined;
 }
 export function RogueRewards({
   view,
@@ -120,23 +134,22 @@ export function RogueRewards({
   busy: boolean;
   choose: (index: number) => void;
 }) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedIndex = view.offers.findIndex(
+    (offer) => offer.id === selectedId,
+  );
   return (
     <section className="rogue-rewards" aria-labelledby="rogue-title">
-      <span className="rogue-kicker">
-        <Sparkles size={16} aria-hidden="true" />
+      <p className="rogue-kicker">
         {view.majorReward ? "Récompense majeure" : "Choix tactique"}
-      </span>
-      <h1 id="rogue-title" tabIndex={-1}>
-        {view.majorReward
-          ? "Un nouveau cap pour votre run."
-          : "Quel risque vaut la peine ?"}
-      </h1>
-      <p className="rogue-lead">
-        Une carte, un avantage, une contrepartie. Votre choix s’applique dès la
-        prochaine rencontre.
       </p>
-      <div className="rogue-draft-grid">
-        {view.offers.map((offer, index) => (
+      <h1 id="rogue-title" tabIndex={-1}>
+        Choisissez une évolution
+      </h1>
+      <p className="rogue-lead">Un avantage, une contrepartie.</p>
+      <fieldset className="rogue-offers">
+        <legend className="sr-only">Évolutions proposées</legend>
+        {view.offers.map((offer) => (
           <RogueCard
             key={offer.id}
             id={offer.card}
@@ -159,10 +172,23 @@ export function RogueRewards({
                 : undefined
             }
             busy={busy}
-            onSelect={() => choose(index + 1)}
+            choice={{
+              id: offer.id,
+              selected: offer.id === selectedId,
+              select: () => setSelectedId(offer.id),
+            }}
           />
         ))}
-      </div>
+      </fieldset>
+      {view.offers.length > 0 && (
+        <Button
+          variant="primary"
+          disabled={busy || selectedIndex < 0}
+          onClick={() => choose(selectedIndex + 1)}
+        >
+          Choisir cette évolution
+        </Button>
+      )}
       {!view.offers.length && (
         <p role="status">
           Aucune carte admissible pour votre build. Vous pouvez continuer.
@@ -192,11 +218,6 @@ export function ActiveEffects({
           {effects.length} carte{effects.length > 1 ? "s" : ""}
         </span>
       </div>
-      {!effects.length && (
-        <p className="rogue-muted">
-          Aucune carte active pour cette étape de la run.
-        </p>
-      )}
       {effects.map((effect) => {
         const Icon = ICONS[effect.id];
         const terms = presentCard(effect.id, effect.level, rules);

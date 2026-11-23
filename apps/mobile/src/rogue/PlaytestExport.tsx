@@ -9,7 +9,8 @@ import type {
   HumanFeedback,
   HumanPlaytestReport,
 } from "@shortest/engine/rogue-v1";
-import { Button } from "../components/ui";
+import { Button } from "./ui";
+import { rogue } from "@shortest/tokens";
 import { s } from "./styles";
 
 function Choices({
@@ -35,7 +36,15 @@ function Choices({
           accessibilityState={{ checked: selected === key, disabled }}
           disabled={disabled}
           onPress={() => choose(key)}
-          style={{ padding: 12 }}
+          style={{
+            padding: 12,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor:
+              selected === key ? rogue.colors.gold : rogue.colors.border,
+            backgroundColor:
+              selected === key ? rogue.colors.raised : rogue.colors.panel,
+          }}
         >
           <Text style={s.body}>
             {selected === key ? "◉" : "○"} {label}

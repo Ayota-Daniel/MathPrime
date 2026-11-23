@@ -45,7 +45,7 @@ export interface GameState extends Omit<SaveState, 'version'> {
   setSetting: <K extends keyof SaveState['settings']>(k: K, v: SaveState['settings'][K]) => void;
   setPseudo: (p: string) => void;
   resetProgress: () => void;
-  start: (mode: Mode, table: Puzzle[]) => void;
+  start: (mode: Mode, table: Puzzle[], classicIndex?: number) => void;
   press: (tok: string) => void; del: () => void; clear: () => void;
   hint: () => void;
   submit: () => void; tick: () => void; next: () => void;
@@ -105,10 +105,13 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
       save(get);
     },
 
-    start(mode, table) {
+    start(mode, table, classicIndex) {
       const rogue = mode === 'rogue' ? newRogueRun() : null;
       const rules = rogue ? rogue.rules : rulesFor(mode);
-      const index = mode === 'classic' ? get().classicProgress : 0;
+      const unlocked = get().classicProgress;
+      const selected = classicIndex !== undefined && Number.isInteger(classicIndex) && classicIndex >= 0 && classicIndex <= unlocked
+        ? classicIndex : unlocked;
+      const index = mode === 'classic' ? selected : 0;
       const level = mode === 'freeskill' ? FREESKILL_START : 1;
       const startedAt = now();
       const today = dateKey(startedAt);
