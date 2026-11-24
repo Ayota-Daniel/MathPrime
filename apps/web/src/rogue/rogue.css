@@ -422,94 +422,6 @@
   color: var(--ink);
   margin: 0 auto 16px;
 }
-.rogue-resources {
-  display: flex;
-  gap: clamp(8px, 2vw, 24px);
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 0;
-  font-weight: 800;
-}
-.rogue-controls .rogue-resources {
-  margin-bottom: 18px;
-  border-bottom: 1px solid var(--line);
-}
-.rogue-resources > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-.rogue-resources small {
-  font-size: 14px;
-}
-.rogue-resources svg {
-  width: 20px;
-  height: 20px;
-  color: var(--r-gold);
-}
-.rogue-resources > span:first-child svg {
-  color: var(--r-coral);
-  fill: currentColor;
-}
-.rogue-acts {
-  display: flex;
-  justify-content: center;
-  margin: auto;
-  max-width: min(58vw, 840px);
-}
-.rogue-acts li {
-  flex: 1;
-  position: relative;
-  text-align: center;
-  color: var(--r-muted);
-  font-weight: 800;
-  font-size: 15px;
-}
-.rogue-acts li:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  top: 12px;
-  left: calc(50% + 14px);
-  right: calc(-50% + 14px);
-  border-top: 2px dashed var(--r-border);
-}
-.rogue-acts li.complete::after {
-  border-top: 2px solid var(--r-ivory);
-}
-.rogue-act-marker {
-  display: grid;
-  place-items: center;
-  margin: 0 auto 3px;
-  width: 26px;
-  height: 26px;
-  border: 2px solid var(--r-muted);
-  background: var(--r-night);
-  color: var(--r-muted);
-  border-radius: 50%;
-}
-.rogue-acts [aria-current="step"] {
-  color: var(--r-ivory);
-}
-.rogue-acts [aria-current="step"] .rogue-act-marker {
-  background: var(--r-coral);
-  border: 4px double var(--r-night);
-  outline: 2px solid var(--r-coral);
-  outline-offset: -1px;
-  color: var(--r-night);
-}
-.rogue-acts .complete .rogue-act-marker {
-  background: var(--r-ivory);
-  color: var(--r-night);
-}
-.rogue-progress-copy {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin: 4px 0;
-  color: var(--secondary);
-  font-size: 13px;
-}
 .rogue-game-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 240px;
@@ -660,32 +572,6 @@
   border: 0;
   padding: 0;
 }
-.rogue-live-rules {
-  margin-bottom: 24px;
-}
-.rogue-live-rules > p {
-  text-align: center;
-  padding: 6px;
-}
-.rogue-base-rule {
-  cursor: pointer;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1em;
-  text-align: center;
-  padding: 5px 12px;
-  border: 1px solid var(--line);
-  background: var(--r-panel);
-  border-radius: 30px;
-  margin: 0;
-  font-weight: 800;
-}
-.rogue-base-rule span + span {
-  border-left: 1px solid var(--r-muted);
-  padding-left: 1em;
-}
 .rogue-entry-live {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
@@ -722,72 +608,6 @@
   padding: 10px 0;
   background: transparent;
   border: 0;
-}
-.rogue-target-panel {
-  background: var(--r-panel);
-  border: 1px solid var(--r-border);
-  border-radius: 26px;
-  padding: 20px clamp(12px, 2vw, 30px);
-}
-.rogue-target-panel .rogue-constraints {
-  justify-content: center;
-}
-.rogue-target-time {
-  display: grid;
-  grid-template-columns: 1fr 1.1fr;
-  gap: 14px;
-  align-items: center;
-}
-.rogue-target {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.rogue-target > span,
-.rogue-clock > span {
-  font-size: 16px;
-  font-weight: 800;
-}
-.rogue-target strong {
-  font-size: clamp(64px, 6vw, 94px);
-  font-weight: 800;
-  line-height: 1.1;
-}
-.rogue-clock {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-  padding-left: 18px;
-  border-left: 1px solid var(--r-muted);
-}
-.rogue-clock strong {
-  font-size: 42px;
-  font-weight: 800;
-  color: var(--r-gold);
-  font-variant-numeric: tabular-nums;
-  line-height: 1.2;
-}
-.rogue-clock progress {
-  appearance: none;
-  width: min(100%, 150px);
-  height: 8px;
-  border: none;
-  border-radius: 8px;
-  overflow: hidden;
-}
-.rogue-clock progress::-webkit-progress-bar {
-  background: var(--r-border);
-}
-.rogue-clock progress::-webkit-progress-value {
-  background: var(--r-gold);
-}
-.rogue-clock progress::-moz-progress-bar {
-  background: var(--r-gold);
-}
-.rogue-clock p {
-  color: var(--r-error);
-  font-size: 12px;
 }
 .rogue-calculation > label {
   display: block;
@@ -1268,18 +1088,6 @@
     background: var(--r-night);
     margin-bottom: 8px;
   }
-  .rogue-acts {
-    max-width: 340px;
-  }
-  .rogue-acts li {
-    font-size: 13px;
-  }
-  .rogue-hud .rogue-resources {
-    padding: 4px 0;
-  }
-  .rogue-progress-copy {
-    font-size: 12px;
-  }
   .rogue-entry-live {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: "math" "keys" "effects";
@@ -1292,22 +1100,6 @@
   .rogue-puzzle-heading h1 {
     font-size: 20px;
   }
-  .rogue-live-rules {
-    margin-bottom: 10px;
-  }
-  .rogue-base-rule {
-    font-size: 13px;
-    gap: 8px;
-  }
-  .rogue-target-panel {
-    padding: 10px 14px;
-  }
-  .rogue-target strong {
-    font-size: 54px;
-  }
-  .rogue-clock strong {
-    font-size: 32px;
-  }
   .rogue-calculation > label {
     margin-top: 6px;
   }
@@ -1318,10 +1110,6 @@
   .rogue-input-tools,
   .rogue-input-help {
     margin: 4px 0;
-  }
-  .rogue-controls .rogue-resources {
-    padding: 4px;
-    margin-bottom: 6px;
   }
   .rogue-keypad {
     gap: 8px;
@@ -1357,71 +1145,261 @@
   }
 }
 
-/* Keep the target beside the timer when the narrow screen scrolls to its keypad. */
-.rogue-mobile-target {
-  display: none;
-}
-@media (max-width: 700px) {
-  .rogue-mobile-target {
-    display: inline;
-    font-weight: 800;
-    color: var(--r-ivory);
-  }
-}
-
-/* The reference keeps a large validation action beside the large keypad. */
-.rogue-entry-live .rogue-controls > button[type="submit"] {
-  min-height: 60px;
-  font-size: 28px;
-}
-@media (min-width: 1200px) {
-  .rogue-target strong {
-    font-size: clamp(76px, 6.5vw, 108px);
-  }
-  .rogue-clock strong {
-    font-size: clamp(42px, 3.4vw, 58px);
-  }
-  .rogue-entry-live
-    :is(
-      .rogue-target > span,
-      .rogue-clock > span,
-      .rogue-constraints li,
-      .rogue-resources b,
-      .rogue-resources small
-    ) {
-    font-size: clamp(16px, 1.35vw, 22px);
-  }
-  .rogue-entry-live .rogue-resources svg {
-    width: 28px;
-    height: 28px;
-  }
-  .rogue-entry-live .rogue-input-help,
-  .rogue-entry-live .rogue-edit-row button {
-    font-size: clamp(15px, 1.2vw, 20px);
-  }
-  .rogue-controls .rogue-resources {
-    justify-content: space-between;
-  }
-  .rogue-entry-live .rogue-keypad button {
-    min-height: clamp(72px, 5.6vw, 94px);
-    font-size: clamp(44px, 3.6vw, 60px);
-  }
-}
-@media (min-width: 701px) {
-  .rogue-base-rule {
-    font-size: 20px;
-  }
-  .rogue-entry-live .rogue-calculation > input {
-    font-size: clamp(40px, 3.8vw, 64px);
-  }
-}
-@media (max-width: 700px) {
-  .rogue-entry-live .rogue-controls > button[type="submit"] {
-    min-height: 48px;
-    font-size: 22px;
-  }
-}
-
 .rogue-calculation > input {
   caret-color: var(--r-coral);
+}
+
+/* Mixed puzzle layout (validated board "Puzzle retenu"): counters in tiles,
+   act segments, target card with a time bar, rule chips, then the keypad. */
+.rogue-counters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.rogue-counters > div {
+  min-height: 64px;
+  border-radius: 8px;
+  background: var(--r-raised);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.rogue-counters b {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 26px;
+  color: var(--r-ivory);
+  font-variant-numeric: tabular-nums;
+}
+.rogue-counters small {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--r-muted);
+}
+.rogue-counters .rogue-heart {
+  color: var(--r-danger);
+  fill: currentColor;
+}
+.rogue-counters .rogue-bulb {
+  color: var(--r-gold);
+}
+.rogue-counters .rogue-score {
+  color: var(--r-coral);
+}
+.rogue-stage {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-top: 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--r-muted);
+}
+.rogue-segments {
+  display: flex;
+  gap: 6px;
+}
+.rogue-segments > span {
+  width: 22px;
+  height: 6px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--r-border);
+}
+.rogue-segments > span.done {
+  background: var(--r-coral);
+  border-color: var(--r-coral);
+}
+.rogue-segments > span.current {
+  background: var(--r-ivory);
+  border-color: var(--r-ivory);
+}
+.rogue-stage-count {
+  margin-left: auto;
+}
+.rogue-target-card {
+  padding: 14px 18px 16px;
+  border-radius: 10px;
+  background: var(--r-panel);
+  border: 1.5px solid var(--r-border);
+}
+.rogue-target-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--r-muted);
+}
+.rogue-target-number {
+  display: block;
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 68px;
+  letter-spacing: -2px;
+  font-variant-numeric: tabular-nums;
+}
+.rogue-time {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  color: var(--r-gold);
+}
+.rogue-time.critical {
+  color: var(--r-error);
+}
+.rogue-time-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--r-raised);
+  overflow: hidden;
+}
+.rogue-time-track > span {
+  display: block;
+  height: 100%;
+  background: currentColor;
+  transition: width 1s linear;
+}
+.rogue-time b {
+  font-size: 15px;
+  font-weight: 900;
+  min-width: 3.2em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.rogue-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.rogue-chips li {
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 14px;
+  border: 1px solid var(--r-border);
+  display: flex;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--r-muted);
+}
+.rogue-chips li.rule {
+  border: 1.5px solid var(--r-gold);
+  color: var(--r-gold);
+  font-weight: 800;
+}
+.rogue-entry-live .rogue-calculation > label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.rogue-entry-live .rogue-calculation > input {
+  margin-top: 14px;
+  height: 56px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: var(--r-raised);
+  border-bottom: 3px solid var(--r-coral);
+  font-size: 26px;
+  letter-spacing: 1px;
+}
+.rogue-entry-live .rogue-calculation > input::placeholder {
+  font-size: 18px;
+}
+.rogue-entry-live .rogue-input-help {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  color: var(--r-muted);
+}
+.rogue-entry-live .rogue-input-help strong {
+  color: var(--r-ivory);
+}
+.rogue-entry-live .rogue-keypad {
+  gap: 10px;
+}
+.rogue-entry-live .rogue-keypad button {
+  min-height: 60px;
+  border-radius: 8px;
+  font-size: 28px;
+  padding: 0;
+}
+.rogue-entry-live .rogue-keypad button.rogue-operator {
+  min-height: 52px;
+  font-size: 24px;
+}
+.rogue-entry-live .rogue-edit-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 10px 0;
+}
+.rogue-web .rogue-entry-live .rogue-edit-row button {
+  min-height: 44px;
+  padding: 0 8px;
+  gap: 6px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.rogue-web .rogue-entry-live .rogue-edit-row button:not(:disabled) {
+  border: 1px solid var(--r-border);
+  color: var(--r-ivory);
+}
+.rogue-web .rogue-entry-live .rogue-edit-row .rogue-hint-button:not(:disabled) {
+  border-color: var(--r-gold);
+  color: var(--r-gold);
+  font-weight: 800;
+}
+.rogue-web .rogue-entry-live .rogue-controls > button[type="submit"] {
+  min-height: 56px;
+  border-radius: 6px;
+  border: 0;
+  font-size: 18px;
+  font-weight: 900;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+}
+.rogue-web .rogue-entry-live .rogue-controls > button[type="submit"]:disabled {
+  border: 1px dashed var(--line);
+  box-shadow: none;
+}
+@media (min-width: 701px) {
+  .rogue-hud {
+    margin-bottom: 24px;
+  }
+  .rogue-target-number {
+    font-size: clamp(64px, 6vw, 96px);
+    line-height: 1.05;
+  }
+  .rogue-entry-live .rogue-calculation > input {
+    height: 68px;
+    font-size: clamp(28px, 2.6vw, 40px);
+  }
+}
+@media (min-width: 1200px) {
+  .rogue-entry-live .rogue-keypad button {
+    min-height: 76px;
+    font-size: 36px;
+  }
+  .rogue-entry-live .rogue-keypad button.rogue-operator {
+    min-height: 64px;
+    font-size: 30px;
+  }
+}
+@media (max-width: 700px) {
+  .rogue-hud-live {
+    padding: 6px 0 10px;
+  }
+  .rogue-entry-live .rogue-calculation > input {
+    padding: 0 12px;
+  }
 }

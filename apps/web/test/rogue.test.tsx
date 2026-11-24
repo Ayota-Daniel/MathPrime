@@ -450,7 +450,7 @@ test("R3.2.2: every preparation hides the target in rendered Web markup", () => 
     const html = renderToStaticMarkup(
       <RoguePuzzle view={prepared} busy={false} send={f.send} />,
     );
-    assert.ok(!html.includes('class="rogue-target"'));
+    assert.ok(!html.includes('class="rogue-target-card"'));
     assert.match(html, /Cible masquée/);
     assert.match(html, /Règles de base/);
     assert.equal(html.includes("Prêt pour votre run"), stage === 0);
@@ -461,7 +461,7 @@ test("R3.2.2: every preparation hides the target in rendered Web markup", () => 
     const playing = renderToStaticMarkup(
       <RoguePuzzle view={active} busy={false} send={f.send} />,
     );
-    assert.match(playing, /class="rogue-target"/);
+    assert.match(playing, /class="rogue-target-card"/);
     assert.ok(!playing.includes("Cible masquée"));
     f.send({ type: "submit", expression: solution(active) });
     f.next();

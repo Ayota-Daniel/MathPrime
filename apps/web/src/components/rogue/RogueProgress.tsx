@@ -1,22 +1,69 @@
-import { Check, Flag, Heart, Lightbulb, Trophy } from "lucide-react";
+import { Heart, Lightbulb } from "lucide-react";
 import type { RogueView } from "../../rogue/controller";
 
-export function RogueResources({ view }: { view: RogueView }) {
+/** Same segments as the mobile app: one per encounter of the act, then the boss. */
+export function stageProgress(view: RogueView) {
+  const { act, boss, index, survival } = view.phase;
+  if (survival)
+    return { done: 0, total: 0, label: `Survie · rencontre ${survival}` };
+  const total = index + (view.encountersRemaining ?? 1);
+  return boss
+    ? {
+        done: index,
+        total,
+        label: `Acte ${act} · boss, phase ${index + 1}/${total}`,
+      }
+    : {
+        done: index,
+        total: total + 1,
+        label: `Acte ${act} · puzzle ${index + 1}/${total}`,
+      };
+}
+
+export function RogueCounters({ view }: { view: RogueView }) {
   return (
-    <div className="rogue-resources">
-      <span aria-label={`${view.lives} vies restantes`}>
-        <Heart size={17} aria-hidden="true" /> <b>{view.lives}</b>
-        <small>/ 3 vies</small>
-      </span>
-      <span aria-label={`${view.hints} indices restants`}>
-        <Lightbulb size={17} aria-hidden="true" />
-        <b>{view.hints}</b>
-        <small>indices</small>
-      </span>
-      <span className="rogue-score">
-        <Trophy size={16} aria-hidden="true" />
-        <b>{view.score.toLocaleString("fr-FR")}</b>
-        <small>pts</small>
+    <div className="rogue-counters">
+      <div aria-label={`${view.lives} vies restantes`}>
+        <b>
+          <Heart size={20} aria-hidden="true" className="rogue-heart" />
+          {view.lives}
+        </b>
+        <small aria-hidden="true">Vies</small>
+      </div>
+      <div aria-label={`${view.hints} indices restants`}>
+        <b>
+          <Lightbulb size={20} aria-hidden="true" className="rogue-bulb" />
+          {view.hints}
+        </b>
+        <small aria-hidden="true">Indices</small>
+      </div>
+      <div aria-label={`${view.score.toLocaleString("fr-FR")} points`}>
+        <b className="rogue-score">{view.score.toLocaleString("fr-FR")}</b>
+        <small aria-hidden="true">points</small>
+      </div>
+    </div>
+  );
+}
+
+export function RogueSegments({ view }: { view: RogueView }) {
+  const { done, total, label } = stageProgress(view);
+  return (
+    <div className="rogue-stage" role="group" aria-label={label}>
+      {total > 0 && (
+        <span className="rogue-segments" aria-hidden="true">
+          {Array.from({ length: total }, (_, i) => (
+            <span
+              key={i}
+              className={i < done ? "done" : i === done ? "current" : ""}
+            />
+          ))}
+        </span>
+      )}
+      <span className="rogue-stage-label">{label}</span>
+      <span className="rogue-stage-count">
+        {view.officialVictory
+          ? "Victoire officielle acquise"
+          : `${Math.min(view.successes, view.total)}/${view.total} réussites`}
       </span>
     </div>
   );
@@ -29,45 +76,8 @@ export function RogueProgress({ view }: { view: RogueView }) {
       className={playing ? "rogue-hud rogue-hud-live" : "rogue-hud"}
       aria-label="État de la run"
     >
-      <ol className="rogue-acts" aria-label="Progression des boss">
-        {[1, 2, 3].map((act) => {
-          const complete = view.defeatedBosses.includes(act);
-          const current = !complete && view.phase.act === act;
-          return (
-            <li
-              key={act}
-              className={complete ? "complete" : ""}
-              aria-current={current ? "step" : undefined}
-            >
-              <span className="rogue-act-marker" aria-hidden="true">
-                {complete ? (
-                  <Check size={16} />
-                ) : act === 3 ? (
-                  <Flag size={14} />
-                ) : null}
-              </span>
-              {act === 3 ? "Finale" : `Boss ${act}`}
-              {complete && <span className="sr-only"> vaincu</span>}
-            </li>
-          );
-        })}
-      </ol>
-      {!playing && <RogueResources view={view} />}
-      <div className="rogue-progress-copy">
-        <span>
-          {view.officialVictory
-            ? "Victoire officielle acquise"
-            : `${Math.min(view.successes, view.total)} / ${view.total} épreuves réussies`}
-        </span>
-        {view.puzzle?.state === "playing" && (
-          <span className="rogue-mobile-target">
-            Cible {view.puzzle.target} · {view.remaining} s
-          </span>
-        )}
-        {view.phase.survival > 0 && (
-          <span>Survie +{Math.max(0, view.successes - view.total)}</span>
-        )}
-      </div>
+      <RogueCounters view={view} />
+      <RogueSegments view={view} />
     </section>
   );
 }
