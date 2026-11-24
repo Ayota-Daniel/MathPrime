@@ -1171,22 +1171,58 @@
 .rogue-dialog {
   color: var(--r-ivory);
   background: var(--r-panel);
-  border: 1px solid var(--r-border);
-  border-radius: 24px;
-  padding: 24px;
-  max-width: 430px;
-  width: calc(100% - 32px);
+  border: 1.5px solid var(--r-border);
+  border-radius: var(--r-heroRadius, 10px);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  padding: 22px 20px 20px;
+  max-width: 400px;
+  width: calc(100% - 48px);
 }
 .rogue-dialog::backdrop {
-  background: #0009;
+  background: rgba(5, 7, 10, 0.72);
+}
+.rogue-dialog h2 {
+  margin: 12px 0 0;
 }
 .rogue-dialog p {
   color: var(--r-muted);
-  margin: 16px 0;
+  margin: 10px 0 16px;
 }
-.rogue-dialog button {
+.rogue-dialog-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1.5px solid var(--r-border);
+  background: var(--r-raised);
+}
+.rogue-dialog-icon.danger {
+  color: var(--r-dangerText);
+  border-color: var(--r-danger);
+  background: var(--r-dangerSurface);
+}
+.rogue-dialog-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.rogue-web .rogue-dialog-actions button {
   width: 100%;
-  margin-top: 10px;
+  min-height: 50px;
+}
+.rogue-web button.rogue-danger-solid {
+  background: var(--r-dangerSolid);
+  border-color: var(--r-dangerSolid);
+  color: #fff;
+  font-weight: 900;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
+}
+.rogue-web .rogue-exit.rogue-danger {
+  color: var(--r-dangerText);
+  border: 1.5px solid var(--r-danger);
+  background: var(--r-dangerSurface);
+  border-radius: var(--r-controlRadius);
 }
 .rogue-extras [role="alertdialog"] {
   padding: 16px;

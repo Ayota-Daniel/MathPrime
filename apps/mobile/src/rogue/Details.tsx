@@ -75,6 +75,7 @@ export function RogueDetails({
             <NativeBuild view={view} disabled={disabled} send={send} />
             <Button
               label="Abandonner la run"
+              variant="danger"
               onPress={abandon}
               disabled={disabled}
             />

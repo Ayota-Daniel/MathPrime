@@ -99,6 +99,11 @@ export const rogue = {
     error: "#FFC2B9",
     warning: "#FFE04A",
     errorSurface: "#5E1F33",
+    // Danger (abandon) : identique sur toutes les pages, lisible sur fond sombre.
+    danger: "#FF8A80",         // contour et icône
+    dangerText: "#FFB4AB",     // texte du bouton contour
+    dangerSurface: "rgba(194,48,42,0.16)",
+    dangerSolid: "#C2302A",    // bouton plein, texte blanc (5,6:1)
     ...ROGUE_ARDOISE,
   },
   font: {

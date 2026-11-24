@@ -107,50 +107,45 @@ export function NativePuzzle({
     );
   }, [puzzle.state, puzzle.introduction, view.stage]);
   if (!preparing) {
+    const frac = puzzle.seconds > 0 ? Math.max(0, Math.min(1, view.remaining / puzzle.seconds)) : 0;
+    const critical = view.remaining <= 5;
+    const chips = compactConstraints(view);
     return (
-      <View style={{ gap: comfortable ? 8 : 4 }}>
-        <Text
-          style={[s.baseRule, comfortable && { fontSize: 20, lineHeight: 26 }]}
-        >
-          Sans parenthèses · Multiplication prioritaire
-        </Text>
-        <View style={s.targetTimer}>
-          <View>
-            <Text style={s.caption}>CIBLE À ATTEINDRE</Text>
-            <Text
-              style={[
-                s.liveTarget,
-                comfortable && { fontSize: 64, lineHeight: 72 },
-              ]}
-            >
-              {puzzle.target}
-            </Text>
-          </View>
+      <View style={{ gap: comfortable ? 12 : 8 }}>
+        <View style={s.targetCard}>
+          <Text style={s.label}>CIBLE</Text>
+          <Text style={[s.liveTarget, comfortable && { fontSize: 64, lineHeight: 70 }]}>
+            {puzzle.target}
+          </Text>
           <View
+            accessible
             accessibilityRole="timer"
             accessibilityLabel={`${view.remaining} secondes restantes`}
+            style={s.timeRow}
           >
-            <Text style={s.caption}>
-              {view.remaining <= 5 ? "Temps critique" : "Temps restant"}
-            </Text>
-            <Text
-              style={[
-                s.liveTime,
-                view.remaining <= 5 && { color: RC.error },
-              ]}
-            >
+            <View style={s.timeTrack}>
+              <View
+                style={[
+                  s.timeFill,
+                  { width: `${frac * 100}%` },
+                  critical && { backgroundColor: RC.error },
+                ]}
+              />
+            </View>
+            <Text style={[s.liveTime, critical && { color: RC.error }]}>
               {view.remaining} s
             </Text>
           </View>
         </View>
-        <Text
-          style={[
-            s.compactRules,
-            comfortable && { fontSize: 14, lineHeight: 20 },
-          ]}
-        >
-          {compactConstraints(view).join(" · ") || "3 · 5 · 7 avec + − ×"}
-        </Text>
+        <View style={s.chips}>
+          <Text style={s.chip}>Sans parenthèses</Text>
+          <Text style={s.chip}>× avant + et −</Text>
+          {chips.map((label) => (
+            <Text key={label} style={[s.chip, s.chipRule]}>
+              {label}
+            </Text>
+          ))}
+        </View>
         <RogueInput
           key={`${view.seed}-${view.stage}`}
           view={view}
