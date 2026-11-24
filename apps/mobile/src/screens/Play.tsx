@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { View, ScrollView } from 'react-native';
 import { Delete, Check, RotateCcw, Lightbulb } from 'lucide-react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -10,7 +10,7 @@ import { loadTable } from '../data';
 import { audio } from '../audio';
 import { C, num, fmt, Screen, Button, Key, StreakPill, Pill, Highlight, BackButton, Text } from '../components/ui';
 import { TimerBar } from '../components/TimerBar';
-import { ExpressionCells, ExpressionStatus, sym } from '../components/Expression';
+import { ExpressionCells, ExpressionStatus, sym, say, isOp } from '../components/Expression';
 import { FeedbackSheet, MODE_LABEL } from '../components/FeedbackSheet';
 
 const OP_NAME: Record<string, string> = { '+': 'plus', '-': 'moins', '*': 'fois' };
@@ -29,6 +29,8 @@ export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'P
   const mode = route.params.mode as Mode;
   const niveau = route.params.niveau;
   const { session, start, press, del, clear, submit, next, tick, hint, clearSoftFeedback, quit } = useGame();
+  // Élément touché dans l'expression : valable tant que l'expression n'a pas changé.
+  const [pick, setPick] = useState<{ at: number; input: string } | null>(null);
 
   useEffect(() => {
     if (mode === 'rogue') { navigation.replace('Rogue'); return; }
@@ -56,6 +58,10 @@ export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'P
   const score = s.score;
   const isBig = mode.startsWith('big');
   const allowHint = mode !== 'freeskill';
+  const tokens = exprTokens(s.input);
+  const sel = pick && pick.input === s.input && pick.at < tokens.length ? pick.at : null;
+  const selOp = sel !== null && isOp(tokens[sel]);
+  const select = (at: number) => setPick(sel === at ? null : { at, input: s.input });
 
   return (
     <Screen>
@@ -89,12 +95,17 @@ export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'P
         </View>
 
         <View style={{ marginTop: 8 }}>
-          <ExpressionCells input={s.input} optimal={s.optimalOperands} />
+          <ExpressionCells input={s.input} optimal={s.optimalOperands} selected={sel} onSelect={select} />
           <ExpressionStatus input={s.input} target={p.target} optimal={s.optimalOperands} required={s.rules.required} />
+          {sel !== null && (
+            <Text accessibilityLiveRegion="polite" style={{ marginTop: 8, fontSize: 14, color: C.ink, fontWeight: '700' }}>
+              {selOp ? `Touche un opérateur pour remplacer le ${sym(tokens[sel])}` : `Touche un chiffre pour remplacer le ${tokens[sel]}`}, ou Effacer pour le retirer.
+            </Text>
+          )}
           {s.hintsUsed > 0 && (
             <Text style={{ marginTop: 8, fontSize: 14, color: C.graphite }}>
               <Text style={{ fontWeight: '700', color: C.pen }}>Indice : </Text>
-              <Text style={[num, { fontWeight: '800' }]}>{exprTokens(p.expr).slice(0, s.hintsUsed).map(sym).join('')}…</Text>
+              <Text style={[num, { fontWeight: '800' }]}>{exprTokens(p.expr).slice(0, s.hintsUsed).map(say).join('')}…</Text>
               <Text style={{ color: C.mine }}> ({ceiling} étoile{ceiling > 1 ? 's' : ''} au mieux)</Text>
             </Text>
           )}
@@ -104,15 +115,15 @@ export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'P
           <View style={{ flexDirection: 'row', gap: 12 }}>
             {s.rules.numbers.map((n) => {
               const req = s.rules.required.includes(n);
-              return <Key key={n} label={String(n)} kind="num" required={req} aria={req ? `${n}, chiffre obligatoire` : undefined} onPress={() => press(String(n))} />;
+              return <Key key={n} label={String(n)} kind="num" required={req} aria={req ? `${n}, chiffre obligatoire` : undefined} disabled={selOp} onPress={() => press(String(n), sel ?? undefined)} />;
             })}
           </View>
           <View style={{ flexDirection: 'row', gap: 12 }}>
-            {s.rules.operations.map((o) => <Key key={o} label={sym(o)} aria={OP_NAME[o]} kind="op" onPress={() => press(o)} />)}
+            {s.rules.operations.map((o) => <Key key={o} label={sym(o)} aria={OP_NAME[o]} kind="op" disabled={sel !== null && !selOp} onPress={() => press(o, sel ?? undefined)} />)}
           </View>
           <View style={{ flexDirection: 'row', gap: 12 }}>
             {allowHint && <Button label="Indice" height={48} style={{ flex: 1 }} icon={<Lightbulb size={18} color={C.graphite} />} onPress={hint} disabled={s.hintsUsed >= total} />}
-            <Button label="Effacer" height={48} style={{ flex: 1 }} icon={<Delete size={18} color={C.graphite} />} onPress={del} />
+            <Button label="Effacer" height={48} style={{ flex: 1 }} icon={<Delete size={18} color={C.graphite} />} onPress={() => del(sel ?? undefined)} />
             <Button label="Vider" height={48} style={{ flex: 1 }} icon={<RotateCcw size={17} color={C.graphite} />} onPress={clear} />
           </View>
           <Button variant="ink" label={s.dailySaving ? 'Enregistrement…' : 'Valider'} height={58} icon={<Check size={20} strokeWidth={2.6} color={C.white} />} onPress={submit} disabled={!s.input || s.dailySaving} />

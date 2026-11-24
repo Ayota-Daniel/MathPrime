@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearch, useNavigate, useLoaderData, Link } from '@tanstack/react-router';
 import { ChevronLeft, Delete, Check, RotateCcw, Lightbulb } from 'lucide-react';
 import type { Mode, Puzzle, Session } from '@shortest/engine';
@@ -7,7 +7,7 @@ import { useGame } from '../store/game';
 import { audio } from '../lib/audio';
 import { Button, Key, StreakPill, fmt } from '../components/ui';
 import { TimerBar } from '../components/TimerBar';
-import { ExpressionCells, ExpressionStatus } from '../components/Expression';
+import { ExpressionCells, ExpressionStatus, isOp, say, sym as symbol } from '../components/Expression';
 import { FeedbackSheet, MODE_LABEL } from '../components/FeedbackSheet';
 
 const sym = (o: string) => (o === '*' ? '×' : o === '-' ? '−' : '+');
@@ -31,6 +31,14 @@ export function Play() {
   const nav = useNavigate();
   const { session, start, press, del, clear, submit, next, tick, hint, clearSoftFeedback, quit } = useGame();
   const shakeRef = useRef<HTMLDivElement>(null);
+  // Élément touché dans l'expression : valable tant que l'expression n'a pas changé.
+  const [pick, setPick] = useState<{ at: number; input: string } | null>(null);
+  const tokens = exprTokens(session?.input ?? '');
+  const sel = pick && session && pick.input === session.input && pick.at < tokens.length ? pick.at : null;
+  const selOp = sel !== null && isOp(tokens[sel]);
+  const selRef = useRef<number | null>(null);
+  selRef.current = sel;
+  const at = () => selRef.current ?? undefined;
   const lastWrong = useRef<string | null>(null);
 
   useEffect(() => {
@@ -56,13 +64,13 @@ export function Play() {
       if (!s || s.feedback || event.altKey || event.ctrlKey || event.metaKey) return;
       if (event.target instanceof Element && event.target.closest('input,textarea,select,[contenteditable=true]')) return;
       const k = event.key;
-      if (/^\d$/.test(k) && s.rules.numbers.includes(Number(k))) press(k);
+      if (/^\d$/.test(k) && s.rules.numbers.includes(Number(k))) press(k, at());
       else if (['+', '-', '*', 'x', 'X'].includes(k)) {
         const op = k.toLowerCase() === 'x' ? '*' : k;
         if (!s.rules.operations.some((allowed) => allowed === op)) return;
-        press(op);
+        press(op, at());
       } else if (k === 'Enter' && !(event.target instanceof Element && event.target.closest('button,a,summary'))) submit();
-      else if (k === 'Backspace') del();
+      else if (k === 'Backspace') del(at());
       else if (k === 'Escape') clear();
       else return;
       event.preventDefault();
@@ -124,12 +132,17 @@ export function Play() {
       </section>
 
       <section aria-label="Ton expression" className="px-5 mt-2">
-        <ExpressionCells input={s.input} optimal={s.optimalOperands} shakeRef={shakeRef} />
+        <ExpressionCells input={s.input} optimal={s.optimalOperands} shakeRef={shakeRef} selected={sel} onSelect={(i) => setPick(sel === i ? null : { at: i, input: s.input })} />
         <ExpressionStatus input={s.input} target={p.target} optimal={s.optimalOperands} required={s.rules.required} />
+        {sel !== null && (
+          <p className="mt-2 mb-0 text-[14px] font-bold text-ink" role="status">
+            {selOp ? `Touche un opérateur pour remplacer le ${symbol(tokens[sel])}` : `Touche un chiffre pour remplacer le ${tokens[sel]}`}, ou Effacer pour le retirer.
+          </p>
+        )}
         {s.hintsUsed > 0 && (
           <p className="mt-2 mb-0 text-[14px]" role="status">
             <span className="hand font-bold text-pen">Indice :</span>{' '}
-            <b className="num">{exprTokens(p.expr).slice(0, s.hintsUsed).map(sym).join('')}…</b>
+            <b className="num">{exprTokens(p.expr).slice(0, s.hintsUsed).map(say).join('')}…</b>
             <span className="text-mine"> ({ceiling} étoile{ceiling > 1 ? 's' : ''} au mieux)</span>
           </p>
         )}
@@ -137,14 +150,14 @@ export function Play() {
 
       <section aria-label="Clavier" className="mt-auto px-5 pt-5 pb-[22px] flex flex-col gap-3">
         <div className="grid grid-cols-3 gap-3">
-          {s.rules.numbers.map((n) => <Key key={n} label={String(n)} kind="num" required={s.rules.required.includes(n)} aria={s.rules.required.includes(n) ? `${n}, chiffre obligatoire` : undefined} onPress={() => press(String(n))} />)}
+          {s.rules.numbers.map((n) => <Key key={n} label={String(n)} kind="num" required={s.rules.required.includes(n)} aria={s.rules.required.includes(n) ? `${n}, chiffre obligatoire` : undefined} disabled={selOp} onPress={() => press(String(n), sel ?? undefined)} />)}
         </div>
         <div className="grid grid-cols-3 gap-3">
-          {s.rules.operations.map((o) => <Key key={o} label={sym(o)} aria={OP_NAME[o]} kind="op" onPress={() => press(o)} />)}
+          {s.rules.operations.map((o) => <Key key={o} label={sym(o)} aria={OP_NAME[o]} kind="op" disabled={sel !== null && !selOp} onPress={() => press(o, sel ?? undefined)} />)}
         </div>
         <div className={`grid gap-3 ${allowHint ? 'grid-cols-3' : 'grid-cols-2'}`}>
           {allowHint && <Button icon={<Lightbulb size={18} aria-hidden="true" />} className="min-h-12" onClick={hint} disabled={s.hintsUsed >= total}>Indice</Button>}
-          <Button icon={<Delete size={18} aria-hidden="true" />} className="min-h-12" onClick={del}>Effacer</Button>
+          <Button icon={<Delete size={18} aria-hidden="true" />} className="min-h-12" onClick={() => del(sel ?? undefined)}>Effacer</Button>
           <Button icon={<RotateCcw size={17} aria-hidden="true" />} className="min-h-12" onClick={clear}>Vider</Button>
         </div>
         <Button variant="ink" icon={<Check size={20} strokeWidth={2.6} aria-hidden="true" />} className="min-h-[58px] text-[17px]" onClick={submit} disabled={!s.input || s.dailySaving}>

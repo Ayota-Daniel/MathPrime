@@ -74,10 +74,10 @@ export function Button({ label, variant = 'line', onPress, disabled, icon, style
 }
 
 /** Touche du clavier de jeu. `required` = chiffre imposé (Big Challenge), en rouge. */
-export function Key({ label, kind, onPress, required, aria }: { label: string; kind: 'num' | 'op'; onPress: () => void; required?: boolean; aria?: string }) {
+export function Key({ label, kind, onPress, required, aria, disabled }: { label: string; kind: 'num' | 'op'; onPress: () => void; required?: boolean; aria?: string; disabled?: boolean }) {
   const op = kind === 'op';
   return (
-    <PressSheet onPress={onPress} label={aria ?? label} style={{ flex: 1 }}
+    <PressSheet onPress={onPress} label={aria ?? label} style={{ flex: 1 }} disabled={disabled}
       shadow={required ? C.pen : C.graphite} border={required ? C.pen : C.graphite} bg={op ? C.inkSoft : C.white}
       inner={{ height: op ? 56 : 68, alignItems: 'center', justifyContent: 'center' }}>
       <Text style={[num, { fontSize: op ? 28 : 32, fontWeight: '800', color: required ? C.pen : op ? C.ink : C.graphite }]}>{label}</Text>

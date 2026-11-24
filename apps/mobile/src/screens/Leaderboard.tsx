@@ -134,7 +134,7 @@ export function Leaderboard() {
                 <View key={r.id + r.mode} style={[{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 16, backgroundColor: me ? C.hl : 'transparent' },
                   i > 0 && { borderTopWidth: 1, borderStyle: 'dashed', borderColor: C.dash }]}>
                   <Text style={[num, { width: 28, fontWeight: '800', fontSize: 15, color: C.graphite }]}>{i + 1}</Text>
-                  <Text numberOfLines={1} style={{ flex: 1, fontSize: 15, fontWeight: me ? '800' : '400', color: C.graphite }}>{me ? `Toi, ${r.pseudo}` : r.pseudo}</Text>
+                  <Text numberOfLines={1} style={{ flex: 1, fontSize: 15, fontWeight: me ? '800' : '400', color: C.graphite }}>{me ? (game.pseudo ? `${game.pseudo} (toi)` : 'Toi') : r.pseudo}</Text>
                   <Text style={[num, { fontWeight: '800', fontSize: 15, color: C.graphite }]}>{fmt(r.score)}</Text>
                 </View>
               );

@@ -5,7 +5,7 @@ import type { Puzzle } from './difficulty';
 import {
   BASE_RULES, validateAnswer, scorePuzzle, rankForXp, breaksStreak,
   classicCurriculum, dailyPuzzle, freeSkillPick, adjustLevel, dateKey, FREESKILL_START,
-  newRogueRun, rogueOnSolve, rogueOnFail, applyModifier, draftModifiers, isModifierCompatible, exprTokens, hintStarCeiling,
+  newRogueRun, rogueOnSolve, rogueOnFail, applyModifier, draftModifiers, isModifierCompatible, exprTokens, editExpression, hintStarCeiling,
   type Rules, type Mode, type Reason, type RogueRun, type RogueModifier,
 } from './game-engine';
 import { pickRoguePuzzle } from './rogue-puzzles';
@@ -46,7 +46,8 @@ export interface GameState extends Omit<SaveState, 'version'> {
   setPseudo: (p: string) => void;
   resetProgress: () => void;
   start: (mode: Mode, table: Puzzle[], classicIndex?: number) => void;
-  press: (tok: string) => void; del: () => void; clear: () => void;
+  /** `at` : indice d'un élément de l'expression à remplacer (press) ou à retirer (del) au lieu de la fin. */
+  press: (tok: string, at?: number) => void; del: (at?: number) => void; clear: () => void;
   hint: () => void;
   submit: () => void; tick: () => void; next: () => void;
   chooseModifier: (mod: RogueModifier) => void; clearSoftFeedback: () => void; quit: () => void;
@@ -133,12 +134,20 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
       });
     },
 
-    press(tok) {
+    press(tok, at) {
       const s = get().session;
       if (!s || s.feedback || s.dailySaving || s.draft || s.rogue?.over) return;
-      set({ session: { ...s, input: s.input + tok } });
+      set({ session: { ...s, input: typeof at === 'number' ? editExpression(s.input, at, tok) : s.input + tok } });
     },
-    del() { set((st) => st.session && !st.session.dailySaving ? { session: { ...st.session, input: st.session.input.replace(/[+\-*]?\d+$|.$/, '') } } : {}); },
+    del(at) {
+      set((st) => {
+        const s = st.session;
+        if (!s || s.dailySaving) return {};
+        // `at` n'est pris que s'il s'agit d'un nombre : un gestionnaire d'événement peut passer son événement.
+        const input = typeof at === 'number' ? editExpression(s.input, at, null) : s.input.replace(/[+\-*]?\d+$|.$/, '');
+        return { session: { ...s, input } };
+      });
+    },
     clear() { set((st) => st.session && !st.session.dailySaving ? { session: { ...st.session, input: '' } } : {}); },
     clearSoftFeedback() { set((st) => st.session ? { session: { ...st.session, feedback: null } } : {}); },
 
