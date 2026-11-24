@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { View, ScrollView, Pressable } from 'react-native';
 import { Timer, Swords, Star, ChevronRight } from 'lucide-react-native';
 import { featuredInfo } from '@shortest/tokens';
@@ -12,6 +12,27 @@ import { TabBar } from '../components/TabBar';
 import { C, num, fmt, Screen, Sheet, PressSheet, Button, Highlight, Pill, StreakPill, Text } from '../components/ui';
 
 const base = loadTable('classic');
+
+/**
+ * Ligne de mode (Free Skill, Rogue). La mise en page est sur une View intérieure et l'état pressé vient de
+ * onPressIn/onPressOut : avec NativeWind, un `style` en fonction sur Pressable est ignoré sur Android.
+ */
+function ModeRow({ title, sub, icon, first, onPress }: { title: string; sub: string; icon: ReactNode; first: boolean; onPress: () => void }) {
+  const [pressed, setPressed] = useState(false);
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={title} onPress={onPress} onPressIn={() => setPressed(true)} onPressOut={() => setPressed(false)}>
+      <View style={[{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingVertical: 14, backgroundColor: pressed ? C.inkSoft : 'transparent' },
+        !first && { borderTopWidth: 1, borderStyle: 'dashed', borderColor: C.dash }]}>
+        {icon}
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontWeight: '800', fontSize: 16, color: C.graphite }}>{title}</Text>
+          <Text style={{ color: C.mine, fontSize: 13.5 }}>{sub}</Text>
+        </View>
+        <ChevronRight size={18} color={C.graphite} />
+      </View>
+    </Pressable>
+  );
+}
 
 export function Home({ navigation }: NativeStackScreenProps<RootStack, 'Home'>) {
   useEffect(() => { void audio.switchMusic('main'); }, []);
@@ -88,16 +109,8 @@ export function Home({ navigation }: NativeStackScreenProps<RootStack, 'Home'>) 
             { mode: 'freeskill', title: 'Free Skill', sub: 'Chrono, la difficulté suit ton niveau', icon: <Timer size={26} color={C.ink} /> },
             { mode: 'rogue', title: 'Rogue', sub: featuredInfo('rogue', 1).detail, icon: <Swords size={26} color={C.pen} /> },
           ].map((r, i) => (
-            <Pressable key={r.mode} accessibilityRole="button" accessibilityLabel={r.title} onPress={() => { void audio.play('select'); if (r.mode === 'rogue') navigation.navigate('Rogue'); else go(r.mode); }}
-              style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingVertical: 14, backgroundColor: pressed ? C.inkSoft : 'transparent' },
-                i > 0 && { borderTopWidth: 1, borderStyle: 'dashed', borderColor: C.dash }]}>
-              {r.icon}
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontWeight: '800', fontSize: 16, color: C.graphite }}>{r.title}</Text>
-                <Text style={{ color: C.mine, fontSize: 13.5 }}>{r.sub}</Text>
-              </View>
-              <ChevronRight size={18} color={C.graphite} />
-            </Pressable>
+            <ModeRow key={r.mode} {...r} first={i === 0}
+              onPress={() => { void audio.play('select'); if (r.mode === 'rogue') navigation.navigate('Rogue'); else go(r.mode); }} />
           ))}
         </Sheet>
 
