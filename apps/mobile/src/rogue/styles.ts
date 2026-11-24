@@ -11,6 +11,8 @@ export const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 4,
     gap: 8,
     minHeight: 48,
   },
