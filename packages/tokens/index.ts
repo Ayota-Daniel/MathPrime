@@ -18,25 +18,3 @@ export const timeColor = (frac: number): string =>
 
 /** Couleur d'accent par Big Challenge (pour bien identifier où on est). */
 export const bigColor: Record<number, string> = { 3: '#7C5BD6', 5: '#5B8FD6', 7: '#D67C5B' };
-
-/**
- * Direction « Cahier » (redesign 2026-11) : papier quadrillé, encre bleue, stylo rouge, surligneur.
- * Consommée par le web. Le mobile garde `colors` jusqu'à sa migration.
- */
-export const cahier = {
-  paper: '#F7F9F6',     // fond
-  grid: '#E6EDF2',      // lignes du quadrillage
-  white: '#FFFFFF',     // feuille posée (cartes, touches)
-  ink: '#1D2A8A',       // action principale, opérateurs, titres
-  inkDark: '#16217A',
-  inkSoft: '#EEF0FA',   // fond des touches opérateur
-  graphite: '#23293A',  // texte, contours, ombres décalées
-  mine: '#586174',      // texte secondaire (6:1 sur paper)
-  dash: '#B9C3CF',      // séparateurs pointillés
-  ghost: '#9AA6B4',     // cases vides
-  pen: '#C2302A',       // stylo rouge : limite optimale, erreurs, malus
-  hl: '#FFE04A',        // surligneur : cible, étoiles, record
-} as const;
-
-/** Taille de la grille du papier, en px. */
-export const CAHIER_GRID = 26;
