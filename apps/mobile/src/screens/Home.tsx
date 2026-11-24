@@ -1,194 +1,131 @@
-import { useState } from 'react';
-import { View, Image, Pressable, ScrollView, StyleSheet } from 'react-native';
-import { ChevronDown, LockKeyhole, Star } from 'lucide-react-native';
+import { useEffect } from 'react';
+import { View, ScrollView, Pressable } from 'react-native';
+import { Timer, Swords, Star, ChevronRight } from 'lucide-react-native';
+import { featuredInfo } from '@shortest/tokens';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import {
-  colors,
-  featuredInfo,
-  featuredModes,
-  levelNumbers,
-  modeNames,
-  rogue,
-  type FeaturedMode,
-} from '@shortest/tokens';
+import { dailyPuzzle, dateKey, xpForRank } from '@shortest/engine';
 import type { RootStack } from '../../App';
-import { TopBar } from '../components/TopBar';
-import { GameText as Text, g } from '../components/GameScreen';
-import { Button } from '../components/ui';
 import { useGame } from '../store';
+import { loadTable } from '../data';
+import { audio } from '../audio';
+import { TabBar } from '../components/TabBar';
+import { C, num, fmt, Screen, Sheet, PressSheet, Button, Highlight, Pill, StreakPill, Text } from '../components/ui';
 
-export function Home({
-  navigation,
-}: NativeStackScreenProps<RootStack, 'Home'>) {
-  const [tab, setTab] = useState<FeaturedMode>('classic');
-  const [more, setMore] = useState(false);
-  const level = useGame((s) => s.classicProgress + 1);
-  const stars = useGame((s) =>
-    Object.values(s.classicStars).reduce((sum, n) => sum + n, 0),
-  );
-  const info = featuredInfo(tab, level);
+const base = loadTable('classic');
+
+export function Home({ navigation }: NativeStackScreenProps<RootStack, 'Home'>) {
+  useEffect(() => { void audio.switchMusic('main'); }, []);
+  const xp = useGame((s) => s.xp);
+  const rank = useGame((s) => s.rank());
+  const progress = useGame((s) => s.classicProgress);
+  const best = useGame((s) => s.bestByMode);
+  const stars = useGame((s) => Object.values(s.classicStars).reduce((sum, v) => sum + v, 0));
+  const dailyDone = useGame((s) => s.dailyDone) === dateKey();
+  const streak = useGame((s) => Math.max(0, ...Object.values(s.streakByMode)));
+
+  const daily = dailyPuzzle(base);
+  const lo = xpForRank(rank); const hi = xpForRank(rank + 1);
+  const rankFrac = hi > lo ? Math.min(1, (xp - lo) / (hi - lo)) : 0;
+  const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const go = (mode: string) => navigation.navigate('Play', { mode });
+
   return (
-    <>
-      <TopBar />
-      <ScrollView contentContainerStyle={g.wrap}>
-        <View style={g.between}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.title}>Ton prochain{'\n'}déclic t’attend.</Text>
-            <Text>Le plaisir de trouver.</Text>
-          </View>
-          <Image
-            source={require('../../../../packages/tokens/assets/math-tiles.png')}
-            accessible={false}
-            resizeMode="contain"
-            style={{ width: '34%', height: 110 }}
-          />
+    <Screen bottomInset={false}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 18, paddingBottom: 10 }}>
+        <Text style={{ fontSize: 26, fontWeight: '900', color: C.ink, letterSpacing: -0.3 }}>MathPrime</Text>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          {streak > 0 && <StreakPill value={streak} />}
+          <Pressable accessibilityRole="button" accessibilityLabel={`Rang ${rank}, voir mes statistiques`} onPress={() => navigation.navigate('Stats')}>
+            <Pill>
+              <Text style={{ fontWeight: '700', fontSize: 14, color: C.graphite }}>Rang {rank}</Text>
+              <View style={{ width: 34, height: 6, borderRadius: 2, backgroundColor: C.grid, overflow: 'hidden' }}>
+                <View style={{ width: `${rankFrac * 100}%`, height: '100%', backgroundColor: C.ink }} />
+              </View>
+            </Pill>
+          </Pressable>
         </View>
-        <View style={styles.tabs}>
-          {featuredModes.map((mode) => (
-            <Pressable
-              key={mode}
-              accessibilityRole="button"
-              accessibilityState={{ selected: tab === mode }}
-              onPress={() => setTab(mode)}
-              style={[styles.tab, tab === mode && { borderColor: colors.pri }]}
-            >
-              <Text style={{ fontFamily: rogue.font.display, fontSize: 19 }}>
-                {modeNames[mode]}
-              </Text>
+      </View>
+
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 24, gap: 18 }}>
+        <Sheet style={{ marginTop: 8 }} inner={{ padding: 18 }}>
+          <Text style={{ color: C.mine, fontSize: 14, fontWeight: '600' }}>Défi du {today}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: 6, marginBottom: 14 }}>
+            <Highlight style={[num, { fontSize: 68, fontWeight: '900', color: C.graphite, letterSpacing: -2 }]}>{daily.target}</Highlight>
+            <Text style={{ flex: 1, fontSize: 15, lineHeight: 20, color: C.graphite }}>
+              Atteins {daily.target} avec 3, 5 et 7. La solution la plus courte tient en {daily.operands} chiffres.
+            </Text>
+          </View>
+          {dailyDone && <Text style={{ fontWeight: '700', color: C.ink, fontSize: 15, marginBottom: 12 }}>Fait aujourd'hui. Tu peux rejouer pour t'entraîner.</Text>}
+          <Button variant={dailyDone ? 'line' : 'ink'} label={dailyDone ? "S'entraîner sur le défi" : 'Jouer le défi'} onPress={() => go('daily')} />
+        </Sheet>
+
+        <Sheet inner={{ paddingHorizontal: 16, paddingVertical: 14, gap: 10 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <Text accessibilityRole="header" style={{ fontSize: 17, fontWeight: '800', color: C.graphite }}>Classique</Text>
+            <Text style={[num, { color: C.mine, fontSize: 14, fontWeight: '600' }]}>niveau {progress + 1} / 100</Text>
+          </View>
+          <View style={{ height: 14, justifyContent: 'flex-end' }}>
+            <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 8, flexDirection: 'row' }}>
+              {Array.from({ length: 20 }).map((_, i) => <View key={i} style={{ flex: 1, borderLeftWidth: 1, borderColor: C.graphite, height: i % 5 === 0 ? 8 : 5 }} />)}
+            </View>
+            <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${progress}%`, backgroundColor: C.ink, borderRadius: 1 }} />
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Star size={15} fill={C.hl} color={C.graphite} />
+              <Text style={{ color: C.mine, fontSize: 13.5 }}>{stars} étoiles sur 300</Text>
+            </View>
+            <Pressable accessibilityRole="button" hitSlop={8} onPress={() => navigation.navigate('Levels')} style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ color: C.ink, fontSize: 14, fontWeight: '700' }}>Tous les niveaux</Text>
+              <ChevronRight size={16} color={C.ink} />
+            </Pressable>
+          </View>
+          <Button variant="ink" label={progress > 0 ? `Reprendre au niveau ${progress + 1}` : 'Commencer'} onPress={() => go('classic')} />
+        </Sheet>
+
+        <Sheet inner={{ paddingHorizontal: 0 }}>
+          {[
+            { mode: 'freeskill', title: 'Free Skill', sub: 'Chrono, la difficulté suit ton niveau', icon: <Timer size={26} color={C.ink} /> },
+            { mode: 'rogue', title: 'Rogue', sub: featuredInfo('rogue', 1).detail, icon: <Swords size={26} color={C.pen} /> },
+          ].map((r, i) => (
+            <Pressable key={r.mode} accessibilityRole="button" accessibilityLabel={r.title} onPress={() => { void audio.play('select'); if (r.mode === 'rogue') navigation.navigate('Rogue'); else go(r.mode); }}
+              style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingVertical: 14, backgroundColor: pressed ? C.inkSoft : 'transparent' },
+                i > 0 && { borderTopWidth: 1, borderStyle: 'dashed', borderColor: C.dash }]}>
+              {r.icon}
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontWeight: '800', fontSize: 16, color: C.graphite }}>{r.title}</Text>
+                <Text style={{ color: C.mine, fontSize: 13.5 }}>{r.sub}</Text>
+              </View>
+              <ChevronRight size={18} color={C.graphite} />
             </Pressable>
           ))}
-        </View>
-        <View style={g.blue}>
-          <Text style={[g.light, { textTransform: 'uppercase', fontSize: 12 }]}>
-            {info.eyebrow}
-          </Text>
-          <Text
-            style={[g.light, { fontFamily: rogue.font.display, fontSize: 33 }]}
-          >
-            {modeNames[tab]}
-          </Text>
-          <Text style={g.light}>{info.detail}</Text>
-          {tab === 'classic' && (
-            <>
-              <View style={g.row}>
-                <Star size={16} color={colors.accent} fill={colors.accent} />
-                <Text style={g.light}>{stars} étoiles</Text>
-              </View>
-              <View style={styles.trail}>
-                {levelNumbers(Math.max(1, Math.min(level - 2, 96)), 5).map(
-                  (n) => (
-                    <View
-                      key={n}
-                      style={[
-                        styles.step,
-                        n > level && { backgroundColor: colors.op },
-                        n === level && { borderColor: colors.pri },
-                      ]}
-                    >
-                      <Text style={{ fontFamily: rogue.font.display }}>
-                        {n}
-                      </Text>
-                      {n > level && (
-                        <LockKeyhole size={12} color={colors.ink} />
-                      )}
-                    </View>
-                  ),
-                )}
-              </View>
-              <Pressable
-                accessibilityRole="button"
-                style={{ alignSelf: 'center', padding: 10 }}
-                onPress={() => navigation.navigate('Levels')}
-              >
-                <Text style={[g.light, { textDecorationLine: 'underline' }]}>
-                  Voir les niveaux
-                </Text>
-              </Pressable>
-            </>
-          )}
-        </View>
-        <Button
-          variant="primary"
-          label={info.action}
-          onPress={() =>
-            tab === 'rogue'
-              ? navigation.navigate('Rogue')
-              : navigation.navigate('Play', { mode: tab })
-          }
-        />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityState={{ expanded: more }}
-          onPress={() => setMore(!more)}
-          style={[g.between, styles.more]}
-        >
-          <View>
-            <Text style={styles.section}>Tous les modes</Text>
-            <Text>Big Challenge et Free Skill</Text>
+        </Sheet>
+
+        <View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
+            <Text accessibilityRole="header" style={{ fontSize: 16, fontWeight: '800', color: C.graphite }}>Big Challenge</Text>
+            <Pressable accessibilityRole="button" hitSlop={8} onPress={() => navigation.navigate('BigChallenge')}>
+              <Text style={{ color: C.mine, fontSize: 13.5 }}>un chiffre imposé</Text>
+            </Pressable>
           </View>
-          <ChevronDown color={colors.ink} size={19} />
-        </Pressable>
-        {more && (
-          <>
-            <Button
-              label="Big Challenge"
-              onPress={() => navigation.navigate('BigChallenge')}
-            />
-            <Button
-              label="Free Skill"
-              onPress={() => navigation.navigate('Play', { mode: 'freeskill' })}
-            />
-          </>
-        )}
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => navigation.navigate('Help')}
-          style={{ padding: 12, alignItems: 'center' }}
-        >
-          <Text style={{ textDecorationLine: 'underline' }}>
-            Comment jouer ?
-          </Text>
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            {([3, 5, 7] as const).map((n) => {
+              const rec = best[`big${n}`] ?? 0;
+              return (
+                <PressSheet key={n} label={`Big Challenge ${n}`} style={{ flex: 1 }} onPress={() => go(`big${n}`)}
+                  inner={{ minHeight: 84, alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+                  <Text style={[num, { fontSize: 34, fontWeight: '900', color: C.graphite }]}>{n}</Text>
+                  <Text style={{ color: C.mine, fontSize: 12 }}>{rec > 0 ? `record ${fmt(rec)}` : 'pas encore joué'}</Text>
+                </PressSheet>
+              );
+            })}
+          </View>
+        </View>
+        <Pressable accessibilityRole="button" onPress={() => navigation.navigate('Help')}>
+          <Text style={{ color: C.ink, fontSize: 15, fontWeight: '700' }}>Comment jouer ?</Text>
         </Pressable>
       </ScrollView>
-    </>
+      <TabBar />
+    </Screen>
   );
 }
-const styles = StyleSheet.create({
-  title: {
-    fontFamily: rogue.font.display,
-    fontSize: 31,
-    lineHeight: 34,
-    color: colors.ink,
-  },
-  tabs: { flexDirection: 'row', justifyContent: 'space-around' },
-  tab: {
-    borderBottomWidth: 4,
-    borderColor: 'transparent',
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-  },
-  trail: {
-    flexDirection: 'row',
-    gap: 6,
-    justifyContent: 'center',
-    marginTop: 7,
-  },
-  step: {
-    flex: 1,
-    maxWidth: 54,
-    height: 45,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.num,
-  },
-  section: { fontFamily: rogue.font.display, fontSize: 19 },
-  more: {
-    paddingVertical: 12,
-    borderColor: colors.line,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-  },
-});

@@ -1,11 +1,12 @@
-# Nunito — polices Rogue
+# Polices
 
-Choix technique R4.3B pour les terminaisons arrondies des références ; la police exacte des PNG n’est pas identifiée.
+## Recursive — direction « Cahier » (Web et Android)
 
-Fichiers statiques non modifiés issus de `@expo-google-fonts/nunito` **0.4.2** :
+- `Recursive-latin-full.woff2` : police variable complète (axes wght, CASL, MONO, slnt, CRSV), sous-ensemble latin, issue de `@fontsource-variable/recursive` **5.3.0**. Chargée localement par le Web : texte (sans), chiffres (`MONO` 1) et titres manuscrits (`CASL` 1).
+- `Recursive_400Regular.ttf`, `Recursive_700Bold.ttf`, `Recursive_800ExtraBold.ttf`, `Recursive_900Black.ttf` : instances statiques issues de `@expo-google-fonts/recursive` **0.4.2**, chargées par Android/iOS.
 
-- `400Regular/Nunito_400Regular.ttf` → texte courant.
-- `700Bold/Nunito_700Bold.ttf` → contrôles et emphase.
-- `800ExtraBold/Nunito_800ExtraBold.ttf` → titres et nombres.
+Licence : [OFL-Recursive.txt](OFL-Recursive.txt) (SIL Open Font License 1.1).
 
-Source : [Expo Google Fonts / Nunito](https://github.com/expo/google-fonts/tree/main/font-packages/nunito), distribué via le registre npm. Licence des polices : [OFL.txt](OFL.txt), conservée depuis `LICENSE_FONT` du paquet (espaces de fin de ligne normalisés). Trois fichiers, environ 396 ko au total, chargés localement sur Web et Android. Aucun appel Google Fonts ajouté pour Rogue ; aucun modèle ou dessin de mascotte inclus.
+## Nunito — ancienne direction R4.3B
+
+Fichiers statiques non modifiés issus de `@expo-google-fonts/nunito` **0.4.2** (400, 700, 800). Plus utilisés par l'interface depuis la direction « Cahier » ; conservés pour l'historique. Licence : [OFL.txt](OFL.txt).

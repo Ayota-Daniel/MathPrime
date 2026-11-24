@@ -14,7 +14,7 @@ import { CARDS } from "@shortest/engine/rogue-v1";
 import type { CardId } from "@shortest/engine/rogue-v1";
 import type { RogueView, WebAction } from "../../rogue/controller";
 import { Button } from "../ui";
-import { Stars } from "../Stars";
+import { Stars } from "../ui";
 import { RogueCard } from "./RogueCards";
 import { RogueDiagnostics } from "./RogueExtras";
 import { BOSS_NAMES } from "./RoguePuzzle";

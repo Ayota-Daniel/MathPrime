@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { ChevronLeft } from 'lucide-react';
 import {
   COMPETITION_MESSAGES,
   type Mode,
   type LbEntry,
 } from '@shortest/engine';
 import { modeNames } from '@shortest/tokens';
-import { TopBar } from '../components/TopBar';
-import { Button } from '../components/ui';
+import { TabBar } from '../components/TabBar';
+import { Button, ScreenTitle, fmt } from '../components/ui';
 import { useGame } from '../store/game';
 import { useCompetition } from '../store/competition';
 import { competitionApi, isCompetitionConfigured } from '../lib/leaderboard';
@@ -24,7 +22,6 @@ const MODES: Mode[] = [
 ];
 
 export function Leaderboard() {
-  const nav = useNavigate();
   const game = useGame();
   const competition = useCompetition();
   const [view, setView] = useState<'local' | 'verified'>('local');
@@ -69,191 +66,96 @@ export function Leaderboard() {
     competition.confirmedBest,
   ]);
 
+  const meIdx = rows ? rows.findIndex((r) => r.id === game.deviceId) : -1;
+
   return (
     <>
-      <TopBar />
-      <main className="math-inner utility-page">
-        <button
-          className="flex items-center text-mut"
-          onClick={() => nav({ to: '/' })}
-        >
-          <ChevronLeft size={18} />
-          Retour
-        </button>
-        <h1 className="font-display font-bold text-[22px] m-0">Classement</h1>
-        <div
-          className="mode-tabs rank-tabs"
-          role="group"
-          aria-label="Classement"
-        >
-          <button
-            aria-pressed={view === 'local'}
-            onClick={() => setView('local')}
-          >
-            Cet appareil
-          </button>
-          <button
-            aria-pressed={view === 'verified'}
-            onClick={() => setView('verified')}
-          >
-            Daily vérifié
-          </button>
+      <header className="px-5 pt-6 pb-1"><ScreenTitle>Classement</ScreenTitle></header>
+      <main className="flex flex-col px-5 pb-5 gap-3.5">
+        <div role="group" aria-label="Classement" className="mt-2 grid grid-cols-2 border-[1.5px] border-graphite rounded-sheet overflow-hidden bg-sheet">
+          {([['local', 'Cet appareil'], ['verified', 'Daily vérifié']] as const).map(([key, label], i) => (
+            <button key={key} type="button" aria-pressed={view === key} onClick={() => setView(key)}
+              className={`h-11 text-[14px] font-bold ${i > 0 ? 'border-l-[1.5px] border-graphite' : ''} ${view === key ? 'bg-ink text-white' : 'text-mine'}`}>
+              {label}
+            </button>
+          ))}
         </div>
+
         {view === 'local' ? (
           <>
-            <p className="text-mut text-[13px]">
-              Records locaux non vérifiés. Aucun record historique n'est
-              transféré au classement compétitif.
-            </p>
-            <p className="text-[13px]">
-              Ton record local : {game.bestByMode[mode] ?? 0}
-            </p>
-            <label className="rank-filter">
-              Mode
-              <select
-                value={mode}
-                onChange={(event) => setMode(event.target.value as Mode)}
-              >
-                {MODES.map((m) => (
-                  <option key={m} value={m}>
-                    {modeNames[m]}
-                  </option>
-                ))}
+            <p className="m-0 text-mine text-[13.5px] leading-snug">Records locaux non vérifiés. Aucun record historique n'est transféré au classement compétitif.</p>
+            <div className="flex items-center justify-between gap-3">
+              <label htmlFor="lb-mode" className="text-[15px] font-bold">Mode</label>
+              <select id="lb-mode" value={mode} onChange={(event) => setMode(event.target.value as Mode)} className="field text-[14.5px] px-2">
+                {MODES.map((m) => <option key={m} value={m}>{modeNames[m]}</option>)}
               </select>
-            </label>
-            {game.localLeaderboardError && (
-              <p className="text-err">
-                Le dernier record n'a pas pu être enregistré dans ce classement.
-              </p>
-            )}
+            </div>
+            <p className="m-0 text-[14.5px]">Ton record local : <b className="num">{fmt(game.bestByMode[mode] ?? 0)}</b></p>
+            {game.localLeaderboardError && <p className="m-0 text-pen font-bold">Le dernier record n'a pas pu être enregistré dans ce classement.</p>}
           </>
         ) : (
           <>
-            <p className="text-mut text-[13px]">
-              Daily uniquement. Les autres modes restent locaux. Le serveur
-              contrôle le défi, les indices et la récompense.
-            </p>
-            {!isCompetitionConfigured && (
-              <p>
-                Service compétitif non configuré. Le jeu local reste disponible.
-              </p>
-            )}
+            <p className="m-0 text-mine text-[13.5px] leading-snug">Daily uniquement. Les autres modes restent locaux. Le serveur contrôle le défi, les indices et la récompense.</p>
+            {!isCompetitionConfigured && <p className="m-0 text-[14.5px]">Service compétitif non configuré. Le jeu local reste disponible.</p>}
             {!game.settings.leaderboardOptIn && (
-              <div className="bg-card border border-line rounded-card p-[16px] flex flex-col gap-[10px]">
-                <p>
-                  Participer crée une identité anonyme Supabase. Ton pseudo et
-                  ton score vérifié sont publics. Aucun compte traditionnel
-                  n'est demandé.
-                </p>
-                <input
-                  aria-label="Pseudo"
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  maxLength={16}
-                  placeholder="ton pseudo"
-                  className="border border-line rounded-[10px] p-[10px]"
-                />
-                <Button
-                  onClick={() => {
-                    game.setPseudo(draft.trim());
-                    game.setSetting('leaderboardOptIn', true);
-                  }}
-                  disabled={!draft.trim()}
-                >
+              <section className="sheet p-4 flex flex-col gap-3">
+                <p className="m-0 text-[15px] leading-snug">Participer crée une identité anonyme Supabase. Ton pseudo et ton score vérifié sont publics. Aucun compte traditionnel n'est demandé.</p>
+                <label htmlFor="lb-pseudo" className="sr-only">Pseudo</label>
+                <input id="lb-pseudo" value={draft} onChange={(e) => setDraft(e.target.value)} maxLength={16} placeholder="ton pseudo" className="field num" />
+                <Button variant="ink" onClick={() => { game.setPseudo(draft.trim()); game.setSetting('leaderboardOptIn', true); }} disabled={!draft.trim()}>
                   Activer la participation
                 </Button>
-              </div>
+              </section>
             )}
             {isCompetitionConfigured && game.settings.leaderboardOptIn && (
-              <div className="bg-card border border-line rounded-card p-[16px] flex flex-col gap-[10px]">
-                <p aria-live="polite">
-                  {COMPETITION_MESSAGES[competition.status]}
-                </p>
-                <p>Meilleur score confirmé : {competition.confirmedBest}</p>
-                <Button
-                  onClick={() => {
-                    setExpression('');
-                    void competition.start();
-                  }}
-                  disabled={busy || !!competition.pending}
-                >
+              <section className="sheet p-4 flex flex-col gap-3">
+                <p className="m-0 text-[15px]" aria-live="polite">{COMPETITION_MESSAGES[competition.status]}</p>
+                <p className="m-0 text-[14.5px]">Meilleur score confirmé : <b className="num">{fmt(competition.confirmedBest)}</b></p>
+                <Button variant="ink" onClick={() => { setExpression(''); void competition.start(); }} disabled={busy || !!competition.pending}>
                   Ouvrir le Daily compétitif
                 </Button>
                 {competition.pending && (
-                  <Button
-                    onClick={() => void competition.retry()}
-                    disabled={busy}
-                  >
-                    Réessayer la synchronisation
-                  </Button>
+                  <Button onClick={() => void competition.retry()} disabled={busy}>Réessayer la synchronisation</Button>
                 )}
                 {challenge && !challenge.rewarded && (
                   <>
-                    <p>
-                      Cible {challenge.target} · {challenge.day} UTC
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-mine text-sm font-semibold">Cible</span>
+                      <span className="num text-[40px] font-black leading-none"><span className="hl">{challenge.target}</span></span>
+                      <span className="text-mine text-[13px] ml-auto">{challenge.day} UTC</span>
+                    </div>
+                    <p className="m-0 text-[14.5px]">
+                      {challenge.hints > 0 ? <><span className="hand font-bold text-pen">Indice :</span> <b className="num">{challenge.hint}…</b></> : 'Aucun indice demandé'}
                     </p>
-                    <p>
-                      {challenge.hints > 0
-                        ? `Indice : ${challenge.hint}…`
-                        : 'Aucun indice demandé'}
-                    </p>
-                    <input
-                      aria-label="Expression compétitive"
-                      value={expression}
-                      onChange={(e) => setExpression(e.target.value)}
-                      maxLength={256}
-                      className="border border-line rounded-[10px] p-[10px] font-mono"
-                      placeholder="3+5*7"
-                    />
-                    <div className="flex gap-[8px]">
-                      <Button
-                        onClick={() => void competition.hint()}
-                        disabled={busy || !!competition.pending}
-                      >
-                        Indice serveur
-                      </Button>
-                      <Button
-                        variant="primary"
-                        onClick={() => void competition.answer(expression)}
-                        disabled={busy || !!competition.pending || !expression}
-                      >
-                        Valider
-                      </Button>
+                    <label htmlFor="lb-expr" className="sr-only">Expression compétitive</label>
+                    <input id="lb-expr" aria-label="Expression compétitive" value={expression} onChange={(e) => setExpression(e.target.value)} maxLength={256}
+                      className="field num text-lg" placeholder="3+5*7" />
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button onClick={() => void competition.hint()} disabled={busy || !!competition.pending}>Indice serveur</Button>
+                      <Button variant="ink" onClick={() => void competition.answer(expression)} disabled={busy || !!competition.pending || !expression}>Valider</Button>
                     </div>
                   </>
                 )}
-                {challenge?.rewarded && (
-                  <p>
-                    Défi déjà récompensé aujourd'hui. Le Daily local reste
-                    rejouable pour s'entraîner.
-                  </p>
-                )}
-              </div>
+                {challenge?.rewarded && <p className="m-0 text-[14.5px]">Défi déjà récompensé aujourd'hui. Le Daily local reste rejouable pour s'entraîner.</p>}
+              </section>
             )}
           </>
         )}
-        <div className="bg-card border border-line rounded-card px-[16px]">
-          {error ? (
-            <p>Classement indisponible. Réessaie plus tard.</p>
-          ) : rows === null ? (
-            <p>Chargement…</p>
-          ) : rows.length === 0 ? (
-            <p>Aucun score dans ce classement.</p>
-          ) : (
-            rows.map((row, index) => (
-              <div
-                key={row.id + row.mode}
-                className="flex justify-between py-[11px] border-b border-line"
-              >
-                <span>
-                  {index + 1}. {row.pseudo}
-                </span>
-                <b>{row.score}</b>
+
+        <section className="sheet px-4 py-1 dashed-rows" aria-live="polite" aria-label="Scores">
+          {error ? <p className="text-pen text-sm py-3 m-0">Classement indisponible. Réessaie plus tard.</p>
+            : rows === null ? <p className="text-mine text-sm py-3 m-0">Chargement…</p>
+            : rows.length === 0 ? <p className="text-mine text-sm py-3 m-0">Aucun score dans ce classement.</p>
+            : rows.map((row, i) => (
+              <div key={row.id + row.mode} className={`flex items-center gap-3 py-2.5 text-[15px] ${i === meIdx ? 'bg-hl -mx-4 px-4 font-extrabold' : ''}`}>
+                <span className="num w-7 font-extrabold">{i + 1}</span>
+                <span className="flex-1 truncate">{i === meIdx ? `Toi, ${row.pseudo}` : row.pseudo}</span>
+                <span className="num font-extrabold">{fmt(row.score)}</span>
               </div>
-            ))
-          )}
-        </div>
+            ))}
+        </section>
       </main>
+      <TabBar />
     </>
   );
 }

@@ -1,11 +1,12 @@
 /** Design tokens partagés. Tailwind (web) et le thème RN (mobile) les consomment. */
 export const colors = {
-  bg: '#FFF5EF', card: '#FFF9F1', ink: '#4A1933', mut: '#724E62', line: '#EACFC0',
-  pri: '#F05B4B', priDark: '#A93232', ok: '#276044', gold: '#976000', err: '#A4273F',
-  warn: '#976000', num: '#FBE5CB', op: '#ABC8FB',
-  night: '#0C1A3E', panel: '#12346C', onNight: '#FFF7EB', accent: '#FFD269', actionInk: '#341426',
+  // Palette historique, alignée sur la direction « Cahier » (voir `cahier`).
+  bg: '#F7F9F6', card: '#FFFFFF', ink: '#23293A', mut: '#586174', line: '#B9C3CF',
+  pri: '#1D2A8A', priDark: '#16217A', ok: '#1F6B45', gold: '#7A5A00', err: '#C2302A',
+  warn: '#7A5A00', num: '#FFFFFF', op: '#EEF0FA',
+  night: '#16217A', panel: '#1D2A8A', onNight: '#F7F9F6', accent: '#FFE04A', actionInk: '#FFFFFF',
   // paliers de la barre de temps
-  timeOk: '#179C6B', timeMid: '#E8A317', timeLow: '#E5484D',
+  timeOk: '#FFE04A', timeMid: '#FFE04A', timeLow: '#C2302A',
 } as const;
 
 export const radius = { sm: 11, md: 14, lg: 18, xl: 22 } as const;
@@ -20,38 +21,61 @@ export const timeColor = (frac: number): string =>
 /** Couleur d'accent par Big Challenge (pour bien identifier où on est). */
 export const bigColor: Record<number, string> = { 3: '#7C5BD6', 5: '#5B8FD6', 7: '#D67C5B' };
 
+/**
+ * Direction « Cahier » (refonte 2026-11) : papier quadrillé, encre bleue, stylo rouge, surligneur.
+ */
+export const cahier = {
+  paper: '#F7F9F6',     // fond
+  grid: '#E6EDF2',      // lignes du quadrillage
+  white: '#FFFFFF',     // feuille posée (cartes, touches)
+  ink: '#1D2A8A',       // action principale, opérateurs, titres
+  inkDark: '#16217A',
+  inkSoft: '#EEF0FA',   // fond des touches opérateur
+  graphite: '#23293A',  // texte, contours, ombres décalées
+  mine: '#586174',      // texte secondaire (6:1 sur paper)
+  dash: '#B9C3CF',      // séparateurs pointillés
+  ghost: '#9AA6B4',     // cases vides
+  pen: '#C2302A',       // stylo rouge : limite optimale, erreurs, malus
+  hl: '#FFE04A',        // surligneur : cible, étoiles, record
+} as const;
+
+/** Taille de la grille du papier, en px. */
+export const CAHIER_GRID = 26;
+
 /** Rogue R4.3B: implementation roles derived from the archived visual references.
  * The Rogue run keeps its own night-surface roles.
  */
 export const rogue = {
   colors: {
-    ivory: "#FFF7EB",
-    aubergine: "#4A1C32",
-    night: "#0C1A3E",
-    panel: "#12346C",
-    raised: "#1C4787",
-    coral: "#F05B4B",
-    coralPressed: "#D1463B",
-    coralInk: "#341426",
-    gold: "#FFD269",
-    operator: "#A9C5F6",
-    muted: "#C6D1EA",
-    mutedLight: "#735368",
-    border: "#42689F",
-    success: "#ADE3C8",
+    // Direction « Cahier » : le run se joue sur une page d'encre bleue quadrillée,
+    // surligneur jaune pour l'action, rouge stylo pour les erreurs.
+    ivory: "#F7F9F6",        // papier : fond clair et texte sur l'encre
+    aubergine: "#23293A",    // graphite : texte sur papier
+    night: "#16217A",        // encre foncée : fond du run
+    panel: "#1D2A8A",        // encre : panneaux du run
+    raised: "#2B3A9E",
+    coral: "#FFE04A",        // surligneur : action principale
+    coralPressed: "#F2CF2E",
+    coralInk: "#23293A",
+    gold: "#FFE04A",
+    operator: "#C9D1F5",
+    muted: "#C9D0EE",
+    mutedLight: "#586174",
+    border: "#5563B8",
+    success: "#BFEBD2",
     error: "#FFC2B9",
-    warning: "#FFD269",
-    errorSurface: "#54263C",
-    focus: "#FFD269",
+    warning: "#FFE04A",
+    errorSurface: "#5E1F33",
+    focus: "#FFE04A",
   },
   font: {
-    body: "NunitoRegular",
-    strong: "NunitoBold",
-    display: "NunitoExtraBold",
+    body: "RecursiveRegular",
+    strong: "RecursiveBold",
+    display: "RecursiveExtraBold",
   },
   size: { small: 12, body: 15, title: 24, display: 36, target: 56 },
   space: { tight: 4, small: 8, medium: 12, large: 20, section: 28 },
-  radius: { control: 12, panel: 24, hero: 28 },
+  radius: { control: 6, panel: 8, hero: 10 },
   touch: 44,
   roomyHeight: 840,
   transitionMs: 120,
