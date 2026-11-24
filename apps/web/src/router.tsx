@@ -3,6 +3,7 @@ import { QueryClient } from '@tanstack/react-query';
 import type { Mode } from '@shortest/engine';
 import { tableForMode, tableQuery } from './data/puzzles';
 import { useGame } from './store/game';
+import { appThemeVars } from './lib/theme';
 import { useAudioSettings } from './lib/useAudio';
 import { BigChallenge } from './screens/BigChallenge';
 import { Levels } from './screens/Levels';
@@ -19,8 +20,9 @@ function Layout() {
   const roguePage = useRouterState({ select: state => state.location.pathname === '/rogue' });
   const reduce = useGame((s) => s.settings.reduceMotion);
   useAudioSettings(); // applique sound/music selon les réglages
+  const appTheme = useGame((s) => s.settings.appTheme);
   return (
-    <div className={reduce ? 'reduce-motion' : ''}>
+    <div className={reduce ? 'reduce-motion' : ''} style={appThemeVars(appTheme)}>
       {roguePage
         ? <div className="rogue-shell"><Outlet /></div>
         : <div className="cahier-app"><div className="cahier-col"><Outlet /></div></div>}

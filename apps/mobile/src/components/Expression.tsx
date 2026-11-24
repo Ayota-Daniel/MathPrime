@@ -1,11 +1,13 @@
 /** Expression saisie case par case, version native (cf. web Expression.tsx). */
 import type { ReactNode } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, Pressable } from 'react-native';
 import { evaluate, exprTokens } from '@shortest/engine';
 import { C, num, Text } from './ui';
 
 export const sym = (o: string) => (o === '*' ? '×' : o === '-' ? '−' : '+');
 export const isOp = (t: string) => t === '+' || t === '-' || t === '*';
+/** Élément lisible : symbole pour un opérateur, nombre tel quel. */
+export const say = (t: string) => (isOp(t) ? sym(t) : t);
 
 /** Valeur courante de l'expression, ou null si elle est incomplète. */
 export function liveValue(input: string): number | null {
@@ -16,8 +18,9 @@ export function liveValue(input: string): number | null {
 /**
  * Cases pleines pour les chiffres tapés, cases fantômes en pointillé jusqu'à la longueur optimale,
  * trait rouge « optimal » après le N-ième chiffre.
+ * Avec `onSelect`, chaque élément se touche pour être sélectionné (puis remplacé ou retiré au clavier).
  */
-export function ExpressionCells({ input, optimal }: { input: string; optimal: number }) {
+export function ExpressionCells({ input, optimal, selected = null, onSelect }: { input: string; optimal: number; selected?: number | null; onSelect?: (at: number) => void }) {
   const tokens = exprTokens(input);
   const operands = tokens.filter((t) => !isOp(t)).length;
   const sm = Math.max(operands, optimal) > 6;
@@ -30,16 +33,27 @@ export function ExpressionCells({ input, optimal }: { input: string; optimal: nu
     </View>
   );
   let seen = 0;
+  const tap = (i: number, t: string, child: ReactNode) => (
+    <Pressable key={`${isOp(t) ? 'o' : 'n'}${i}`} disabled={!onSelect} onPress={() => onSelect?.(i)} hitSlop={{ top: 8, bottom: 8, left: 2, right: 2 }}
+      accessibilityRole={onSelect ? 'button' : undefined} accessibilityState={{ selected: selected === i }}
+      accessibilityLabel={onSelect ? `${say(t)}, ${selected === i ? 'sélectionné' : 'toucher pour modifier'}` : undefined}>
+      {child}
+    </Pressable>
+  );
   tokens.forEach((t, i) => {
+    const on = selected === i;
     if (isOp(t)) {
-      items.push(<Text key={`o${i}`} style={[num, { width: ow, textAlign: 'center', fontSize: fs - 2, fontWeight: '800', color: C.ink }]}>{sym(t)}</Text>);
+      items.push(tap(i, t,
+        <View style={{ width: ow, height: ch, alignItems: 'center', justifyContent: 'center', borderRadius: 4, backgroundColor: on ? C.hl : 'transparent', borderWidth: on ? 2 : 0, borderColor: C.ink }}>
+          <Text style={[num, { fontSize: fs - 2, fontWeight: '800', color: C.ink }]}>{sym(t)}</Text>
+        </View>));
     } else {
       seen += 1;
-      items.push(
-        <View key={`n${i}`} style={{ width: cw, height: ch, alignItems: 'center', justifyContent: 'center', backgroundColor: C.white, borderWidth: 1.5, borderColor: C.graphite, borderRadius: 4 }}>
+      const w = Math.max(cw, t.length * (fs * 0.62) + 14);
+      items.push(tap(i, t,
+        <View style={{ minWidth: w, height: ch, paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? C.hl : C.white, borderWidth: on ? 2.5 : 1.5, borderColor: on ? C.ink : C.graphite, borderRadius: 4 }}>
           <Text style={[num, { fontSize: fs, fontWeight: '800', color: C.graphite }]}>{t}</Text>
-        </View>,
-      );
+        </View>));
       if (seen === optimal) items.push(marker);
     }
   });
@@ -55,7 +69,7 @@ export function ExpressionCells({ input, optimal }: { input: string; optimal: nu
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingTop: 28, paddingBottom: 8, paddingHorizontal: 4 }}>
-      <View accessible accessibilityLiveRegion="polite" accessibilityLabel={input ? `Ton expression : ${tokens.map(sym).join(' ')}` : 'Expression vide'}
+      <View accessible={!onSelect} accessibilityLiveRegion="polite" accessibilityLabel={input ? `Ton expression : ${tokens.map(say).join(' ')}` : 'Expression vide'}
         style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
         {items}
       </View>

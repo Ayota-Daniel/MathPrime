@@ -149,7 +149,7 @@ export function Leaderboard() {
             : rows.map((row, i) => (
               <div key={row.id + row.mode} className={`flex items-center gap-3 py-2.5 text-[15px] ${i === meIdx ? 'bg-hl -mx-4 px-4 font-extrabold' : ''}`}>
                 <span className="num w-7 font-extrabold">{i + 1}</span>
-                <span className="flex-1 truncate">{i === meIdx ? `Toi, ${row.pseudo}` : row.pseudo}</span>
+                <span className="flex-1 truncate">{i === meIdx ? (game.pseudo ? `${game.pseudo} (toi)` : 'Toi') : row.pseudo}</span>
                 <span className="num font-extrabold">{fmt(row.score)}</span>
               </div>
             ))}

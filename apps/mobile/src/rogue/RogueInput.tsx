@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { rogue } from "@shortest/tokens";
+import { RC, themed } from "../theme";
 import { evaluate } from "@shortest/engine";
 import type {
   RogueAction,
@@ -75,7 +76,7 @@ export function NativeExpressionInput({
     });
   }
   return (
-    <View style={{ gap: 4 }}>
+    <View style={{ gap: comfortable ? 10 : 6 }}>
       <TextInput
         ref={input}
         accessibilityLabel="Votre expression"
@@ -88,9 +89,9 @@ export function NativeExpressionInput({
           cursor.current = event.nativeEvent.selection;
           setSelection(event.nativeEvent.selection);
         }}
-        style={[styles.input, comfortable && { height: 60, fontSize: 36 }]}
+        style={[styles.input, comfortable && { height: 60, fontSize: 30 }]}
         placeholder="3 + 5 × 7…"
-        placeholderTextColor={rogue.colors.muted}
+        placeholderTextColor={RC.muted}
         autoCorrect={false}
         autoCapitalize="none"
         maxLength={150}
@@ -101,73 +102,80 @@ export function NativeExpressionInput({
           if (text && !busy) onSubmit(text);
         }}
       />
-      <Text style={styles.muted}>Valeur calculée : {value}</Text>
+      <View style={styles.between}>
+        <Text style={[styles.muted, { flex: 1 }]}>
+          vaut <Text style={styles.value}>{value}</Text>
+        </Text>
+        <View style={styles.row}>
+          {(
+            [
+              ["gauche", -1],
+              ["droite", 1],
+            ] as const
+          ).map(([label, direction]) => (
+            <Button
+              compact
+              key={label}
+              label={direction < 0 ? "←" : "→"}
+              wide
+              accessibilityLabel={`Curseur à ${label}`}
+              disabled={busy}
+              onPress={() => {
+                const position = Math.max(
+                  0,
+                  Math.min(
+                    text.length,
+                    (direction < 0 ? cursor.current.start : cursor.current.end) +
+                      direction,
+                  ),
+                );
+                cursor.current = { start: position, end: position };
+                setSelection(cursor.current);
+                input.current?.focus();
+              }}
+            />
+          ))}
+          <Button
+            compact
+            label="Sélect."
+            accessibilityLabel="Sélectionner"
+            disabled={busy || !text}
+            onPress={() => {
+              const start = Math.max(
+                0,
+                Math.min(
+                  cursor.current.start,
+                  cursor.current.end,
+                  text.length - 1,
+                ),
+              );
+              const end = Math.min(
+                text.length,
+                Math.max(
+                  start + 1,
+                  cursor.current.end +
+                    (cursor.current.end > cursor.current.start ? 1 : 0),
+                ),
+              );
+              cursor.current = { start, end };
+              setSelection(cursor.current);
+              input.current?.focus();
+            }}
+          />
+        </View>
+      </View>
       {practice && (
         <Text style={styles.muted}>
           Touchez le champ pour placer le curseur. Les flèches déplacent le
           curseur ; Sélectionner étend le segment à corriger.
         </Text>
       )}
-      <View style={styles.row}>
-        {(
-          [
-            ["gauche", -1],
-            ["droite", 1],
-          ] as const
-        ).map(([label, direction]) => (
-          <Button
-            compact
-            key={label}
-            label={direction < 0 ? "← Curseur" : "Curseur →"}
-            disabled={busy}
-            onPress={() => {
-              const position = Math.max(
-                0,
-                Math.min(
-                  text.length,
-                  (direction < 0 ? cursor.current.start : cursor.current.end) +
-                    direction,
-                ),
-              );
-              cursor.current = { start: position, end: position };
-              setSelection(cursor.current);
-              input.current?.focus();
-            }}
-          />
-        ))}
-        <Button
-          compact
-          label="Sélectionner"
-          disabled={busy || !text}
-          onPress={() => {
-            const start = Math.max(
-              0,
-              Math.min(
-                cursor.current.start,
-                cursor.current.end,
-                text.length - 1,
-              ),
-            );
-            const end = Math.min(
-              text.length,
-              Math.max(
-                start + 1,
-                cursor.current.end +
-                  (cursor.current.end > cursor.current.start ? 1 : 0),
-              ),
-            );
-            cursor.current = { start, end };
-            setSelection(cursor.current);
-            input.current?.focus();
-          }}
-        />
-      </View>
       <View
         collapsable={false}
         pointerEvents={busy ? "none" : "auto"}
-        style={{ gap: 4 }}
+        style={{ gap: comfortable ? 10 : 6 }}
       >
-        <View style={styles.row}>
+        <View style={styles.keys}>
           {rules.numbers.map((n) => (
             <Tile
               key={n}
@@ -178,7 +186,7 @@ export function NativeExpressionInput({
             />
           ))}
         </View>
-        <View style={styles.row}>
+        <View style={styles.keys}>
           {rules.operations.map((op) => (
             <Tile
               key={op}
@@ -190,7 +198,7 @@ export function NativeExpressionInput({
           ))}
         </View>
       </View>
-      <View style={styles.row}>
+      <View style={styles.keys}>
         <View style={{ flex: 1 }}>
           <Button
             compact
@@ -239,6 +247,7 @@ export function RogueInput({
       hintButton={
         <Button
           compact
+          variant="hint"
           label={`Indice (${view.hints})`}
           accessibilityLabel={`Indice partiel · ${view.hints} restant(s)`}
           accessibilityHint="Moins 15 % au score de ce puzzle ; le temps continue."
@@ -249,23 +258,28 @@ export function RogueInput({
     />
   );
 }
-const styles = StyleSheet.create({
+const styles = themed(() => StyleSheet.create({
   row: { flexDirection: "row", gap: 6 },
+  keys: { flexDirection: "row", gap: 10 },
+  between: { flexDirection: "row", alignItems: "center", gap: 8 },
+  value: { color: RC.ivory, fontFamily: rogue.font.display },
   input: {
     borderBottomWidth: 3,
-    borderColor: rogue.colors.coral,
+    borderColor: RC.coral,
+    backgroundColor: RC.raised,
+    borderRadius: rogue.radius.panel,
     paddingHorizontal: 8,
     paddingVertical: 0,
-    fontSize: 25,
-    height: 44,
+    fontSize: 26,
+    height: 56,
     fontFamily: rogue.font.display,
     textAlign: "center",
-    color: rogue.colors.ivory,
+    color: RC.ivory,
   },
   muted: {
-    fontSize: 12,
-    color: rogue.colors.muted,
-    lineHeight: 16,
+    fontSize: 13.5,
+    color: RC.muted,
+    lineHeight: 19,
     fontFamily: rogue.font.body,
   },
-});
+}));

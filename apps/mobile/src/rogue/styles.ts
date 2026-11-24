@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { rogue } from "@shortest/tokens";
-const c = rogue.colors;
-export const s = StyleSheet.create({
+import { RC as c, themed } from "../theme";
+export const s = themed(() => StyleSheet.create({
   safe: { flex: 1, backgroundColor: c.ivory },
   night: { backgroundColor: c.night },
   content: { padding: 16, gap: 16, paddingBottom: 28 },
@@ -11,6 +11,8 @@ export const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 4,
     gap: 8,
     minHeight: 48,
   },
@@ -146,6 +148,37 @@ export const s = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 4,
   },
+  targetCard: {
+    backgroundColor: c.panel,
+    borderWidth: 1.5,
+    borderColor: c.border,
+    borderRadius: rogue.radius.hero,
+    paddingHorizontal: 18,
+    paddingTop: 12,
+    paddingBottom: 14,
+  },
+  timeRow: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 6 },
+  timeTrack: {
+    flex: 1,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: c.raised,
+    overflow: "hidden",
+  },
+  timeFill: { height: "100%", backgroundColor: c.warning },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
+  chip: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: c.border,
+    color: c.muted,
+    fontFamily: rogue.font.strong,
+    fontSize: 12.5,
+    overflow: "hidden",
+  },
+  chipRule: { borderColor: c.warning, borderWidth: 1.5, color: c.warning },
   liveTarget: {
     color: c.ivory,
     fontFamily: rogue.font.display,
@@ -153,10 +186,12 @@ export const s = StyleSheet.create({
     lineHeight: 52,
   },
   liveTime: {
-    color: c.gold,
+    color: c.warning,
     fontFamily: rogue.font.display,
-    fontSize: 30,
-    lineHeight: 38,
+    fontSize: 17,
+    lineHeight: 22,
+    minWidth: 44,
+    textAlign: "right",
   },
   compactRules: {
     color: c.gold,
@@ -200,4 +235,4 @@ export const s = StyleSheet.create({
     fontSize: 17,
     lineHeight: 21,
   },
-});
+}));

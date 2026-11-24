@@ -1,12 +1,13 @@
-import { useEffect, Component, type ReactNode } from 'react';
+import { useEffect, useRef, Component, type ReactNode } from 'react';
 import { View, Text, ScrollView } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, type NavigationState } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts } from 'expo-font';
 import { GameScreen, gameFonts } from './src/components/GameScreen';
 import { Levels, Help } from './src/screens/Guide';
 import { StatusBar } from 'expo-status-bar';
 import { useGame } from './src/store';
+import { applyThemes } from './src/theme';
 import { audio } from './src/audio';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Rogue } from './src/screens/Rogue';
@@ -68,6 +69,12 @@ export default function App() {
   const hydrated = useGame((s) => s.hydrated);
   const sound = useGame((s) => s.settings.sound);
   const music = useGame((s) => s.settings.music);
+  const appTheme = useGame((s) => s.settings.appTheme);
+  const rogueTheme = useGame((s) => s.settings.rogueTheme);
+  // Le thème est recopié dans les couleurs vivantes avant le rendu des écrans. Changer de thème remonte la
+  // navigation (clé) en reprenant l'état courant : on reste sur l'écran ouvert, tout est redessiné.
+  const themeKey = applyThemes(appTheme, rogueTheme);
+  const navState = useRef<NavigationState | undefined>(undefined);
   useEffect(() => {
     void hydrate();
   }, [hydrate]);
@@ -83,7 +90,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <SafeAreaProvider>
-        <NavigationContainer>
+        <NavigationContainer key={themeKey} initialState={navState.current} onStateChange={(state) => { navState.current = state; }}>
           <StatusBar style="dark" />
           <Stack.Navigator
             screenLayout={({ route, children }) =>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { ChevronRight } from 'lucide-react';
+import { appThemes, appThemeById, rogueThemes, rogueThemeById } from '@shortest/tokens';
 import { useGame } from '../store/game';
 import { TabBar } from '../components/TabBar';
 import { Button, ScreenTitle, Switch } from '../components/ui';
@@ -13,6 +14,34 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
     </>
   );
 }
+/** Choix d'une couleur : vrais boutons radio (flèches au clavier), pastilles dessinées par-dessus. */
+function Swatches({ name, legend, current, options, onChange }: {
+  name: string; legend: string; current: string;
+  options: readonly { id: string; name: string; fill: string; dot?: string }[];
+  onChange: (id: string) => void;
+}) {
+  const round = !options[0]?.dot;
+  return (
+    <fieldset className="m-0 p-0 border-0 py-3">
+      <legend className="float-left w-full flex items-baseline justify-between mb-2.5 text-[15.5px] font-bold">
+        {legend}<span className="text-[13.5px] font-normal text-mine">{options.find((o) => o.id === current)?.name}</span>
+      </legend>
+      <div className="clear-both flex justify-between">
+        {options.map((o) => (
+          <label key={o.id} className="relative cursor-pointer">
+            <input type="radio" name={name} value={o.id} checked={o.id === current} onChange={() => onChange(o.id)} aria-label={o.name} className="peer sr-only" />
+            <span className={`flex items-center justify-center w-12 h-12 border-[2.5px] border-transparent peer-checked:border-graphite peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-graphite ${round ? 'rounded-full' : 'rounded-lg'}`}>
+              <span className={`flex items-end justify-end p-1 w-9 h-9 ${round ? 'rounded-full' : 'rounded-[5px]'}`} style={{ background: o.fill }}>
+                {o.dot && <span className="w-3.5 h-3.5 rounded-[3px]" style={{ background: o.dot }} />}
+              </span>
+            </span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
 const Row = ({ children }: { children: React.ReactNode }) => <div className="flex items-center justify-between gap-3 min-h-[50px] text-[15.5px]">{children}</div>;
 
 export function Settings() {
@@ -28,6 +57,13 @@ export function Settings() {
     <>
       <header className="px-5 pt-6"><ScreenTitle>Réglages</ScreenTitle></header>
       <main className="flex flex-col pb-5">
+        <Group title="Apparence">
+          <Swatches name="app-theme" legend="Couleur d'accent" current={appThemeById(s.appTheme).id}
+            options={appThemes.map((t) => ({ id: t.id, name: t.name, fill: t.colors.ink }))} onChange={(id) => set('appTheme', id)} />
+          <Swatches name="rogue-theme" legend="Page Rogue" current={rogueThemeById(s.rogueTheme).id}
+            options={rogueThemes.map((t) => ({ id: t.id, name: t.name, fill: t.colors.night, dot: t.colors.coral }))} onChange={(id) => set('rogueTheme', id)} />
+        </Group>
+
         <Group title="Son et affichage">
           <Row><span id="set-sound">Bruitages</span><Switch on={s.sound} onToggle={() => set('sound', !s.sound)} labelledBy="set-sound" /></Row>
           <Row><span id="set-music">Musique</span><Switch on={s.music} onToggle={() => set('music', !s.music)} labelledBy="set-music" /></Row>

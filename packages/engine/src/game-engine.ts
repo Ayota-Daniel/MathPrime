@@ -132,6 +132,28 @@ export function applyModifier(run: RogueRun, mod: RogueModifier): RogueRun {
 
 /* ---------- HINTS ---------- */
 export const exprTokens = (expr: string): string[] => expr.match(/\d+|[+\-*]/g) ?? [];
+
+/**
+ * Modifie l'élément `at` de l'expression sans tout effacer.
+ * `tok` remplace un nombre par un chiffre, ou un opérateur par un opérateur (sinon rien ne change).
+ * `tok === null` retire l'élément en gardant l'alternance nombre / opérateur :
+ * un opérateur part avec le nombre qui le suit, un nombre avec l'opérateur qui le précède
+ * (ou celui qui le suit s'il est en tête).
+ */
+export function editExpression(input: string, at: number, tok: string | null): string {
+  const tokens = exprTokens(input);
+  if (!Number.isInteger(at) || at < 0 || at >= tokens.length) return input;
+  const op = (t: string) => t === '+' || t === '-' || t === '*';
+  if (tok !== null) {
+    if (op(tok) !== op(tokens[at]) || !/^(\d|[+\-*])$/.test(tok)) return input;
+    tokens[at] = tok;
+  } else if (op(tokens[at]) || at === 0) {
+    tokens.splice(at, 2);
+  } else {
+    tokens.splice(at - 1, 2);
+  }
+  return tokens.join('');
+}
 /** Plafond d'étoiles selon le nb d'indices utilisés (anti-abus).
  *  0 indice -> 3★ possible ; jusqu'à la moitié révélée -> 2★ ; au-delà -> 1★. */
 export function hintStarCeiling(hintsUsed: number, totalTokens: number): 0 | 1 | 2 | 3 {

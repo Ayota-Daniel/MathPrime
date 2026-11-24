@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Check,
-  ChevronDown,
   Delete,
   Lightbulb,
   Play,
@@ -14,7 +13,6 @@ import { editExpression } from "@shortest/engine/rogue-v1";
 import type { ExpressionAction, Rules } from "@shortest/engine/rogue-v1";
 import { Button } from "../ui";
 import { ActiveEffects } from "./RogueCards";
-import { RogueResources } from "./RogueProgress";
 import type { RogueView, WebAction, WebPuzzle } from "../../rogue/controller";
 
 export const BOSS_NAMES = [
@@ -83,37 +81,57 @@ export function PuzzleRules({
     </div>
   );
 }
+/** Short labels for the chips under the target, as on mobile. */
+function compactConstraints(puzzle: WebPuzzle): string[] {
+  const rules = puzzle.rules;
+  const labels = Object.entries(rules.minimumOccurrences)
+    .filter(([, count]) => count > 0)
+    .map(([digit, count]) => `${digit} : au moins ${count}`);
+  if (rules.requireSubtraction) labels.push("Soustraction requise");
+  if (rules.maxMultiplications !== null)
+    labels.push(`× : maximum ${rules.maxMultiplications}`);
+  if (puzzle.minimumStars > 1)
+    labels.push(`Minimum ${puzzle.minimumStars} étoiles`);
+  return labels;
+}
 function LiveTarget({ view, puzzle }: { view: RogueView; puzzle: WebPuzzle }) {
   if (puzzle.state !== "playing") return null;
+  const fraction =
+    puzzle.seconds > 0
+      ? Math.max(0, Math.min(1, view.remaining / puzzle.seconds))
+      : 0;
+  const critical = view.remaining <= 5;
   return (
-    <div className="rogue-target-panel">
-      <div className="rogue-target-time">
-        <div className="rogue-target">
-          <span>Cible à atteindre</span>
-          <strong>{puzzle.target}</strong>
-        </div>
+    <>
+      <div className="rogue-target-card">
+        <span className="rogue-target-label">Cible</span>
+        <strong className="rogue-target-number">{puzzle.target}</strong>
         <div
           role="timer"
           aria-label={`${view.remaining} secondes restantes`}
-          className="rogue-clock"
+          className={`rogue-time${critical ? " critical" : ""}`}
         >
-          <span>Temps restant</span>
-          <strong>
-            {String(Math.floor(view.remaining / 60)).padStart(2, "0")}:
-            {String(view.remaining % 60).padStart(2, "0")}
-          </strong>
-          <progress
-            max={puzzle.seconds}
-            value={view.remaining}
-            aria-label="Temps restant"
-          />
-          {view.remaining <= 5 && (
-            <p role="status">Temps critique · moins de six secondes</p>
-          )}
+          <span className="rogue-time-track" aria-hidden="true">
+            <span style={{ width: `${fraction * 100}%` }} />
+          </span>
+          <b aria-hidden="true">{view.remaining} s</b>
         </div>
+        {critical && (
+          <p className="sr-only" role="status">
+            Temps critique
+          </p>
+        )}
       </div>
-      <PuzzleConstraints puzzle={puzzle} />
-    </div>
+      <ul className="rogue-chips" aria-label="Règles de cette épreuve">
+        <li>Sans parenthèses</li>
+        <li>× avant + et −</li>
+        {compactConstraints(puzzle).map((label) => (
+          <li key={label} className="rule">
+            {label}
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 function RogueKeypad({
@@ -153,6 +171,16 @@ function RogueKeypad({
   );
 }
 
+function Gap({ value, target }: { value: number; target: number }) {
+  if (value === target) return <> · pile sur la cible</>;
+  const gap = Math.abs(value - target);
+  return (
+    <>
+      {" "}
+      · {gap.toLocaleString("fr-FR")} {value > target ? "de trop" : "à trouver"}
+    </>
+  );
+}
 export function RogueExpressionInput({
   rules,
   busy,
@@ -196,6 +224,7 @@ export function RogueExpressionInput({
     .replace(/×/g, "*")
     .replace(/−/g, "-");
   const complete = /^[357](?:[+*\-][357])*$/.test(normalized);
+  const value = complete ? evaluate(normalized) : undefined;
   const digitCount = (input.match(/[0-9]/g) ?? []).length;
   const erase = (
     <Button
@@ -205,6 +234,16 @@ export function RogueExpressionInput({
       icon={<Delete size={19} />}
     >
       Effacer
+    </Button>
+  );
+  const clear = (
+    <Button
+      type="button"
+      disabled={busy || !input}
+      onClick={() => edit({ type: "clear" })}
+      icon={<RotateCcw size={15} />}
+    >
+      Vider
     </Button>
   );
   return (
@@ -249,7 +288,12 @@ export function RogueExpressionInput({
         />
         <div id="rogue-expression-help" className="rogue-input-help">
           <span>
-            Valeur : <strong>{complete ? evaluate(normalized) : "—"}</strong>
+            {game ? "vaut" : "Valeur :"}{" "}
+            <strong>{value ?? "—"}</strong>
+            {game?.view.puzzle?.state === "playing" &&
+              value !== undefined && (
+                <Gap value={value} target={game.view.puzzle.target} />
+              )}
           </span>
           <span>
             {game
@@ -257,20 +301,14 @@ export function RogueExpressionInput({
               : "Entrée pour valider"}
           </span>
         </div>
-        <div className="rogue-input-tools">
-          {!game && erase}
-          <Button
-            type="button"
-            disabled={busy || !input}
-            onClick={() => edit({ type: "clear" })}
-            icon={<RotateCcw size={15} />}
-          >
-            Vider
-          </Button>
-        </div>
+        {!game && (
+          <div className="rogue-input-tools">
+            {erase}
+            {clear}
+          </div>
+        )}
       </div>
       <div className="rogue-controls">
-        {game && <RogueResources view={game.view} />}
         <RogueKeypad
           rules={rules}
           busy={busy}
@@ -279,8 +317,10 @@ export function RogueExpressionInput({
         {game && (
           <div className="rogue-edit-row">
             {erase}
+            {clear}
             <Button
               type="button"
+              className="rogue-hint-button"
               disabled={busy || game.view.hints === 0}
               icon={<Lightbulb size={20} />}
               aria-describedby="rogue-hint-cost"
@@ -346,25 +386,12 @@ export function RoguePuzzle({
         className="rogue-puzzle-panel rogue-live"
         aria-labelledby="rogue-title"
       >
-        <div className="rogue-puzzle-heading">
+        <div className={boss ? "rogue-puzzle-heading" : "sr-only"}>
           <h1 id="rogue-title" tabIndex={-1}>
             {boss ? BOSS_NAMES[view.phase.act - 1] : encounterName(view)}
           </h1>
-          <span className="rogue-kicker">
-            {boss ? encounterName(view) : "Chronomètre actif"}
-          </span>
+          {boss && <span className="rogue-kicker">{encounterName(view)}</span>}
         </div>
-        <details className="rogue-live-rules">
-          <summary className="rogue-base-rule">
-            <span>Sans parenthèses</span>
-            <span>La multiplication est prioritaire</span>
-            <ChevronDown size={16} aria-hidden="true" />
-          </summary>
-          <p>
-            Chiffres réutilisables. Les étoiles récompensent une expression
-            courte sous les contraintes actives. Aucun bonus général de vitesse.
-          </p>
-        </details>
         <RogueExpressionInput
           key={`${view.seed}-${view.stage}`}
           rules={puzzle.rules}

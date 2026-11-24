@@ -1,8 +1,9 @@
 import type { CSSProperties } from "react";
-import { rogue } from "@shortest/tokens";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { rogue, rogueThemeById } from "@shortest/tokens";
+import { useGame } from "../store/game";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, LoaderCircle, Swords, X } from "lucide-react";
+import { ArrowLeft, Flag as FlagIcon, LoaderCircle, LogOut, Swords } from "lucide-react";
 import type { WebAction } from "../rogue/controller";
 import { useRogueSession } from "../rogue/useRogueSession";
 import { ActiveEffects, RogueRewards } from "../components/rogue/RogueCards";
@@ -20,17 +21,22 @@ import { audio } from "../lib/audio";
 import "../rogue/rogue.css";
 import { RoguePlaytestExport } from "../components/rogue/RoguePlaytestExport";
 
-const theme = {
-  ...Object.fromEntries(
-    Object.entries(rogue.colors).map(([name, color]) => [`--r-${name}`, color]),
-  ),
-  "--r-controlRadius": `${rogue.radius.control}px`,
-  "--r-motion": `${rogue.transitionMs}ms`,
-} as CSSProperties;
+/** Variables `--r-*` de la page Rogue choisie dans les réglages (Ardoise par défaut). */
+function rogueVars(id: string): CSSProperties {
+  const colors = { ...rogue.colors, ...rogueThemeById(id).colors };
+  return {
+    ...Object.fromEntries(Object.entries(colors).map(([name, color]) => [`--r-${name}`, color])),
+    "--r-controlRadius": `${rogue.radius.control}px`,
+    "--r-heroRadius": `${rogue.radius.hero}px`,
+    "--r-motion": `${rogue.transitionMs}ms`,
+  } as CSSProperties;
+}
 
 export function Rogue() {
   const { view, busy, send: perform, controller, error } = useRogueSession();
   const navigate = useNavigate();
+  const rogueTheme = useGame((s) => s.settings.rogueTheme);
+  const theme = useMemo(() => rogueVars(rogueTheme), [rogueTheme]);
   const [confirmAbandon, setConfirmAbandon] = useState(false);
   const [replacement, setReplacement] = useState<number | null>(null);
   const [deciding, setDeciding] = useState(false);
@@ -124,11 +130,11 @@ export function Rogue() {
         </Link>
         {controller.isActive() ? (
           <button
-            className="rogue-exit"
+            className="rogue-exit rogue-danger"
             onClick={() => setConfirmAbandon(true)}
             disabled={busy}
           >
-            <X size={16} aria-hidden="true" />
+            <FlagIcon size={16} aria-hidden="true" />
             Abandonner
           </button>
         ) : (
@@ -248,6 +254,14 @@ export function Rogue() {
           cancelAbandon();
         }}
       >
+        {(() => {
+          const leaving = replacement === null && blocker.status === "blocked";
+          return (
+            <span className={`rogue-dialog-icon${leaving ? "" : " danger"}`} aria-hidden="true">
+              {leaving ? <LogOut size={22} /> : <FlagIcon size={22} />}
+            </span>
+          );
+        })()}
         <h2 id="rogue-dialog-title">
           {replacement !== null
             ? "Remplacer la session enregistrée ?"
@@ -266,11 +280,13 @@ export function Rogue() {
           Le temps continue pendant un puzzle, y compris hors de cet écran.
         </p>
         {view.storageError && <p role="alert">{view.storageError}</p>}
+        <div className="rogue-dialog-actions">
         <Button autoFocus disabled={deciding} onClick={cancelAbandon}>
-          Annuler
+          {replacement === null && blocker.status !== "blocked" ? "Continuer" : "Annuler"}
         </Button>
         <Button
-          variant="primary"
+          variant={replacement === null && blocker.status === "blocked" ? "primary" : "ghost"}
+          className={replacement === null && blocker.status === "blocked" ? "" : "rogue-danger-solid"}
           disabled={deciding}
           onClick={() => {
             void confirm();
@@ -282,8 +298,9 @@ export function Rogue() {
               ? view.storageError
                 ? "Quitter cet écran"
                 : "Quitter et conserver"
-              : "Confirmer l’abandon"}
+              : "Abandonner"}
         </Button>
+        </div>
       </dialog>
     </div>
   );

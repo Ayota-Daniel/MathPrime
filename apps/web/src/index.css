@@ -14,6 +14,10 @@
 }
 
 :root {
+  /* Accent par défaut (Encre bleue) ; le thème choisi le remplace sur la racine de l'app. */
+  --accent: #1D2A8A;
+  --accent-d: #16217A;
+  --accent-soft: #EEF0FA;
   /* Fonds partagés avec le mode Rogue : papier clair et page d'encre, tous deux quadrillés. */
   --paper-art:
     repeating-linear-gradient(0deg, #E6EDF2 0 1px, transparent 1px 26px),

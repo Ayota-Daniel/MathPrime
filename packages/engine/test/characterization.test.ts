@@ -20,6 +20,8 @@ import {
   scorePuzzle,
   validateAnswer,
   loadSave,
+  EMPTY_SAVE,
+  editExpression,
   webStorage,
   type Puzzle,
   type RogueRun,
@@ -535,6 +537,41 @@ test('les sauvegardes antérieures restent lisibles avec leurs valeurs conservé
   assert.equal(restored.streakByMode.classic, 5);
   assert.equal(restored.dailyDone, null);
   assert.deepEqual(restored.stats, { played: 0, perfect: 0 });
+});
+
+test('une sauvegarde sans thème garde ses réglages et reçoit les thèmes par défaut', async () => {
+  const saved = { ...EMPTY_SAVE, settings: { language: 'en', reduceMotion: true, sound: false, music: true, leaderboardOptIn: true } };
+  const restored = await loadSave(createMemoryStorage({ 'shortest:save:v3': saved }));
+  assert.equal(restored.settings.language, 'en');
+  assert.equal(restored.settings.reduceMotion, true);
+  assert.equal(restored.settings.sound, false);
+  assert.equal(restored.settings.appTheme, 'encre');
+  assert.equal(restored.settings.rogueTheme, 'ardoise');
+});
+
+test('editExpression remplace ou retire un élément sans casser l\'alternance', () => {
+  assert.equal(editExpression('5+53+5', 2, '7'), '5+7+5');
+  assert.equal(editExpression('5+53+5', 1, '*'), '5*53+5');
+  assert.equal(editExpression('5+53+5', 1, '3'), '5+53+5', 'un chiffre ne remplace pas un opérateur');
+  assert.equal(editExpression('5+53+5', 2, null), '5+5');
+  assert.equal(editExpression('5+53+5', 0, null), '53+5');
+  assert.equal(editExpression('5+53+5', 3, null), '5+53');
+  assert.equal(editExpression('5+53+', 3, null), '5+53');
+  assert.equal(editExpression('5', 0, null), '');
+  assert.equal(editExpression('5+3', 9, null), '5+3');
+});
+
+test('press et del acceptent un indice et ignorent un événement', () => {
+  const store = createGameStore(createMemoryStorage());
+  store.getState().start('classic', [puzzle(15, '3+3+3+3+3', 5, 2)]);
+  for (const t of ['5', '+', '5', '3', '+', '5']) store.getState().press(t);
+  assert.equal(store.getState().session?.input, '5+53+5');
+  store.getState().press('7', 2);
+  assert.equal(store.getState().session?.input, '5+7+5');
+  store.getState().del(2);
+  assert.equal(store.getState().session?.input, '5+5');
+  store.getState().del({ type: 'click' } as unknown as number);
+  assert.equal(store.getState().session?.input, '5');
 });
 
 test('validateAnswer rejette les caractères non tokenisés', () => {

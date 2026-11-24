@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ComponentRef } from "react";
 import {
-  Alert,
   BackHandler,
   Keyboard,
   KeyboardAvoidingView,
@@ -15,12 +14,13 @@ import {
 import { Backdrop } from "../components/GameScreen";
 import { StatusBar } from "expo-status-bar";
 import { rogue } from "@shortest/tokens";
+import { RC } from "../theme";
 import { RogueDetails } from "../rogue/Details";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStack } from "../../App";
-import type { RogueAction } from "@shortest/engine/rogue-v1/controller";
-import { Button } from "../rogue/ui";
+import type { RogueAction, RogueView } from "@shortest/engine/rogue-v1/controller";
+import { Button, ConfirmDialog, Counters, Segments } from "../rogue/ui";
 import { useRogue } from "../rogue/useRogue";
 import {
   NativeHome,
@@ -35,11 +35,31 @@ import { NativeExtras, NativeDiagnostics } from "../rogue/Extras";
 import { s } from "../rogue/styles";
 import { NativePlaytestExport } from "../rogue/PlaytestExport";
 
+type Confirm = {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  cancelLabel?: string;
+  danger?: boolean;
+  onConfirm: () => void;
+};
+
+/** Position dans l'acte, pour la barre de segments. */
+function stageProgress(view: RogueView) {
+  const { act, boss, index, survival } = view.phase;
+  if (survival) return { done: 0, total: 0, label: `Survie · rencontre ${survival}` };
+  const total = index + (view.encountersRemaining ?? 1);
+  return boss
+    ? { done: index, total, label: `Acte ${act} · boss, phase ${index + 1}/${total}` }
+    : { done: index, total: total + 1, label: `Acte ${act} · puzzle ${index + 1}/${total}` };
+}
+
 export function Rogue({
   navigation,
 }: NativeStackScreenProps<RootStack, "Rogue">) {
   const { view, controller, busy, error, send: perform } = useRogue();
   const [details, setDetails] = useState(false);
+  const [confirm, setConfirm] = useState<Confirm | null>(null);
   const playing = view.screen === "playing";
   const inRun = view.screen !== "home";
   const compact = playing || view.screen === "reward";
@@ -56,37 +76,36 @@ export function Rogue({
       action.type === "new" &&
       (view.hasSaved || view.storageNotice || controller.isActive())
     ) {
-      Alert.alert(
-        "Remplacer la session ?",
-        "La run actuelle sera archivée avant son remplacement. Une partie inachevée sera marquée interrompue.",
-        [
-          { text: "Annuler", style: "cancel" },
-          {
-            text: "Remplacer",
-            style: "destructive",
-            onPress: () => {
-              void replaceRun(action.seed);
-            },
-          },
-        ],
-      );
+      setConfirm({
+        title: "Remplacer la session ?",
+        message:
+          "La run actuelle sera archivée avant son remplacement. Une partie inachevée sera marquée interrompue.",
+        confirmLabel: "Remplacer",
+        danger: true,
+        onConfirm: () => {
+          void replaceRun(action.seed);
+        },
+      });
     } else void perform(action);
   }
   function abandon() {
-    Alert.alert(
-      "Abandonner cette run ?",
-      "Le bilan sera conservé. La partie ne pourra plus être reprise.",
-      [
-        { text: "Annuler", style: "cancel" },
-        {
-          text: "Abandonner",
-          style: "destructive",
-          onPress: () => {
-            void perform({ type: "abandon" });
-          },
+    const ask = () =>
+      setConfirm({
+        title: "Abandonner cette run ?",
+        message:
+          "Le bilan sera conservé, mais la partie ne pourra plus être reprise.",
+        confirmLabel: "Abandonner",
+        cancelLabel: "Continuer",
+        danger: true,
+        onConfirm: () => {
+          void perform({ type: "abandon" });
         },
-      ],
-    );
+      });
+    // Depuis la fenêtre Détails : la fermer d'abord (iOS ne superpose pas deux modales).
+    if (details) {
+      setDetails(false);
+      setTimeout(ask, Platform.OS === "ios" ? 350 : 0);
+    } else ask();
   }
   useEffect(() => {
     const listener = BackHandler.addEventListener("hardwareBackPress", () => {
@@ -101,22 +120,17 @@ export function Rogue({
       navigation.goBack();
       return;
     }
-    Alert.alert(
-      "Revenir au menu ?",
-      current.current.view.storageError
+    setConfirm({
+      title: "Revenir au menu ?",
+      message: current.current.view.storageError
         ? "Seul un état déjà enregistré pourra être repris. L’action en erreur ne peut pas être garantie."
         : "Votre progression est sauvegardée. Le temps continue pendant un puzzle, y compris hors de l’application.",
-      [
-        { text: "Annuler", style: "cancel" },
-        {
-          text: "Revenir au menu",
-          onPress: () => {
-            controller.suspend();
-            navigation.goBack();
-          },
-        },
-      ],
-    );
+      confirmLabel: "Menu",
+      onConfirm: () => {
+        controller.suspend();
+        navigation.goBack();
+      },
+    });
   }
   useEffect(() => {
     setDetails(false);
@@ -131,7 +145,7 @@ export function Rogue({
       <Backdrop dark={inRun} />
       <StatusBar style={inRun ? "light" : "dark"} />
       <View style={s.header}>
-        <Text accessibilityRole="header" style={[s.brand, inRun && s.onNight]}>
+        <Text accessibilityRole="header" style={[s.brand, inRun && s.onNight, { flex: 1 }]}>
           {playing ? "Rogue" : "MathPrime · Rogue"}
         </Text>
         {playing && (
@@ -142,54 +156,22 @@ export function Rogue({
         </View>
       </View>
       {view.screen !== "home" && (
-        <View style={[s.hud, compact && s.compactHud]}>
+        <View style={[s.hud, { gap: comfortable ? 12 : 8 }]}>
+          <Counters lives={view.lives} hints={view.hints} score={view.score} />
           <View style={s.between}>
-            <Text style={[s.bold, playing && !comfortable && { fontSize: 12 }]}>
-              ♥ {view.lives}/3 ◇ {view.hints} indices
-            </Text>
-            <Text style={[s.bold, playing && !comfortable && { fontSize: 12 }]}>
-              {view.score} pts
+            <View style={{ flex: 1 }}>
+              <Segments {...stageProgress(view)} />
+            </View>
+            <Text style={s.caption}>
+              {view.successes}/{view.total} réussites
             </Text>
           </View>
-          <Text style={s.caption}>
-            {view.phase.survival
-              ? `Survie · rencontre ${view.phase.survival}`
-              : `Acte ${view.phase.act} · ${view.phase.boss ? `Boss, phase ${view.phase.index + 1}` : `Puzzle ${view.phase.index + 1}/3`}`}{" "}
-            · {view.successes}/{view.total} réussites
-          </Text>
-          {!playing &&
-            view.encountersRemaining !== null &&
-            ["preparation", "playing"].includes(view.screen) && (
-              <Text style={s.caption}>
-                {view.encountersRemaining}{" "}
-                {view.phase.boss
-                  ? "phase(s) à réussir"
-                  : "épreuve(s) avant le boss"}
-              </Text>
-            )}
-          {!compact && (
+          {!playing && (
             <Text style={s.timer}>
               {view.officialVictory
                 ? "Victoire officielle acquise"
                 : "Chronomètre en pause"}
             </Text>
-          )}
-          {(!compact || (playing && comfortable)) && (
-            <View style={s.between}>
-              {[1, 2, 3].map((act) => (
-                <Text
-                  key={act}
-                  style={[s.caption, view.phase.act === act && s.rule]}
-                >
-                  Acte {act}
-                  {view.defeatedBosses.includes(act)
-                    ? " · acquis"
-                    : view.phase.act === act
-                      ? " · actuel"
-                      : ""}
-                </Text>
-              ))}
-            </View>
           )}
         </View>
       )}
@@ -207,7 +189,7 @@ export function Rogue({
         >
           {(!view.hydrated || busy) && (
             <ActivityIndicator
-              color={rogue.colors.gold}
+              color={RC.gold}
               accessibilityLabel="Chargement de la session"
             />
           )}
@@ -281,13 +263,14 @@ export function Rogue({
           {controller.isActive() && !playing && (
             <Button
               label="Abandonner la run"
+              variant="danger"
               disabled={busy}
               onPress={abandon}
             />
           )}
           {!playing && (
             <Text
-              style={[s.caption, !inRun && { color: rogue.colors.mutedLight }]}
+              style={[s.caption, !inRun && { color: RC.mutedLight }]}
             >
               Sauvegarde locale · Aucun classement Rogue · Temps hors
               application compté pendant le puzzle
@@ -302,6 +285,20 @@ export function Rogue({
         disabled={disabled}
         send={send}
         abandon={abandon}
+      />
+      <ConfirmDialog
+        visible={confirm !== null}
+        title={confirm?.title ?? ""}
+        message={confirm?.message ?? ""}
+        confirmLabel={confirm?.confirmLabel ?? ""}
+        cancelLabel={confirm?.cancelLabel}
+        danger={confirm?.danger}
+        onCancel={() => setConfirm(null)}
+        onConfirm={() => {
+          const action = confirm?.onConfirm;
+          setConfirm(null);
+          action?.();
+        }}
       />
     </SafeAreaView>
   );

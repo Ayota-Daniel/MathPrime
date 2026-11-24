@@ -22,6 +22,7 @@ import { s } from "./styles";
 import { Swords, Trophy } from "lucide-react-native";
 import type { Offer } from "@shortest/engine/rogue-v1";
 import { rogue } from "@shortest/tokens";
+import { RC } from "../theme";
 type PanelProps = {
   view: RogueView;
   disabled: boolean;
@@ -106,50 +107,45 @@ export function NativePuzzle({
     );
   }, [puzzle.state, puzzle.introduction, view.stage]);
   if (!preparing) {
+    const frac = puzzle.seconds > 0 ? Math.max(0, Math.min(1, view.remaining / puzzle.seconds)) : 0;
+    const critical = view.remaining <= 5;
+    const chips = compactConstraints(view);
     return (
-      <View style={{ gap: comfortable ? 8 : 4 }}>
-        <Text
-          style={[s.baseRule, comfortable && { fontSize: 20, lineHeight: 26 }]}
-        >
-          Sans parenthèses · Multiplication prioritaire
-        </Text>
-        <View style={s.targetTimer}>
-          <View>
-            <Text style={s.caption}>CIBLE À ATTEINDRE</Text>
-            <Text
-              style={[
-                s.liveTarget,
-                comfortable && { fontSize: 64, lineHeight: 72 },
-              ]}
-            >
-              {puzzle.target}
-            </Text>
-          </View>
+      <View style={{ gap: comfortable ? 12 : 8 }}>
+        <View style={s.targetCard}>
+          <Text style={s.label}>CIBLE</Text>
+          <Text style={[s.liveTarget, comfortable && { fontSize: 64, lineHeight: 70 }]}>
+            {puzzle.target}
+          </Text>
           <View
+            accessible
             accessibilityRole="timer"
             accessibilityLabel={`${view.remaining} secondes restantes`}
+            style={s.timeRow}
           >
-            <Text style={s.caption}>
-              {view.remaining <= 5 ? "Temps critique" : "Temps restant"}
-            </Text>
-            <Text
-              style={[
-                s.liveTime,
-                view.remaining <= 5 && { color: rogue.colors.error },
-              ]}
-            >
+            <View style={s.timeTrack}>
+              <View
+                style={[
+                  s.timeFill,
+                  { width: `${frac * 100}%` },
+                  critical && { backgroundColor: RC.error },
+                ]}
+              />
+            </View>
+            <Text style={[s.liveTime, critical && { color: RC.error }]}>
               {view.remaining} s
             </Text>
           </View>
         </View>
-        <Text
-          style={[
-            s.compactRules,
-            comfortable && { fontSize: 14, lineHeight: 20 },
-          ]}
-        >
-          {compactConstraints(view).join(" · ") || "3 · 5 · 7 avec + − ×"}
-        </Text>
+        <View style={s.chips}>
+          <Text style={s.chip}>Sans parenthèses</Text>
+          <Text style={s.chip}>× avant + et −</Text>
+          {chips.map((label) => (
+            <Text key={label} style={[s.chip, s.chipRule]}>
+              {label}
+            </Text>
+          ))}
+        </View>
         <RogueInput
           key={`${view.seed}-${view.stage}`}
           view={view}
@@ -162,7 +158,7 @@ export function NativePuzzle({
   }
   return (
     <View style={[s.card, view.phase.boss && s.boss]}>
-      {view.phase.boss && <Swords size={40} color={rogue.colors.gold} />}
+      {view.phase.boss && <Swords size={40} color={RC.gold} />}
       <Text style={s.title}>
         {view.phase.boss
           ? BOSS_NAMES[view.phase.act - 1]
@@ -268,7 +264,7 @@ export function NativeResult({ view, disabled, send }: PanelProps) {
       {result.bossReward !== null && (
         <>
           <Text style={s.kicker}>JALON ATTEINT</Text>
-          <Trophy size={44} color={rogue.colors.gold} />
+          <Trophy size={44} color={RC.gold} />
           <Text style={s.heroTitle}>Acte {view.phase.act} terminé</Text>
         </>
       )}
@@ -385,10 +381,10 @@ function NativeOffer({
           borderLeftWidth: 4,
           borderLeftColor:
             offer.card[0] === "D"
-              ? rogue.colors.operator
+              ? RC.operator
               : offer.card[0] === "T"
-                ? rogue.colors.gold
-                : rogue.colors.coral,
+                ? RC.gold
+                : RC.coral,
         },
       ]}
     >

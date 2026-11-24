@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react';
 import { evaluate, exprTokens } from '@shortest/engine';
 
-const sym = (o: string) => (o === '*' ? '×' : o === '-' ? '−' : '+');
-const isOp = (t: string) => t === '+' || t === '-' || t === '*';
+export const sym = (o: string) => (o === '*' ? '×' : o === '-' ? '−' : '+');
+export const isOp = (t: string) => t === '+' || t === '-' || t === '*';
+/** Élément lisible : symbole pour un opérateur, nombre tel quel. */
+export const say = (t: string) => (isOp(t) ? sym(t) : t);
 
 /** Valeur courante de l'expression, ou null si elle est incomplète. */
 export function liveValue(input: string): number | null {
@@ -14,9 +16,10 @@ export function liveValue(input: string): number | null {
  * L'expression saisie, case par case, sur le papier quadrillé.
  * Les cases vides en pointillé montrent la longueur optimale ; le trait rouge (« optimal »)
  * marque la limite : chaque chiffre au-delà coûte une étoile.
+ * Avec `onSelect`, chaque élément est un bouton : on le sélectionne pour le remplacer ou le retirer.
  */
-export function ExpressionCells({ input, optimal, size = 'md', shakeRef }:
-  { input: string; optimal: number; size?: 'md' | 'sm'; shakeRef?: React.Ref<HTMLDivElement> }) {
+export function ExpressionCells({ input, optimal, size = 'md', shakeRef, selected = null, onSelect }:
+  { input: string; optimal: number; size?: 'md' | 'sm'; shakeRef?: React.Ref<HTMLDivElement>; selected?: number | null; onSelect?: (at: number) => void }) {
   const tokens = exprTokens(input);
   const operands = tokens.filter((t) => !isOp(t)).length;
   const slots = Math.max(operands, optimal);
@@ -31,12 +34,17 @@ export function ExpressionCells({ input, optimal, size = 'md', shakeRef }:
     </span>
   );
   let seen = 0;
+  const Tag = onSelect ? 'button' : 'span';
+  const tap = (i: number, t: string) => onSelect
+    ? { type: 'button' as const, onClick: () => onSelect(i), 'aria-pressed': selected === i, 'aria-label': `${say(t)}, ${selected === i ? 'sélectionné' : 'modifier'}` }
+    : {};
   tokens.forEach((t, i) => {
+    const on = selected === i;
     if (isOp(t)) {
-      items.push(<span key={`o${i}`} className={`num grid place-items-center font-extrabold text-ink shrink-0 ${op}`}>{sym(t)}</span>);
+      items.push(<Tag key={`o${i}`} {...tap(i, t)} className={`num grid place-items-center font-extrabold text-ink shrink-0 p-0 rounded-cell ${on ? 'bg-hl border-2 border-ink' : 'bg-transparent border-0'} ${op}`}>{sym(t)}</Tag>);
     } else {
       seen += 1;
-      items.push(<span key={`n${i}`} className={`num grid place-items-center font-extrabold bg-sheet border-[1.5px] border-graphite rounded-cell shrink-0 ${cell}`}>{t}</span>);
+      items.push(<Tag key={`n${i}`} {...tap(i, t)} className={`num grid place-items-center font-extrabold text-graphite rounded-cell shrink-0 p-0 ${on ? 'bg-hl border-[2.5px] border-ink' : 'bg-sheet border-[1.5px] border-graphite'} ${cell} ${t.length > 1 ? '!w-auto px-1.5' : ''}`}>{t}</Tag>);
       if (seen === optimal) items.push(marker);
     }
   });
@@ -53,7 +61,7 @@ export function ExpressionCells({ input, optimal, size = 'md', shakeRef }:
 
   return (
     <div ref={shakeRef} className="overflow-x-auto pt-7 pb-2 -mx-1 px-1">
-      <div className="flex items-center gap-1 w-max mx-auto" aria-live="polite" aria-label={input ? `Ton expression : ${tokens.map(sym).join(' ')}` : 'Expression vide'}>
+      <div className="flex items-center gap-1 w-max mx-auto" aria-live="polite" aria-label={input ? `Ton expression : ${tokens.map(say).join(' ')}` : 'Expression vide'}>
         {items}
       </div>
     </div>

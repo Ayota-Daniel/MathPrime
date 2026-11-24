@@ -11,6 +11,7 @@ import type {
 } from "@shortest/engine/rogue-v1";
 import { Button } from "./ui";
 import { rogue } from "@shortest/tokens";
+import { RC } from "../theme";
 import { s } from "./styles";
 
 function Choices({
@@ -41,9 +42,9 @@ function Choices({
             borderRadius: 12,
             borderWidth: 1,
             borderColor:
-              selected === key ? rogue.colors.gold : rogue.colors.border,
+              selected === key ? RC.gold : RC.border,
             backgroundColor:
-              selected === key ? rogue.colors.raised : rogue.colors.panel,
+              selected === key ? RC.raised : RC.panel,
           }}
         >
           <Text style={s.body}>

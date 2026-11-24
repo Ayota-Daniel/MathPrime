@@ -11,15 +11,32 @@ import { C, num, fmt, Screen, Sheet, Title, Button, Highlight, Text } from '../c
 const MODES: Mode[] = ['classic', 'big3', 'big5', 'big7', 'freeskill', 'rogue', 'daily'];
 const field = { height: 44, borderWidth: 1.5, borderColor: C.graphite, borderRadius: 6, paddingHorizontal: 12, backgroundColor: C.white, color: C.graphite, fontFamily: 'RecursiveRegular' } as const;
 
+/** Choix du mode : pastilles séparées qui passent à la ligne sans bordures partagées. */
+function Chips<T extends string>({ items, value, onChange, label }: { items: readonly (readonly [T, string])[]; value: T; onChange: (v: T) => void; label: string }) {
+  return (
+    <View accessibilityRole="tablist" accessibilityLabel={label} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+      {items.map(([key, text]) => {
+        const on = value === key;
+        return (
+          <Pressable key={key} accessibilityRole="tab" accessibilityState={{ selected: on }} onPress={() => onChange(key)}
+            style={{ height: 36, paddingHorizontal: 14, justifyContent: 'center', borderWidth: 1.5, borderColor: on ? C.ink : C.graphite, borderRadius: 18, backgroundColor: on ? C.ink : C.white }}>
+            <Text style={{ fontSize: 13.5, fontWeight: '700', color: on ? C.white : C.graphite }}>{text}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
 /** Segmented control à la règle : un onglet actif à l'encre. */
 function Segments<T extends string>({ items, value, onChange, label }: { items: readonly (readonly [T, string])[]; value: T; onChange: (v: T) => void; label: string }) {
   return (
-    <View accessibilityRole="tablist" accessibilityLabel={label} style={{ flexDirection: 'row', flexWrap: 'wrap', borderWidth: 1.5, borderColor: C.graphite, borderRadius: 6, overflow: 'hidden', backgroundColor: C.white }}>
+    <View accessibilityRole="tablist" accessibilityLabel={label} style={{ flexDirection: 'row', borderWidth: 1.5, borderColor: C.graphite, borderRadius: 6, overflow: 'hidden', backgroundColor: C.white }}>
       {items.map(([key, text], i) => {
         const on = value === key;
         return (
           <Pressable key={key} accessibilityRole="tab" accessibilityState={{ selected: on }} onPress={() => onChange(key)}
-            style={{ flexGrow: 1, minWidth: '25%', height: 44, paddingHorizontal: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? C.ink : 'transparent', borderLeftWidth: i > 0 ? 1.5 : 0, borderColor: C.graphite }}>
+            style={{ flex: 1, height: 44, paddingHorizontal: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? C.ink : 'transparent', borderLeftWidth: i > 0 ? 1.5 : 0, borderColor: C.graphite }}>
             <Text style={{ fontSize: 13.5, fontWeight: '700', color: on ? C.white : C.mine }}>{text}</Text>
           </Pressable>
         );
@@ -62,7 +79,7 @@ export function Leaderboard() {
         {view === 'local' ? (
           <>
             <Text style={{ color: C.mine, fontSize: 13.5, lineHeight: 19 }}>Records locaux non vérifiés. Aucun record historique n'est transféré au classement compétitif.</Text>
-            <Segments label="Mode" value={mode} onChange={setMode} items={MODES.map((m) => [m, modeNames[m]] as const)} />
+            <Chips label="Mode" value={mode} onChange={setMode} items={MODES.map((m) => [m, modeNames[m]] as const)} />
             <Text style={{ fontSize: 14.5, color: C.graphite }}>Ton record local : <Text style={[num, { fontWeight: '800' }]}>{fmt(game.bestByMode[mode] ?? 0)}</Text></Text>
             {game.localLeaderboardError && <Text style={{ color: C.pen, fontWeight: '700' }}>Le dernier record n'a pas pu être enregistré dans ce classement.</Text>}
           </>
@@ -117,7 +134,7 @@ export function Leaderboard() {
                 <View key={r.id + r.mode} style={[{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 16, backgroundColor: me ? C.hl : 'transparent' },
                   i > 0 && { borderTopWidth: 1, borderStyle: 'dashed', borderColor: C.dash }]}>
                   <Text style={[num, { width: 28, fontWeight: '800', fontSize: 15, color: C.graphite }]}>{i + 1}</Text>
-                  <Text numberOfLines={1} style={{ flex: 1, fontSize: 15, fontWeight: me ? '800' : '400', color: C.graphite }}>{me ? `Toi, ${r.pseudo}` : r.pseudo}</Text>
+                  <Text numberOfLines={1} style={{ flex: 1, fontSize: 15, fontWeight: me ? '800' : '400', color: C.graphite }}>{me ? (game.pseudo ? `${game.pseudo} (toi)` : 'Toi') : r.pseudo}</Text>
                   <Text style={[num, { fontWeight: '800', fontSize: 15, color: C.graphite }]}>{fmt(r.score)}</Text>
                 </View>
               );
