@@ -10,8 +10,9 @@
   min-height: 100vh;
   width: 100%;
   color: var(--ink);
-  background: var(--r-ivory) var(--paper-art) center / 100% 100% fixed no-repeat;
-  font-family: Nunito, system-ui, sans-serif;
+  background-color: var(--r-ivory);
+  background-image: var(--paper-art);
+  font-family: Recursive, system-ui, sans-serif;
 }
 .rogue-in-run,
 .rogue-dark-surface {
@@ -22,7 +23,8 @@
   --focus: var(--r-focus);
 }
 .rogue-in-run {
-  background: var(--r-night) var(--night-art) center / 100% 100% fixed no-repeat;
+  background-color: var(--r-night);
+  background-image: var(--night-art);
 }
 .rogue-web * {
   box-sizing: border-box;
@@ -87,7 +89,7 @@
   background: var(--r-coral);
   border-color: var(--r-coralPressed);
   color: var(--r-coralInk);
-  box-shadow: 0 4px 0 var(--r-coralPressed);
+  box-shadow: 3px 3px 0 var(--r-aubergine);
   font-size: 19px;
   font-weight: 800;
 }

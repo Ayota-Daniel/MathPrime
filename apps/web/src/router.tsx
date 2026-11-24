@@ -21,9 +21,9 @@ function Layout() {
   useAudioSettings(); // applique sound/music selon les réglages
   return (
     <div className={reduce ? 'reduce-motion' : ''}>
-      <div className={roguePage ? 'rogue-shell' : 'math-page'}>
-        <Outlet />
-      </div>
+      {roguePage
+        ? <div className="rogue-shell"><Outlet /></div>
+        : <div className="cahier-app"><div className="cahier-col"><Outlet /></div></div>}
     </div>
   );
 }

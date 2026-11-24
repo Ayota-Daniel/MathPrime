@@ -2,820 +2,90 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---- Direction « Cahier » : papier quadrillé, encre, stylo rouge, surligneur ---- */
+
+/* Recursive (OFL), axes complets, chargée localement : sans, MONO (chiffres) et CASL (manuscrit). */
 @font-face {
-  font-family: Nunito;
-  src: url('../../../packages/tokens/assets/fonts/Nunito_400Regular.ttf')
-    format('truetype');
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: Nunito;
-  src: url('../../../packages/tokens/assets/fonts/Nunito_700Bold.ttf')
-    format('truetype');
-  font-weight: 700;
-  font-display: swap;
-}
-@font-face {
-  font-family: Nunito;
-  src: url('../../../packages/tokens/assets/fonts/Nunito_800ExtraBold.ttf')
-    format('truetype');
-  font-weight: 800;
+  font-family: Recursive;
+  src: url('../../../packages/tokens/assets/fonts/Recursive-latin-full.woff2') format('woff2-variations'),
+       url('../../../packages/tokens/assets/fonts/Recursive-latin-full.woff2') format('woff2');
+  font-weight: 300 1000;
   font-display: swap;
 }
 
 :root {
-  --paper-art: url('../../../packages/tokens/assets/backgrounds/paper-wide.webp');
-  --night-art: url('../../../packages/tokens/assets/backgrounds/night-wide.webp');
-}
-@media (max-aspect-ratio: 4/5) {
-  :root {
-    --paper-art: url('../../../packages/tokens/assets/backgrounds/paper-portrait.png');
-    --night-art: url('../../../packages/tokens/assets/backgrounds/night-portrait.png');
-  }
-}
-
-html,
-body,
-#root {
-  height: 100%;
-  margin: 0;
-  background: theme('colors.bg');
+  /* Fonds partagés avec le mode Rogue : papier clair et page d'encre, tous deux quadrillés. */
+  --paper-art:
+    repeating-linear-gradient(0deg, #E6EDF2 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(90deg, #E6EDF2 0 1px, transparent 1px 26px);
+  --night-art:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.07) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0 1px, transparent 1px 26px);
 }
 
-@keyframes sheet-up {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-.anim-sheet-up {
-  animation: sheet-up 0.22s ease;
+html, body, #root { min-height: 100%; margin: 0; background: theme('colors.paper'); color: theme('colors.graphite'); }
+body {
+  font-family: 'Recursive', system-ui, sans-serif;
+  font-variation-settings: "CASL" 0, "MONO" 0;
+  -webkit-font-smoothing: antialiased;
 }
 
-@keyframes shake {
-  10%,
-  90% {
-    transform: translateX(-2px);
+@layer components {
+  /* fond quadrillé (26 px) */
+  .grid-paper {
+    background-color: theme('colors.paper');
+    background-image:
+      linear-gradient(theme('colors.grid') 1px, transparent 1px),
+      linear-gradient(90deg, theme('colors.grid') 1px, transparent 1px);
+    background-size: 26px 26px;
   }
-  30%,
-  70% {
-    transform: translateX(4px);
-  }
-  50% {
-    transform: translateX(-5px);
-  }
-}
-.anim-shake {
-  animation: shake 0.35s;
+  /* trois voix de Recursive : manuscrite (titres), chiffres (mono), texte (sans) */
+  .hand { font-variation-settings: "CASL" 1, "MONO" 0; }
+  .num  { font-variation-settings: "MONO" 1, "CASL" 0; font-variant-numeric: tabular-nums; }
+
+  /* feuille posée sur le cahier */
+  .sheet { @apply bg-sheet border-[1.5px] border-graphite rounded-sheet shadow-stamp; }
+
+  /* surligneur : trait jaune sur la moitié basse du texte */
+  .hl { background: linear-gradient(transparent 52%, theme('colors.hl') 52%, theme('colors.hl') 90%, transparent 90%); padding: 0 .2em; }
+
+  .pill { @apply inline-flex items-center gap-1.5 h-[34px] px-3 border-[1.5px] border-graphite rounded-full bg-sheet text-sm font-bold text-graphite no-underline; }
+
+  .btn { @apply flex items-center justify-center gap-2 min-h-[52px] px-3 rounded-sheet font-bold text-base cursor-pointer select-none no-underline; }
+  .btn-ink { @apply btn bg-ink text-white border-[1.5px] border-ink shadow-stamp hover:bg-ink-d disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-line { @apply btn bg-sheet text-graphite border-[1.5px] border-graphite disabled:opacity-45 disabled:cursor-not-allowed; }
+  .btn-pen { @apply btn bg-sheet text-pen border-[1.5px] border-pen; }
+
+  .icon-btn { @apply grid place-items-center w-11 h-11 border-[1.5px] border-graphite rounded-sheet bg-sheet text-graphite shrink-0; }
+
+  .field { @apply h-11 border-[1.5px] border-graphite rounded-sheet px-3 bg-sheet text-graphite; }
+
+  .dashed-rows > * + * { border-top: 1px dashed theme('colors.dash'); }
 }
 
-@keyframes time-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.55;
-  }
-}
-.anim-time-pulse {
-  animation: time-pulse 0.9s ease-in-out infinite;
-}
+/* colonne centrale de l'app, sur papier quadrillé */
+.cahier-app { @apply grid-paper min-h-[100dvh]; }
+.cahier-col { @apply mx-auto w-full max-w-app min-h-[100dvh] flex flex-col; }
 
-/* bouton tactile "Duolingo" : ombre qui s'enfonce */
-.btn-3d {
-  box-shadow: 0 4px 0 theme('colors.pri-d');
-  transition:
-    transform 0.06s,
-    box-shadow 0.06s;
-}
-.btn-3d:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 theme('colors.pri-d');
-}
+:focus-visible { outline: 3px solid theme('colors.ink'); outline-offset: 2px; }
+button, a, summary { touch-action: manipulation; }
 
-.reduce-motion * {
-  animation: none !important;
-  transition: none !important;
-}
+/* ---- animations (en réponse à une action) ---- */
+@keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.anim-sheet-up { animation: sheet-up .22s ease-out; }
 
-/* apparition "pop" de la bannière record */
-@keyframes pop {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  60% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-.anim-pop {
-  animation: pop 0.4s ease;
-}
+@keyframes shake { 10%,90%{transform:translateX(-2px)} 30%,70%{transform:translateX(4px)} 50%{transform:translateX(-5px)} }
+.anim-shake { animation: shake .35s; }
 
-.math-page {
-  min-height: 100dvh;
-  color: theme('colors.ink');
-  font-family: Nunito, system-ui, sans-serif;
-  background: theme('colors.bg') var(--paper-art) center / 100% 100% fixed
-    no-repeat;
-  padding: 0 clamp(20px, 6vw, 100px) 36px;
-}
-.math-page :is(button, a, input, select, summary):focus-visible {
-  outline: 3px solid #84451f;
-  outline-offset: 3px;
-}
-.math-page :is(button, summary, a) {
-  touch-action: manipulation;
-}
-.math-page button:disabled {
-  cursor: not-allowed;
-}
-.math-header,
-.math-home,
-.math-inner {
-  max-width: 1050px;
-  margin: 0 auto;
-}
-.math-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 4px 12px;
-  border-bottom: 1px solid theme('colors.line');
-}
-.math-brand {
-  font-weight: 800;
-  font-size: clamp(22px, 2vw, 32px);
-  letter-spacing: -0.045em;
-}
-.math-header nav,
-.math-header nav a,
-.math-back,
-.text-tool,
-.play-tools button,
-.journey-actions a,
-.math-action {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-}
-.math-header nav {
-  gap: clamp(6px, 2vw, 32px);
-}
-.math-header nav a {
-  justify-content: center;
-  min-width: 40px;
-  min-height: 44px;
-  font-weight: 800;
-}
-.math-header svg {
-  width: 19px;
-  height: 19px;
-}
-.home-intro {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  gap: 16px;
-  padding: clamp(20px, 4vh, 65px) 4%;
-}
-.home-intro h1 {
-  font-size: clamp(36px, 4.2vw, 69px);
-  font-weight: 800;
-  letter-spacing: -0.048em;
-  line-height: 1.03;
-}
-.home-intro p {
-  color: theme('colors.mut');
-  font-size: clamp(17px, 1.7vw, 25px);
-  margin: 8px 0;
-}
-.home-intro img {
-  width: clamp(135px, 20vw, 285px);
-  height: auto;
-  object-fit: contain;
-}
-.mode-tabs {
-  display: flex;
-  justify-content: center;
-  gap: clamp(20px, 7vw, 110px);
-  margin: 8px auto 18px;
-}
-.mode-tabs button {
-  padding: 8px 4px;
-  border-bottom: 5px solid transparent;
-  font-size: clamp(18px, 2vw, 31px);
-  font-weight: 800;
-}
-.mode-tabs [aria-pressed='true'] {
-  border-color: theme('colors.pri');
-}
-.journey-card,
-.level-summary,
-.target-panel,
-.result-calculation {
-  background: #122f64;
-  color: #fff7eb;
-  border: 1px solid #224880;
-  border-radius: 23px;
-}
-.journey-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  padding: clamp(19px, 3vw, 46px);
-  gap: 20px;
-}
-.journey-title small,
-.level-summary small,
-.target-panel small {
-  font-size: 13px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.055em;
-}
-.journey-title h2,
-.level-summary h2 {
-  font-weight: 800;
-  font-size: clamp(32px, 3.5vw, 54px);
-  line-height: 1.1;
-}
-.journey-title p {
-  color: #e4e8f8;
-  margin-top: 4px;
-}
-.journey-title strong {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  color: #ffd269;
-  margin-top: 8px;
-}
-.level-trail {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-.level-trail li,
-.level-grid :is(a, div) {
-  display: grid;
-  justify-items: center;
-  align-content: center;
-  font-weight: 800;
-  color: #4a1933;
-  background: #fbe5cb;
-  border: 2px solid transparent;
-  border-radius: 13px;
-}
-.level-trail li {
-  width: clamp(34px, 3.7vw, 56px);
-  height: 52px;
-  position: relative;
-  font-size: 21px;
-}
-.level-trail li:not(:last-child)::after {
-  content: '';
-  width: 6px;
-  border-top: 2px dotted #fbe5cb;
-  position: absolute;
-  left: calc(100% + 2px);
-  top: 50%;
-}
-.level-trail .locked,
-.level-grid .locked {
-  background: #a6bdec;
-  color: #233c64;
-}
-.level-trail [aria-current],
-.level-grid [aria-current] {
-  border-color: #ff7056;
-  outline: 1px solid #ff7056;
-}
-.journey-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
-}
-.journey-actions a:not(.math-action),
-.home-help {
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  font-weight: 700;
-}
-.math-action,
-.math-page button.bg-pri {
-  justify-content: center;
-  border-radius: 13px;
-  background: #f05b4b;
-  color: #341426;
-  font-weight: 800;
-  padding: 12px 26px;
-  min-height: 46px;
-  box-shadow: 0 4px 0 #ac382f;
-}
-.math-action:hover,
-.math-page button.bg-pri:hover:enabled {
-  background: #ff7964;
-}
-.more-modes {
-  border-block: 1px solid theme('colors.line');
-  margin-top: 25px;
-}
-.more-modes summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 4%;
-  cursor: pointer;
-}
-.more-modes summary b {
-  font-size: 21px;
-}
-.more-modes small,
-.other-modes small {
-  color: theme('colors.mut');
-  display: block;
-}
-.other-modes {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  padding-bottom: 16px;
-}
-.other-modes a {
-  border: 1px solid theme('colors.line');
-  border-radius: 15px;
-  padding: 15px;
-  background: theme('colors.card');
-}
-.other-modes a svg {
-  margin-top: 8px;
-}
-.home-help {
-  display: block;
-  margin: 20px auto 0;
-  text-align: center;
-  width: fit-content;
-  padding: 8px;
-}
-.math-inner {
-  padding: 22px 0 16px;
-}
-.math-inner h1 {
-  text-align: center;
-  font-size: clamp(30px, 3vw, 48px);
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.035em;
-}
-.math-back {
-  min-height: 44px;
-  font-weight: 700;
-}
-.mode-context,
-.play-score {
-  text-align: center;
-  color: theme('colors.mut');
-}
-.rule-strip {
-  background: #fbe7d1;
-  text-align: center;
-  border-radius: 18px;
-  font-weight: 800;
-  padding: 9px 15px;
-  margin: 20px auto 28px;
-  width: min(100%, 850px);
-}
-.rule-strip span {
-  margin-inline-start: 1em;
-}
-.puzzle-columns {
-  display: grid;
-  grid-template-columns: 1.24fr 1fr;
-  gap: clamp(24px, 5vw, 90px);
-  align-items: start;
-}
-.target-panel {
-  padding: 20px;
-  text-align: center;
-}
-.target-panel strong {
-  display: block;
-  font-size: clamp(64px, 7vw, 110px);
-  line-height: 1;
-  font-weight: 800;
-}
-.target-panel span {
-  font-weight: 700;
-}
-.target-panel > div {
-  max-width: 260px;
-  margin: 10px auto 0;
-}
-.expression-line {
-  text-align: center;
-  min-height: 76px;
-  padding: 11px 4px;
-  font-size: clamp(28px, 3vw, 52px);
-  line-height: 1.2;
-  font-weight: 800;
-  border-bottom: 4px solid theme('colors.pri');
-  overflow-wrap: anywhere;
-}
-.expression-line small {
-  font-size: 18px;
-  color: theme('colors.mut');
-}
-.calc-meta,
-.level-pager {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: center;
-  margin-top: 6px;
-}
-.calc-meta span {
-  color: theme('colors.mut');
-  font-size: 14px;
-}
-.play-pad {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-.math-tile {
-  font-size: clamp(32px, 3vw, 54px);
-  font-weight: 800;
-  border-radius: 15px;
-  padding: 6px;
-  min-height: 66px;
-}
-.math-tile.digit {
-  background: theme('colors.num');
-}
-.math-tile.operator {
-  background: theme('colors.op');
-  color: #101e42;
-}
-.math-tile:active {
-  transform: scale(0.97);
-}
-.play-tools {
-  display: flex;
-  justify-content: space-around;
-  margin: 8px auto;
-}
-.play-tools button,
-.text-tool {
-  min-height: 44px;
-  font-weight: 700;
-}
-.play-tools svg {
-  width: 18px;
-}
-.play-controls > p,
-.play-score {
-  font-size: 14px;
-  margin-top: 18px;
-}
-.utility-page,
-.lesson-page {
-  max-width: 760px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.utility-page > h1 {
-  margin-bottom: 12px;
-}
-.utility-page button,
-.utility-page input {
-  min-height: 44px;
-}
-.utility-page button[role='switch'] {
-  min-height: 28px;
-}
-.lesson-page {
-  max-width: 520px;
-  align-items: stretch;
-  text-align: center;
-}
-.lesson-page .rule-strip {
-  margin: 4px auto;
-}
-.lesson-example {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 4px;
-  border-bottom: 2px solid theme('colors.pri');
-  font-size: 28px;
-  font-weight: 800;
-}
-.lesson-example small {
-  font-size: 14px;
-}
-.lesson-page summary {
-  cursor: pointer;
-}
-.levels-columns {
-  display: grid;
-  grid-template-columns: 1.35fr 1fr;
-  gap: 22px;
-  margin: 24px auto;
-}
-.level-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
-}
-.level-grid :is(a, div) {
-  min-height: 65px;
-  font-size: 22px;
-}
-.level-grid span {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 12px;
-}
-.level-summary {
-  align-self: start;
-  padding: 24px;
-}
-.level-summary .math-action {
-  margin-top: 18px;
-}
-.level-pager button {
-  padding: 10px;
-}
-.level-pager button:disabled {
-  opacity: 0.35;
-}
-.math-result {
-  max-width: 540px;
-  margin: 30px auto;
-  text-align: center;
-}
-.math-result h4 {
-  font-weight: 800;
-  font-size: 24px;
-}
-.result-stars > div {
-  justify-content: center;
-  margin: 16px 0;
-}
-.result-calculation {
-  font-weight: 800;
-  font-size: 24px;
-  padding: 20px;
-  overflow-wrap: anywhere;
-}
-.record-note {
-  font-weight: 800;
-  color: #6d4100;
-  margin-bottom: 8px;
-}
-@media (max-width: 700px) {
-  .math-page {
-    padding: 0 16px 28px;
-  }
-  .math-header {
-    padding: 6px 0;
-  }
-  .math-header nav {
-    gap: 0;
-  }
-  .math-header nav span {
-    display: none;
-  }
-  .home-intro {
-    padding: 26px 0 16px;
-    justify-content: space-between;
-  }
-  .home-intro img {
-    width: 32%;
-  }
-  .home-intro h1 {
-    font-size: clamp(30px, 7.6vw, 44px);
-  }
-  .journey-card {
-    gap: 14px;
-  }
-  .journey-actions {
-    width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
-  .level-trail {
-    flex: 1 0 100%;
-    justify-content: center;
-  }
-  .level-trail li {
-    width: clamp(36px, 11vw, 58px);
-    height: 45px;
-  }
-  .other-modes {
-    grid-template-columns: 1fr 1fr;
-  }
-  .puzzle-columns,
-  .levels-columns {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
-  }
-  .math-inner {
-    padding-top: 10px;
-  }
-  .math-play .math-back {
-    min-height: 36px;
-  }
-  .target-panel {
-    padding: 9px;
-  }
-  .expression-line {
-    min-height: 48px;
-    padding: 6px;
-  }
-  .rule-strip {
-    margin: 10px auto;
-    font-size: 14px;
-    padding: 8px;
-  }
-  .math-tile {
-    min-height: 48px;
-  }
-  .play-tools {
-    margin: 2px 0;
-  }
-  .level-grid :is(a, div) {
-    min-height: 53px;
-  }
-}
-.stat-progress {
-  width: 100%;
-}
-.stat-progress > div,
-.stat-progress strong {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.stat-progress > div {
-  justify-content: space-between;
-  margin: 8px 0;
-  flex-wrap: wrap;
-}
-.stat-progress strong {
-  color: #ffd269;
-}
-.stat-progress progress {
-  width: 100%;
-  height: 8px;
-  accent-color: #ffd269;
-  display: block;
-}
-.stat-progress a {
-  display: block;
-  margin-top: 14px;
-  text-decoration: underline;
-  text-align: center;
-}
-.score-summary {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  gap: 12px;
-  text-align: center;
-}
-.score-summary dt {
-  font-size: 14px;
-  color: theme('colors.mut');
-}
-.score-summary dd,
-.utility-heading {
-  font-weight: 800;
-  font-size: 21px;
-}
-.ranking-list > div {
-  display: grid;
-  grid-template-columns: 1fr auto minmax(80px, auto);
-  gap: 15px;
-  align-items: center;
-  padding: 10px 8px;
-  border-bottom: 1px solid theme('colors.line');
-}
-.ranking-list span {
-  color: theme('colors.mut');
-  font-size: 14px;
-}
-.ranking-list strong {
-  text-align: right;
-}
-.rank-filter {
-  display: grid;
-  gap: 4px;
-  font-weight: 700;
-}
-.rank-filter select {
-  border: 1px solid theme('colors.mut');
-  border-radius: 12px;
-  padding: 10px;
-  background: theme('colors.card');
-}
-.utility-page .rank-tabs {
-  margin: 0 auto;
-}
-.big-options {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-.big-options button {
-  min-height: 76px;
-  border: 2px solid transparent;
-  border-radius: 14px;
-  background: theme('colors.num');
-  font-weight: 700;
-}
-.big-options strong {
-  display: block;
-  font-size: 30px;
-}
-.big-options [aria-pressed='true'] {
-  background: theme('colors.panel');
-  color: theme('colors.card');
-  border-color: theme('colors.pri');
-}
-.big-summary {
-  align-self: stretch;
-  text-align: left;
-}
-.big-summary p {
-  margin-top: 6px;
-}
-.other-modes {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
+@keyframes time-pulse { 0%,100%{opacity:1} 50%{opacity:.55} }
+.anim-time-pulse { animation: time-pulse .9s ease-in-out infinite; }
 
-/* Le papier paysage laisse le coin inférieur droit libre. Les glyphes
-   complètent les quatre signes imprimés sur cette texture. */
-@media (aspect-ratio > 4/5) {
-  .math-page,
-  .rogue-web.rogue-at-home {
-    isolation: isolate;
-    background-image: var(--paper-art), var(--paper-art);
-    background-color: white;
-    background-blend-mode: multiply;
-  }
-  .math-page::before,
-  .rogue-web.rogue-at-home::before {
-    content: '− 7' / '';
-    position: fixed;
-    right: 2.4vw;
-    bottom: 5vh;
-    z-index: -1;
-    color: #d29956;
-    opacity: 0.45;
-    font:
-      800 clamp(26px, 3.5vw, 58px) / 1 Nunito,
-      sans-serif;
-    transform: rotate(-9deg);
-    pointer-events: none;
-  }
-}
+/* touche qui « s'enfonce » : l'ombre décalée disparaît */
+.press { transition: transform .06s, box-shadow .06s; }
+.press:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: 1px 1px 0 theme('colors.graphite'); }
 
-.math-page button.bg-pri:disabled {
-  background: #f4ddca;
-  color: #654354;
-  opacity: 1;
-  border-color: #c3a899;
-  box-shadow: none;
-}
-.stat-progress progress {
-  appearance: none;
-  border: 0;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #536e98;
-}
-.stat-progress progress::-webkit-progress-bar {
-  background: #536e98;
-}
-.stat-progress progress::-webkit-progress-value {
-  background: #ffd269;
-}
-.stat-progress progress::-moz-progress-bar {
-  background: #ffd269;
-}
+@keyframes pop { 0%{transform:scale(.8);opacity:0} 60%{transform:scale(1.05)} 100%{transform:scale(1);opacity:1} }
+.anim-pop { animation: pop .4s ease; }
+
+.reduce-motion *, .reduce-motion *::before, .reduce-motion *::after { animation: none !important; transition: none !important; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
