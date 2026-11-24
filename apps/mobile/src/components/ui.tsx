@@ -2,7 +2,7 @@
 import { useState, type ReactNode } from 'react';
 import { View, Text as RNText, Pressable, StyleSheet, type ViewStyle, type StyleProp, type TextStyle, type TextProps } from 'react-native';
 import { Heart, Star, Flame, ChevronLeft } from 'lucide-react-native';
-import { cahier as C } from '@shortest/tokens';
+import { C } from '../theme';
 import { audio } from '../audio';
 
 export { C };

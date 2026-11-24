@@ -20,6 +20,7 @@ import {
   scorePuzzle,
   validateAnswer,
   loadSave,
+  EMPTY_SAVE,
   webStorage,
   type Puzzle,
   type RogueRun,
@@ -535,6 +536,16 @@ test('les sauvegardes antérieures restent lisibles avec leurs valeurs conservé
   assert.equal(restored.streakByMode.classic, 5);
   assert.equal(restored.dailyDone, null);
   assert.deepEqual(restored.stats, { played: 0, perfect: 0 });
+});
+
+test('une sauvegarde sans thème garde ses réglages et reçoit les thèmes par défaut', async () => {
+  const saved = { ...EMPTY_SAVE, settings: { language: 'en', reduceMotion: true, sound: false, music: true, leaderboardOptIn: true } };
+  const restored = await loadSave(createMemoryStorage({ 'shortest:save:v3': saved }));
+  assert.equal(restored.settings.language, 'en');
+  assert.equal(restored.settings.reduceMotion, true);
+  assert.equal(restored.settings.sound, false);
+  assert.equal(restored.settings.appTheme, 'encre');
+  assert.equal(restored.settings.rogueTheme, 'ardoise');
 });
 
 test('validateAnswer rejette les caractères non tokenisés', () => {

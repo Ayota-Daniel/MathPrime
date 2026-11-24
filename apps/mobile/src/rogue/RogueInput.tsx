@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { rogue } from "@shortest/tokens";
+import { RC, themed } from "../theme";
 import { evaluate } from "@shortest/engine";
 import type {
   RogueAction,
@@ -90,7 +91,7 @@ export function NativeExpressionInput({
         }}
         style={[styles.input, comfortable && { height: 60, fontSize: 36 }]}
         placeholder="3 + 5 × 7…"
-        placeholderTextColor={rogue.colors.muted}
+        placeholderTextColor={RC.muted}
         autoCorrect={false}
         autoCapitalize="none"
         maxLength={150}
@@ -249,23 +250,23 @@ export function RogueInput({
     />
   );
 }
-const styles = StyleSheet.create({
+const styles = themed(() => StyleSheet.create({
   row: { flexDirection: "row", gap: 6 },
   input: {
     borderBottomWidth: 3,
-    borderColor: rogue.colors.coral,
+    borderColor: RC.coral,
     paddingHorizontal: 8,
     paddingVertical: 0,
     fontSize: 25,
     height: 44,
     fontFamily: rogue.font.display,
     textAlign: "center",
-    color: rogue.colors.ivory,
+    color: RC.ivory,
   },
   muted: {
     fontSize: 12,
-    color: rogue.colors.muted,
+    color: RC.muted,
     lineHeight: 16,
     fontFamily: rogue.font.body,
   },
-});
+}));

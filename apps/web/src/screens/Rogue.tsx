@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
-import { rogue } from "@shortest/tokens";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { rogue, rogueThemeById } from "@shortest/tokens";
+import { useGame } from "../store/game";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, LoaderCircle, Swords, X } from "lucide-react";
 import type { WebAction } from "../rogue/controller";
@@ -20,17 +21,21 @@ import { audio } from "../lib/audio";
 import "../rogue/rogue.css";
 import { RoguePlaytestExport } from "../components/rogue/RoguePlaytestExport";
 
-const theme = {
-  ...Object.fromEntries(
-    Object.entries(rogue.colors).map(([name, color]) => [`--r-${name}`, color]),
-  ),
-  "--r-controlRadius": `${rogue.radius.control}px`,
-  "--r-motion": `${rogue.transitionMs}ms`,
-} as CSSProperties;
+/** Variables `--r-*` de la page Rogue choisie dans les réglages (Ardoise par défaut). */
+function rogueVars(id: string): CSSProperties {
+  const colors = { ...rogue.colors, ...rogueThemeById(id).colors };
+  return {
+    ...Object.fromEntries(Object.entries(colors).map(([name, color]) => [`--r-${name}`, color])),
+    "--r-controlRadius": `${rogue.radius.control}px`,
+    "--r-motion": `${rogue.transitionMs}ms`,
+  } as CSSProperties;
+}
 
 export function Rogue() {
   const { view, busy, send: perform, controller, error } = useRogueSession();
   const navigate = useNavigate();
+  const rogueTheme = useGame((s) => s.settings.rogueTheme);
+  const theme = useMemo(() => rogueVars(rogueTheme), [rogueTheme]);
   const [confirmAbandon, setConfirmAbandon] = useState(false);
   const [replacement, setReplacement] = useState<number | null>(null);
   const [deciding, setDeciding] = useState(false);

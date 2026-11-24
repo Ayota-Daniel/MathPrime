@@ -15,6 +15,7 @@ import {
 import { Backdrop } from "../components/GameScreen";
 import { StatusBar } from "expo-status-bar";
 import { rogue } from "@shortest/tokens";
+import { RC } from "../theme";
 import { RogueDetails } from "../rogue/Details";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -207,7 +208,7 @@ export function Rogue({
         >
           {(!view.hydrated || busy) && (
             <ActivityIndicator
-              color={rogue.colors.gold}
+              color={RC.gold}
               accessibilityLabel="Chargement de la session"
             />
           )}
@@ -287,7 +288,7 @@ export function Rogue({
           )}
           {!playing && (
             <Text
-              style={[s.caption, !inRun && { color: rogue.colors.mutedLight }]}
+              style={[s.caption, !inRun && { color: RC.mutedLight }]}
             >
               Sauvegarde locale · Aucun classement Rogue · Temps hors
               application compté pendant le puzzle

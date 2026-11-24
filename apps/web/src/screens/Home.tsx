@@ -77,7 +77,7 @@ export function Home() {
 
         <section className="sheet mx-5 mt-[18px] dashed-rows" aria-label="Autres modes">
           <Link to="/play/$mode" params={{ mode: 'freeskill' }} onClick={select} className="flex items-center gap-3.5 px-4 py-3.5 text-graphite no-underline">
-            <Timer size={26} color={cahier.ink} aria-hidden="true" />
+            <Timer size={26} className="text-ink" aria-hidden="true" />
             <span className="flex-1"><span className="block font-extrabold">Free Skill</span><span className="text-mine text-[13.5px]">Chrono, la difficulté suit ton niveau</span></span>
             <ChevronRight size={18} aria-hidden="true" />
           </Link>

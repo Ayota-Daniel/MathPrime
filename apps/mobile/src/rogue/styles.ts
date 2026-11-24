@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { rogue } from "@shortest/tokens";
-const c = rogue.colors;
-export const s = StyleSheet.create({
+import { RC as c, themed } from "../theme";
+export const s = themed(() => StyleSheet.create({
   safe: { flex: 1, backgroundColor: c.ivory },
   night: { backgroundColor: c.night },
   content: { padding: 16, gap: 16, paddingBottom: 28 },
@@ -202,4 +202,4 @@ export const s = StyleSheet.create({
     fontSize: 17,
     lineHeight: 21,
   },
-});
+}));

@@ -22,6 +22,7 @@ import { s } from "./styles";
 import { Swords, Trophy } from "lucide-react-native";
 import type { Offer } from "@shortest/engine/rogue-v1";
 import { rogue } from "@shortest/tokens";
+import { RC } from "../theme";
 type PanelProps = {
   view: RogueView;
   disabled: boolean;
@@ -135,7 +136,7 @@ export function NativePuzzle({
             <Text
               style={[
                 s.liveTime,
-                view.remaining <= 5 && { color: rogue.colors.error },
+                view.remaining <= 5 && { color: RC.error },
               ]}
             >
               {view.remaining} s
@@ -162,7 +163,7 @@ export function NativePuzzle({
   }
   return (
     <View style={[s.card, view.phase.boss && s.boss]}>
-      {view.phase.boss && <Swords size={40} color={rogue.colors.gold} />}
+      {view.phase.boss && <Swords size={40} color={RC.gold} />}
       <Text style={s.title}>
         {view.phase.boss
           ? BOSS_NAMES[view.phase.act - 1]
@@ -268,7 +269,7 @@ export function NativeResult({ view, disabled, send }: PanelProps) {
       {result.bossReward !== null && (
         <>
           <Text style={s.kicker}>JALON ATTEINT</Text>
-          <Trophy size={44} color={rogue.colors.gold} />
+          <Trophy size={44} color={RC.gold} />
           <Text style={s.heroTitle}>Acte {view.phase.act} terminé</Text>
         </>
       )}
@@ -385,10 +386,10 @@ function NativeOffer({
           borderLeftWidth: 4,
           borderLeftColor:
             offer.card[0] === "D"
-              ? rogue.colors.operator
+              ? RC.operator
               : offer.card[0] === "T"
-                ? rogue.colors.gold
-                : rogue.colors.coral,
+                ? RC.gold
+                : RC.coral,
         },
       ]}
     >

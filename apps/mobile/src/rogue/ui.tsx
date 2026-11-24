@@ -8,8 +8,8 @@ import {
 import { Star } from "lucide-react-native";
 import { rogue } from "@shortest/tokens";
 import { audio } from "../audio";
+import { RC as c, themed } from "../theme";
 
-const c = rogue.colors;
 export function Button({
   label,
   variant = "ghost",
@@ -118,7 +118,7 @@ export function Stars({ value }: { value: number }) {
     </View>
   );
 }
-const styles = StyleSheet.create({
+const styles = themed(() => StyleSheet.create({
   button: {
     minHeight: rogue.touch,
     justifyContent: "center",
@@ -173,4 +173,4 @@ const styles = StyleSheet.create({
     lineHeight: 36,
   },
   row: { flexDirection: "row", gap: 6, justifyContent: "center" },
-});
+}));
