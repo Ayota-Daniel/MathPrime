@@ -1,116 +1,79 @@
-import { GameText as Text, g } from '../components/GameScreen';
-import { Alert, View, Pressable, ScrollView, TextInput } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { View, ScrollView, Pressable, TextInput } from 'react-native';
+import { ChevronRight } from 'lucide-react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStack } from '../../App';
 import { useGame } from '../store';
+import { TabBar } from '../components/TabBar';
+import { C, num, Screen, Sheet, Title, Button, Switch, Text } from '../components/ui';
 
-function Toggle({
-  label,
-  on,
-  onPress,
-}: {
-  label: string;
-  on: boolean;
-  onPress: () => void;
-}) {
+function Group({ title, children }: { title: string; children: ReactNode | ReactNode[] }) {
+  const items = (Array.isArray(children) ? children : [children]).filter(Boolean);
   return (
-    <Pressable
-      accessibilityRole="switch"
-      accessibilityLabel={label}
-      accessibilityState={{ checked: on }}
-      onPress={onPress}
-      className="w-[46px] h-[28px] rounded-full justify-center"
-      style={{ backgroundColor: on ? '#12346C' : '#BBA4AD' }}
-    >
-      <View
-        className="w-[22px] h-[22px] rounded-full bg-white"
-        style={{ marginLeft: on ? 21 : 3 }}
-      />
-    </Pressable>
+    <View>
+      <Text accessibilityRole="header" style={{ fontSize: 14, fontWeight: '800', color: C.mine, marginBottom: 8 }}>{title}</Text>
+      <Sheet inner={{ paddingHorizontal: 16 }}>
+        {items.map((c, i) => <View key={i} style={i > 0 ? { borderTopWidth: 1, borderStyle: 'dashed', borderColor: C.dash } : undefined}>{c}</View>)}
+      </Sheet>
+    </View>
   );
 }
-const Row = ({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) => (
-  <View className="flex-row items-center justify-between py-[14px] border-b border-line">
-    <Text>{label}</Text>
-    {children}
+const Row = ({ label, children }: { label: string; children: ReactNode }) => (
+  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, minHeight: 52 }}>
+    <Text style={{ fontSize: 15.5, color: C.graphite, flexShrink: 1 }}>{label}</Text>{children}
   </View>
 );
 
-export function Settings({
-  navigation,
-}: NativeStackScreenProps<RootStack, 'Settings'>) {
+export function Settings({ navigation }: NativeStackScreenProps<RootStack, 'Settings'>) {
   const s = useGame((st) => st.settings);
   const set = useGame((st) => st.setSetting);
   const reset = useGame((st) => st.resetProgress);
   const pseudo = useGame((st) => st.pseudo);
   const setPseudo = useGame((st) => st.setPseudo);
+  const [confirm, setConfirm] = useState(false);
+
   return (
-    <ScrollView style={{ flex: 1 }} contentContainerStyle={g.wrap}>
-      <Pressable onPress={() => navigation.goBack()}>
-        <Text className="text-mut font-semibold">‹ Retour</Text>
-      </Pressable>
-      <Text style={g.title}>Paramètres</Text>
-      <View className="bg-card border border-line rounded-card px-[16px]">
-        <Text className="font-bold mt-3 text-[18px]">Ambiance</Text>
-        <Row label="Sons (bruitages)">
-          <Toggle
-            label="Sons (bruitages)"
-            on={s.sound}
-            onPress={() => set('sound', !s.sound)}
-          />
-        </Row>
-        <Row label="Musique de fond">
-          <Toggle
-            label="Musique de fond"
-            on={s.music}
-            onPress={() => set('music', !s.music)}
-          />
-        </Row>
-        <Text className="font-bold mt-3 text-[18px]">Accessibilité</Text>
-        <Row label="Réduire les animations">
-          <Toggle
-            label="Réduire les animations"
-            on={s.reduceMotion}
-            onPress={() => set('reduceMotion', !s.reduceMotion)}
-          />
-        </Row>
-        <Text className="font-bold mt-3 text-[18px]">Profil et partage</Text>
-        <Row label="Participer au Daily compétitif">
-          <Toggle
-            label="Participer au Daily compétitif"
-            on={s.leaderboardOptIn}
-            onPress={() => set('leaderboardOptIn', !s.leaderboardOptIn)}
-          />
-        </Row>
-        <Row label="Pseudo">
-          <TextInput
-            accessibilityLabel="Pseudo"
-            value={pseudo}
-            onChangeText={setPseudo}
-            maxLength={16}
-            placeholder="anon"
-            className="border border-line rounded-[8px] px-[10px] py-[6px] w-[140px] text-right"
-          />
-        </Row>
-        <Row label="Réinitialiser">
-          <Pressable
-            onPress={() =>
-              Alert.alert('Effacer ta progression locale ?', undefined, [
-                { text: 'Annuler', style: 'cancel' },
-                { text: 'Effacer', style: 'destructive', onPress: reset },
-              ])
-            }
-          >
-            <Text className="text-err font-semibold">Effacer</Text>
+    <Screen bottomInset={false}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 24, gap: 18 }}>
+        <Title>Réglages</Title>
+        <Group title="Son et affichage">
+          <Row label="Bruitages"><Switch label="Bruitages" on={s.sound} onToggle={() => set('sound', !s.sound)} /></Row>
+          <Row label="Musique"><Switch label="Musique" on={s.music} onToggle={() => set('music', !s.music)} /></Row>
+          <Row label="Réduire les animations"><Switch label="Réduire les animations" on={s.reduceMotion} onToggle={() => set('reduceMotion', !s.reduceMotion)} /></Row>
+        </Group>
+
+        <Group title="Profil et Daily compétitif">
+          <Row label="Participer au Daily compétitif"><Switch label="Participer au Daily compétitif" on={s.leaderboardOptIn} onToggle={() => set('leaderboardOptIn', !s.leaderboardOptIn)} /></Row>
+          <Row label="Pseudo">
+            <TextInput value={pseudo} onChangeText={setPseudo} maxLength={16} placeholder="anon" placeholderTextColor={C.ghost} accessibilityLabel="Pseudo"
+              style={[num, { height: 38, width: 150, borderWidth: 1.5, borderColor: C.graphite, borderRadius: 6, paddingHorizontal: 10, textAlign: 'right', backgroundColor: C.white, color: C.graphite }]} />
+          </Row>
+        </Group>
+
+        <Group title="Aide">
+          <Pressable accessibilityRole="button" onPress={() => navigation.navigate('Help')}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 52 }}>
+            <Text style={{ fontSize: 15.5, color: C.graphite }}>Comment jouer</Text>
+            <ChevronRight size={18} strokeWidth={2.2} color={C.graphite} />
           </Pressable>
-        </Row>
-      </View>
-    </ScrollView>
+        </Group>
+
+        <View>
+          {!confirm
+            ? <Button variant="pen" label="Effacer ma progression" height={48} onPress={() => setConfirm(true)} />
+            : (
+              <Sheet inner={{ padding: 16, gap: 12 }}>
+                <Text style={{ fontWeight: '700', fontSize: 15, color: C.graphite }}>Effacer niveaux, records et XP sur cet appareil ? C'est définitif.</Text>
+                <View style={{ flexDirection: 'row', gap: 12 }}>
+                  <Button label="Annuler" style={{ flex: 1 }} onPress={() => setConfirm(false)} />
+                  <Button variant="pen" label="Effacer" style={{ flex: 1 }} onPress={() => { reset(); setConfirm(false); }} />
+                </View>
+              </Sheet>
+            )}
+          <Text style={{ color: C.mine, fontSize: 13, lineHeight: 18, marginTop: 8 }}>Ta progression et tes réglages sont enregistrés sur cet appareil.</Text>
+        </View>
+      </ScrollView>
+      <TabBar />
+    </Screen>
   );
 }

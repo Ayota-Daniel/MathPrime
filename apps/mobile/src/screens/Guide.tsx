@@ -1,154 +1,68 @@
+/** Niveaux Classique : grille de cases, étoiles, cadenas au-delà du niveau atteint. */
 import { useState } from 'react';
-import { Pressable, ScrollView, View, StyleSheet } from 'react-native';
-import { ChevronLeft, LockKeyhole } from 'lucide-react-native';
+import { View, ScrollView, Pressable } from 'react-native';
+import { ChevronLeft, ChevronRight, LockKeyhole } from 'lucide-react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { colors, levelNumbers, rogue } from '@shortest/tokens';
-import { GameText as Text, g } from '../components/GameScreen';
-import { Button } from '../components/ui';
-import { useGame } from '../store';
+import { levelNumbers } from '@shortest/tokens';
 import type { RootStack } from '../../App';
+import { useGame } from '../store';
+import { C, num, Screen, Button, BackButton, Text } from '../components/ui';
 
-export function Back({
-  label = 'Accueil',
-  go,
-}: {
-  label?: string;
-  go: () => void;
-}) {
-  return (
-    <Pressable accessibilityRole="button" onPress={go} style={g.back}>
-      <ChevronLeft size={20} color={colors.ink} />
-      <Text>{label}</Text>
-    </Pressable>
-  );
-}
-export function Levels({
-  navigation,
-}: NativeStackScreenProps<RootStack, 'Levels'>) {
+export { Help } from './Help';
+
+const PAGE = 15;
+
+export function Levels({ navigation }: NativeStackScreenProps<RootStack, 'Levels'>) {
   const current = useGame((s) => s.classicProgress + 1);
   const stars = useGame((s) => s.classicStars);
-  const [page, setPage] = useState(Math.floor((current - 1) / 15));
-  const first = page * 15 + 1;
+  const [page, setPage] = useState(Math.floor((current - 1) / PAGE));
+  const first = page * PAGE + 1;
+  const pager = (label: string, disabled: boolean, onPress: () => void, icon: React.ReactNode) => (
+    <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress}
+      style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: C.graphite, borderRadius: 6, backgroundColor: C.white, opacity: disabled ? 0.4 : 1 }}>
+      {icon}
+    </Pressable>
+  );
   return (
-    <ScrollView contentContainerStyle={g.wrap}>
-      <Back go={() => navigation.goBack()} />
-      <Text style={g.title}>Classic</Text>
-      <Text style={g.sub}>Choisis ton niveau</Text>
-      <View
-        style={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          justifyContent: 'flex-start',
-          gap: 6,
-        }}
-      >
-        {levelNumbers(first, 15).map((n) => (
-          <Pressable
-            key={n}
-            accessibilityRole="button"
-            accessibilityLabel={`Niveau ${n}`}
-            accessibilityState={{ disabled: n > current }}
-            disabled={n > current}
-            onPress={() =>
-              navigation.navigate('Play', { mode: 'classic', niveau: n })
-            }
-            style={[
-              styles.level,
-              n > current && { backgroundColor: colors.op },
-              n === current && { borderColor: colors.pri },
-            ]}
-          >
-            <Text style={{ fontSize: 20, fontFamily: rogue.font.display }}>
-              {n}
-            </Text>
-            {n > current ? (
-              <LockKeyhole size={13} color={colors.ink} />
+    <Screen>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingTop: 14 }}>
+        <BackButton label="Retour" onPress={() => navigation.goBack()} />
+        <Text accessibilityRole="header" style={{ fontSize: 28, fontWeight: '900', color: C.ink }}>Classique</Text>
+      </View>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingBottom: 24 }}>
+        <Text style={{ marginTop: 12, fontSize: 15, lineHeight: 21, color: C.graphite }}>Trois étoiles débloquent le niveau suivant. Tu peux rejouer tous les niveaux ouverts.</Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 16 }}>
+          {levelNumbers(first, PAGE).map((n) => {
+            const got = stars[n - 1] ?? 0;
+            const open = n <= current;
+            return open ? (
+              <Pressable key={n} accessibilityRole="button" accessibilityLabel={`Jouer au niveau ${n}, ${got} étoile${got > 1 ? 's' : ''} sur 3`}
+                onPress={() => navigation.navigate('Play', { mode: 'classic', niveau: n })}
+                style={{ width: '17.5%', aspectRatio: 1 }}>
+                <View style={{ position: 'absolute', top: 3, left: 3, right: -3, bottom: -3, backgroundColor: C.graphite, borderRadius: 6 }} />
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: C.graphite, borderRadius: 6, backgroundColor: n === current ? C.hl : C.white }}>
+                  <Text style={[num, { fontSize: 20, fontWeight: '900', color: C.graphite }]}>{n}</Text>
+                  <Text style={{ fontSize: 10, letterSpacing: 1, color: C.graphite }}>{'★'.repeat(got)}<Text style={{ color: C.ghost }}>{'★'.repeat(3 - got)}</Text></Text>
+                </View>
+              </Pressable>
             ) : (
-              <Text>{stars[n - 1] ?? 0}/3 ★</Text>
-            )}
-          </Pressable>
-        ))}
-      </View>
-      <View style={g.between}>
-        <Button
-          label="Précédent"
-          disabled={!page}
-          onPress={() => setPage(page - 1)}
-        />
-        <Text>
-          {first}–{Math.min(first + 14, 100)}
-        </Text>
-        <Button
-          label="Suivant"
-          disabled={first + 15 > 100}
-          onPress={() => setPage(page + 1)}
-        />
-      </View>
-      <View style={g.blue}>
-        <Text style={[g.light, { fontSize: 24 }]}>Niveau {current}</Text>
-        <Text style={g.light}>
-          Obtiens trois étoiles pour débloquer le niveau suivant.
-        </Text>
-      </View>
-      <Button
-        variant="primary"
-        label={`Jouer au niveau ${current}`}
-        onPress={() => navigation.navigate('Play', { mode: 'classic' })}
-      />
-    </ScrollView>
+              <View key={n} accessible accessibilityLabel={`Niveau ${n} verrouillé`}
+                style={{ width: '17.5%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderStyle: 'dashed', borderColor: C.ghost, borderRadius: 6 }}>
+                <Text style={[num, { fontSize: 18, fontWeight: '700', color: C.ghost }]}>{n}</Text>
+                <LockKeyhole size={12} color={C.ghost} />
+              </View>
+            );
+          })}
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 }}>
+          {pager('Page précédente', !page, () => setPage(page - 1), <ChevronLeft size={20} color={C.graphite} />)}
+          <Text style={[num, { color: C.mine, fontSize: 14 }]}>{first}–{Math.min(first + PAGE - 1, 100)} sur 100</Text>
+          {pager('Page suivante', first + PAGE > 100, () => setPage(page + 1), <ChevronRight size={20} color={C.graphite} />)}
+        </View>
+        <View style={{ marginTop: 'auto', paddingTop: 24 }}>
+          <Button variant="ink" label={`Jouer au niveau ${current}`} onPress={() => navigation.navigate('Play', { mode: 'classic' })} />
+        </View>
+      </ScrollView>
+    </Screen>
   );
 }
-export function Help({
-  navigation,
-}: NativeStackScreenProps<RootStack, 'Help'>) {
-  return (
-    <ScrollView contentContainerStyle={g.wrap}>
-      <Back go={() => navigation.goBack()} />
-      <Text style={g.title}>Comment jouer</Text>
-      <View style={g.strip}>
-        <Text
-          style={[g.sub, { color: colors.ink, fontFamily: rogue.font.display }]}
-        >
-          Atteins la cible, fais court.
-        </Text>
-      </View>
-      <View style={g.blue}>
-        <Text style={[g.light, { textAlign: 'center' }]}>Cible</Text>
-        <Text style={g.value}>8</Text>
-      </View>
-      <Text>
-        Utilise 3, 5 et 7 avec +, − et ×. Tu peux réutiliser chaque chiffre. La
-        multiplication est prioritaire.
-      </Text>
-      <Text style={styles.example}>3 × 5 − 7 = 8</Text>
-      <Text style={styles.example}>3 + 5 = 8</Text>
-      <Text>
-        À résultat égal, le calcul le plus court gagne le plus d’étoiles.
-      </Text>
-      <Button
-        variant="primary"
-        label="C’est compris"
-        onPress={() => navigation.goBack()}
-      />
-    </ScrollView>
-  );
-}
-const styles = StyleSheet.create({
-  level: {
-    width: '18%',
-    minHeight: 54,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    borderRadius: 10,
-    backgroundColor: colors.num,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  example: {
-    fontFamily: rogue.font.display,
-    fontSize: 24,
-    textAlign: 'center',
-    borderBottomWidth: 2,
-    borderColor: colors.pri,
-  },
-});

@@ -1,115 +1,41 @@
 import type { ReactNode } from 'react';
-import { Image, StyleSheet, Text, View, type TextProps } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import Svg, { Defs, Pattern, Path, Rect } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, rogue } from '@shortest/tokens';
+import { cahier, CAHIER_GRID } from '@shortest/tokens';
 
-const paper = require('../../../../packages/tokens/assets/backgrounds/paper-portrait.png');
-const night = require('../../../../packages/tokens/assets/backgrounds/night-portrait.png');
+/** Recursive (OFL), instances statiques : texte, contrôles, titres et nombres. */
 export const gameFonts = {
-  NunitoRegular: require('../../../../packages/tokens/assets/fonts/Nunito_400Regular.ttf'),
-  NunitoBold: require('../../../../packages/tokens/assets/fonts/Nunito_700Bold.ttf'),
-  NunitoExtraBold: require('../../../../packages/tokens/assets/fonts/Nunito_800ExtraBold.ttf'),
+  RecursiveRegular: require('../../../../packages/tokens/assets/fonts/Recursive_400Regular.ttf'),
+  RecursiveBold: require('../../../../packages/tokens/assets/fonts/Recursive_700Bold.ttf'),
+  RecursiveExtraBold: require('../../../../packages/tokens/assets/fonts/Recursive_800ExtraBold.ttf'),
+  RecursiveBlack: require('../../../../packages/tokens/assets/fonts/Recursive_900Black.ttf'),
 };
+
+/** Quadrillage 26 px : papier clair, ou page d'encre (`dark`) pour le run Rogue. */
 export function Backdrop({ dark = false }: { dark?: boolean }) {
+  const id = dark ? 'grid-dark' : 'grid-paper';
   return (
-    <View
-      pointerEvents="none"
-      accessible={false}
-      importantForAccessibility="no-hide-descendants"
-      style={StyleSheet.absoluteFill}
-    >
-      <Image
-        accessible={false}
-        source={dark ? night : paper}
-        resizeMode="stretch"
-        fadeDuration={0}
-        style={{ width: '100%', height: '100%', opacity: dark ? 0.85 : 0.75 }}
-      />
+    <View pointerEvents="none" accessible={false} importantForAccessibility="no-hide-descendants" style={StyleSheet.absoluteFill}>
+      <Svg width="100%" height="100%">
+        <Defs>
+          <Pattern id={id} width={CAHIER_GRID} height={CAHIER_GRID} patternUnits="userSpaceOnUse">
+            <Path d={`M ${CAHIER_GRID} 0 L 0 0 0 ${CAHIER_GRID}`} fill="none"
+              stroke={dark ? 'rgba(255,255,255,0.07)' : cahier.grid} strokeWidth={1} />
+          </Pattern>
+        </Defs>
+        <Rect width="100%" height="100%" fill={`url(#${id})`} />
+      </Svg>
     </View>
   );
 }
+
+/** Conteneur des écrans hors Rogue : papier quadrillé dans les marges de sécurité. */
 export function GameScreen({ children }: { children: ReactNode }) {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: cahier.paper }}>
       <Backdrop />
       {children}
     </SafeAreaView>
   );
 }
-export function GameText({
-  className = '',
-  style,
-  ...props
-}: TextProps & { className?: string }) {
-  const fontFamily = className.includes('font-bold')
-    ? rogue.font.display
-    : className.includes('font-semibold')
-      ? rogue.font.strong
-      : rogue.font.body;
-  const hasTone = /text-(ink|mut|white|pri|ok|err|gold)\b/.test(className);
-  return (
-    <Text
-      {...props}
-      className={className}
-      style={[{ fontFamily }, !hasTone && { color: colors.ink }, style]}
-    />
-  );
-}
-export const g = StyleSheet.create({
-  wrap: {
-    flexGrow: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    gap: 12,
-    width: '100%',
-    maxWidth: 730,
-    alignSelf: 'center',
-  },
-  title: {
-    color: colors.ink,
-    fontFamily: rogue.font.display,
-    fontSize: 30,
-    textAlign: 'center',
-    lineHeight: 36,
-  },
-  sub: {
-    color: colors.mut,
-    fontFamily: rogue.font.body,
-    textAlign: 'center',
-    fontSize: 15,
-  },
-  back: {
-    minHeight: 40,
-    alignItems: 'center',
-    flexDirection: 'row',
-    alignSelf: 'flex-start',
-    gap: 4,
-  },
-  strip: {
-    backgroundColor: colors.num,
-    borderRadius: 14,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  blue: {
-    backgroundColor: colors.panel,
-    padding: 18,
-    borderRadius: 22,
-    gap: 6,
-  },
-  light: { color: colors.onNight, fontFamily: rogue.font.strong },
-  value: {
-    fontFamily: rogue.font.display,
-    fontSize: 58,
-    lineHeight: 67,
-    textAlign: 'center',
-    color: colors.onNight,
-  },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  between: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 8,
-  },
-});
