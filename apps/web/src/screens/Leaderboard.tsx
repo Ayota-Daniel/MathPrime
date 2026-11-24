@@ -1,18 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Globe, Smartphone } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
+import { ChevronLeft, Globe, Smartphone } from 'lucide-react';
 import type { Mode, LbEntry } from '@shortest/engine';
+import { TopBar } from '../components/TopBar';
+import { Button } from '../components/ui';
 import { useGame } from '../store/game';
 import { isGlobalLeaderboard } from '../lib/leaderboard';
-import { TabBar } from '../components/TabBar';
-import { Button, ScreenTitle, fmt } from '../components/ui';
 
-const MODES: { mode: Mode; label: string }[] = [
-  { mode: 'classic', label: 'Classique' }, { mode: 'daily', label: 'Jour' },
-  { mode: 'freeskill', label: 'Free Skill' }, { mode: 'rogue', label: 'Rogue' },
-];
-const TOP = 8;
+const MODES: Mode[] = ['classic', 'freeskill', 'rogue', 'daily'];
+const LABELS: Record<string, string> = { classic: 'Classique', freeskill: 'Free Skill', rogue: 'Rogue', daily: 'Daily' };
 
 export function Leaderboard() {
+  const nav = useNavigate();
   const fetchLb = useGame((s) => s.fetchLeaderboard);
   const optIn = useGame((s) => s.settings.leaderboardOptIn);
   const pseudo = useGame((s) => s.pseudo);
@@ -26,63 +25,55 @@ export function Leaderboard() {
 
   useEffect(() => { setRows(null); fetchLb(mode).then(setRows); }, [mode, fetchLb, optIn]);
 
-  const meIdx = rows ? rows.findIndex((r) => r.id === deviceId) : -1;
-  const shown = rows ? rows.slice(0, TOP) : [];
-  const gap = meIdx >= TOP ? meIdx - TOP : 0;
-
   return (
     <>
-      <header className="px-5 pt-6 pb-1 flex items-center justify-between">
-        <ScreenTitle>Classement</ScreenTitle>
-        <span className="text-mine text-[13px] font-bold flex items-center gap-1.5">
-          {isGlobalLeaderboard ? <><Globe size={16} aria-hidden="true" />Mondial</> : <><Smartphone size={16} aria-hidden="true" />Cet appareil</>}
-        </span>
-      </header>
-      <main className="flex flex-col pb-5">
+      <TopBar />
+      <div className="flex-1 p-[18px] flex flex-col gap-[14px]">
+        <button className="flex items-center gap-[4px] text-mut font-semibold text-[14px]" onClick={() => nav({ to: '/' })}><ChevronLeft size={18} />Retour</button>
+        <div className="flex items-center gap-[8px]">
+          <h1 className="font-display font-bold text-[22px] m-0">Leaderboard</h1>
+          <span className="flex items-center gap-[4px] text-[11px] font-semibold px-[8px] py-[3px] rounded-full bg-bg border border-line text-mut">
+            {isGlobalLeaderboard ? <><Globe size={12} /> mondial</> : <><Smartphone size={12} /> local</>}
+          </span>
+        </div>
+
+        {/* Consentement : on ne publie RIEN sans opt-in explicite */}
         {!optIn && (
-          <section className="sheet mx-5 mt-3.5 p-4 flex flex-col gap-3">
-            <p className="m-0 text-[15px] leading-snug">Pour apparaître dans le classement, choisis un pseudo. Seul ce pseudo est publié : pas de compte, pas de donnée personnelle.</p>
-            <label htmlFor="lb-pseudo" className="sr-only">Pseudo</label>
-            <input id="lb-pseudo" value={draft} onChange={(e) => setDraft(e.target.value)} maxLength={16} placeholder="ton pseudo"
-              className="num h-11 border-[1.5px] border-graphite rounded-sheet px-3 bg-sheet text-graphite" />
-            <Button variant="ink" disabled={!draft.trim()} onClick={() => { setPseudo(draft.trim()); setSetting('leaderboardOptIn', true); }}>Publier mes scores</Button>
-          </section>
+          <div className="bg-card border border-line rounded-card p-[16px] flex flex-col gap-[10px]">
+            <p className="text-[14px] m-0">Partager tes performances avec le reste du monde ? Seul un <b>pseudo</b> est publié (aucun compte, aucune donnée perso).</p>
+            <input value={draft} onChange={(e) => setDraft(e.target.value)} maxLength={16} placeholder="ton pseudo"
+              className="border border-line rounded-[10px] px-[12px] py-[10px] font-mono" />
+            <Button variant="primary" onClick={() => { setPseudo(draft.trim() || 'anon'); setSetting('leaderboardOptIn', true); }} disabled={!draft.trim()}>
+              Activer le partage
+            </Button>
+          </div>
         )}
 
-        <div role="group" aria-label="Mode" className="mx-5 mt-3.5 grid grid-cols-4 border-[1.5px] border-graphite rounded-sheet overflow-hidden bg-sheet">
-          {MODES.map(({ mode: m, label }, i) => (
-            <button key={m} type="button" aria-pressed={mode === m} onClick={() => setMode(m)}
-              className={`h-11 text-[13.5px] font-bold ${i > 0 ? 'border-l-[1.5px] border-graphite' : ''} ${mode === m ? 'bg-ink text-white' : 'text-mine'}`}>
-              {label}
+        <div className="flex gap-[8px] flex-wrap">
+          {MODES.map((m) => (
+            <button key={m} onClick={() => setMode(m)}
+              className={`text-[13px] font-semibold px-[12px] py-[7px] rounded-full border ${mode === m ? 'bg-pri text-white border-pri' : 'bg-card border-line text-mut'}`}>
+              {LABELS[m]}
             </button>
           ))}
         </div>
 
-        <section className="sheet mx-5 mt-4 px-4 py-1 dashed-rows" aria-live="polite">
-          {rows === null ? <p className="text-mine text-sm py-3 m-0">Chargement…</p>
-            : rows.length === 0 ? <p className="text-mine text-sm py-3 m-0">Aucun score pour ce mode. Joue une partie pour ouvrir le classement.</p>
-            : <>
-              {shown.map((r, i) => (
-                <div key={r.id + r.mode} className={`flex items-center gap-3 py-2.5 text-[15px] ${r.id === deviceId ? 'bg-hl -mx-4 px-4 font-extrabold' : ''}`}>
-                  <span className="num w-7 font-extrabold">{i + 1}</span>
-                  <span className="flex-1 truncate">{r.id === deviceId ? `Toi, ${r.pseudo}` : r.pseudo}</span>
-                  <span className="num font-extrabold">{fmt(r.score)}</span>
-                </div>
-              ))}
-              {gap > 0 && <div className="flex items-center gap-3 py-2.5 text-[15px] text-mine"><span className="num w-7">…</span><span>{gap} joueur{gap > 1 ? 's' : ''} entre vous</span></div>}
-            </>}
-        </section>
+        <div className="bg-card border border-line rounded-card px-[16px]">
+          {rows === null ? <p className="text-mut text-[13px] py-[14px]">Chargement…</p>
+            : rows.length === 0 ? <p className="text-mut text-[13px] py-[14px]">Aucun score pour l'instant — sois le premier.</p>
+            : rows.map((r, i) => (
+              <div key={r.id + r.mode} className={`flex items-center justify-between py-[11px] border-b border-line last:border-0 ${r.id === deviceId ? 'font-bold' : ''}`}>
+                <span className="flex items-center gap-[10px]">
+                  <span className="font-mono text-mut w-[22px]">{i + 1}</span>
+                  <span>{r.pseudo}{r.id === deviceId ? ' (toi)' : ''}</span>
+                </span>
+                <span className="font-mono font-bold">{r.score}</span>
+              </div>
+            ))}
+        </div>
 
-        {rows && meIdx >= TOP && (
-          <section className="mx-5 mt-3.5 px-4 py-3 border-[1.5px] border-graphite rounded-sheet bg-hl flex items-center gap-3 text-[15px]">
-            <span className="num w-7 font-black">{meIdx + 1}</span>
-            <span className="flex-1 font-extrabold truncate">Toi, {rows[meIdx].pseudo}</span>
-            <span className="num font-black">{fmt(rows[meIdx].score)}</span>
-          </section>
-        )}
-        {optIn && <p className="mx-5 mt-2 mb-0 text-mine text-[13px]">Tu publies en tant que « {pseudo} ». Tu peux arrêter dans Réglages.</p>}
-      </main>
-      <TabBar />
+        {optIn && <p className="text-mut text-[12px]">Partage activé en tant que « {pseudo} ». Désactivable dans Settings.</p>}
+      </div>
     </>
   );
 }

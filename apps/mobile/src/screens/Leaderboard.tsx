@@ -1,29 +1,16 @@
 import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Pressable, TextInput } from 'react-native';
-import { Globe, Smartphone } from 'lucide-react-native';
+import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStack } from '../../App';
 import type { Mode, LbEntry } from '@shortest/engine';
 import { useGame } from '../store';
 import { isGlobalLeaderboard } from '../leaderboard';
-import { TabBar } from '../components/TabBar';
-import { C, num, fmt, Screen, Sheet, Title, Button } from '../components/ui';
+import { Button } from '../components/ui';
 
-const MODES: { mode: Mode; label: string }[] = [
-  { mode: 'classic', label: 'Classique' }, { mode: 'daily', label: 'Jour' },
-  { mode: 'freeskill', label: 'Free Skill' }, { mode: 'rogue', label: 'Rogue' },
-];
-const TOP = 8;
+const MODES: Mode[] = ['classic', 'freeskill', 'rogue', 'daily'];
+const LABELS: Record<string, string> = { classic: 'Classique', freeskill: 'Free Skill', rogue: 'Rogue', daily: 'Daily' };
 
-function Row({ rank, name, score, me }: { rank: string; name: string; score: string; me?: boolean }) {
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 16, backgroundColor: me ? C.hl : 'transparent' }}>
-      <Text style={[num, { width: 28, fontWeight: '800', fontSize: 15, color: C.graphite }]}>{rank}</Text>
-      <Text numberOfLines={1} style={{ flex: 1, fontSize: 15, fontWeight: me ? '800' : '400', color: C.graphite }}>{name}</Text>
-      <Text style={[num, { fontWeight: '800', fontSize: 15, color: C.graphite }]}>{score}</Text>
-    </View>
-  );
-}
-
-export function Leaderboard() {
+export function Leaderboard({ navigation }: NativeStackScreenProps<RootStack, 'Leaderboard'>) {
   const fetchLb = useGame((s) => s.fetchLeaderboard);
   const optIn = useGame((s) => s.settings.leaderboardOptIn);
   const pseudo = useGame((s) => s.pseudo);
@@ -36,70 +23,40 @@ export function Leaderboard() {
 
   useEffect(() => { setRows(null); void fetchLb(mode).then(setRows); }, [mode, fetchLb, optIn]);
 
-  const meIdx = rows ? rows.findIndex((r) => r.id === deviceId) : -1;
-  const shown = rows ? rows.slice(0, TOP) : [];
-  const gap = meIdx >= TOP ? meIdx - TOP : 0;
-  const Scope = isGlobalLeaderboard ? Globe : Smartphone;
-
   return (
-    <Screen bottomInset={false}>
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 24, gap: 14 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Title>Classement</Title>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Scope size={16} color={C.mine} />
-            <Text style={{ color: C.mine, fontSize: 13, fontWeight: '700' }}>{isGlobalLeaderboard ? 'Mondial' : 'Cet appareil'}</Text>
-          </View>
+    <ScrollView className="flex-1 bg-bg" contentContainerStyle={{ padding: 18, gap: 14 }}>
+      <Pressable onPress={() => navigation.goBack()}><Text className="text-mut font-semibold">‹ Retour</Text></Pressable>
+      <Text className="font-bold text-[22px]">Leaderboard <Text className="text-mut text-[12px]">{isGlobalLeaderboard ? '· mondial' : '· local'}</Text></Text>
+
+      {!optIn && (
+        <View className="bg-card border border-line rounded-card p-[16px] gap-[10px]">
+          <Text className="text-[14px]">Partager tes performances ? Seul un pseudo est publié (aucun compte, aucune donnée perso).</Text>
+          <TextInput value={draft} onChangeText={setDraft} maxLength={16} placeholder="ton pseudo" className="border border-line rounded-[10px] px-[12px] py-[10px]" />
+          <Button variant="primary" label="Activer le partage" onPress={() => { setPseudo(draft.trim() || 'anon'); setSetting('leaderboardOptIn', true); }} />
         </View>
+      )}
 
-        {!optIn && (
-          <Sheet inner={{ padding: 16, gap: 12 }}>
-            <Text style={{ fontSize: 15, lineHeight: 20, color: C.graphite }}>Pour apparaître dans le classement, choisis un pseudo. Seul ce pseudo est publié : pas de compte, pas de donnée personnelle.</Text>
-            <TextInput value={draft} onChangeText={setDraft} maxLength={16} placeholder="ton pseudo" placeholderTextColor={C.ghost} accessibilityLabel="Pseudo"
-              style={[num, { height: 44, borderWidth: 1.5, borderColor: C.graphite, borderRadius: 6, paddingHorizontal: 12, backgroundColor: C.white, color: C.graphite }]} />
-            <Button variant="ink" label="Publier mes scores" disabled={!draft.trim()} onPress={() => { setPseudo(draft.trim()); setSetting('leaderboardOptIn', true); }} />
-          </Sheet>
-        )}
+      <View className="flex-row flex-wrap gap-[8px]">
+        {MODES.map((m) => (
+          <Pressable key={m} onPress={() => setMode(m)} className={`px-[12px] py-[7px] rounded-full border ${mode === m ? 'bg-pri border-pri' : 'bg-card border-line'}`}>
+            <Text className={`text-[13px] font-semibold ${mode === m ? 'text-white' : 'text-mut'}`}>{LABELS[m]}</Text>
+          </Pressable>
+        ))}
+      </View>
 
-        <View accessibilityRole="tablist" style={{ flexDirection: 'row', borderWidth: 1.5, borderColor: C.graphite, borderRadius: 6, overflow: 'hidden', backgroundColor: C.white }}>
-          {MODES.map(({ mode: m, label }, i) => {
-            const on = mode === m;
-            return (
-              <Pressable key={m} accessibilityRole="tab" accessibilityState={{ selected: on }} onPress={() => setMode(m)}
-                style={{ flex: 1, height: 44, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? C.ink : 'transparent', borderLeftWidth: i > 0 ? 1.5 : 0, borderColor: C.graphite }}>
-                <Text style={{ fontSize: 13.5, fontWeight: '700', color: on ? C.white : C.mine }}>{label}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        <Sheet inner={{ paddingVertical: 4, overflow: 'hidden' }}>
-          {rows === null ? <Text style={{ color: C.mine, fontSize: 14, padding: 16 }}>Chargement…</Text>
-            : rows.length === 0 ? <Text style={{ color: C.mine, fontSize: 14, padding: 16 }}>Aucun score pour ce mode. Joue une partie pour ouvrir le classement.</Text>
-            : (
-              <>
-                {shown.map((r, i) => (
-                  <View key={r.id + r.mode} style={i > 0 ? { borderTopWidth: 1, borderStyle: 'dashed', borderColor: C.dash } : undefined}>
-                    <Row rank={String(i + 1)} name={r.id === deviceId ? `Toi, ${r.pseudo}` : r.pseudo} score={fmt(r.score)} me={r.id === deviceId} />
-                  </View>
-                ))}
-                {gap > 0 && (
-                  <View style={{ borderTopWidth: 1, borderStyle: 'dashed', borderColor: C.dash, paddingVertical: 10, paddingHorizontal: 16 }}>
-                    <Text style={{ color: C.mine, fontSize: 15 }}>… {gap} joueur{gap > 1 ? 's' : ''} entre vous</Text>
-                  </View>
-                )}
-              </>
-            )}
-        </Sheet>
-
-        {rows && meIdx >= TOP && (
-          <View style={{ borderWidth: 1.5, borderColor: C.graphite, borderRadius: 6, overflow: 'hidden' }}>
-            <Row rank={String(meIdx + 1)} name={`Toi, ${rows[meIdx].pseudo}`} score={fmt(rows[meIdx].score)} me />
-          </View>
-        )}
-        {optIn && <Text style={{ color: C.mine, fontSize: 13 }}>Tu publies en tant que « {pseudo} ». Tu peux arrêter dans Réglages.</Text>}
-      </ScrollView>
-      <TabBar />
-    </Screen>
+      <View className="bg-card border border-line rounded-card px-[16px]">
+        {rows === null ? <Text className="text-mut text-[13px] py-[14px]">Chargement…</Text>
+          : rows.length === 0 ? <Text className="text-mut text-[13px] py-[14px]">Aucun score — sois le premier.</Text>
+          : rows.map((r, i) => (
+            <View key={r.id + r.mode} className="flex-row items-center justify-between py-[11px] border-b border-line">
+              <View className="flex-row items-center gap-[10px]">
+                <Text className="text-mut w-[22px]">{i + 1}</Text>
+                <Text style={r.id === deviceId ? { fontWeight: '700' } : undefined}>{r.pseudo}{r.id === deviceId ? ' (toi)' : ''}</Text>
+              </View>
+              <Text className="font-bold">{r.score}</Text>
+            </View>
+          ))}
+      </View>
+    </ScrollView>
   );
 }
