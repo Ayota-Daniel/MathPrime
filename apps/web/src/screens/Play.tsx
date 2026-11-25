@@ -120,7 +120,7 @@ export function Play() {
         <div className="num font-black leading-none tracking-[-0.05em] text-[clamp(72px,26vw,104px)] mt-1" aria-live="polite"><span className="hl">{p.target}</span></div>
         {mode === 'classic' && (
           <span className="mt-3 inline-flex items-center h-7 px-2.5 rounded-full bg-sheet border-[1.5px] border-graphite text-[13px] font-bold">
-            3 étoiles pour passer au niveau {s.index + 2}
+            Atteins la cible avec le moins de chiffres possible
           </span>
         )}
         {isBig && s.rules.required.length > 0 && (

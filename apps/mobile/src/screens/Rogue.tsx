@@ -68,7 +68,7 @@ export function Rogue({
   const current = useRef({ busy, view });
   current.current = { busy, view };
   const disabled = busy || !view.hydrated || Boolean(view.storageError);
-  async function replaceRun(value: number) {
+  async function replaceRun(value?: number) {
     await perform({ type: "new", seed: value, replace: true });
   }
   function send(action: RogueAction) {
@@ -213,7 +213,7 @@ export function Rogue({
           {view.storageNotice && (
             <Text style={s.note}>{view.storageNotice}</Text>
           )}
-          {view.screen === "home" && (
+          {view.screen === "home" && view.hydrated && (
             <>
               <NativeExtras
                 entries={view.history}
@@ -251,7 +251,7 @@ export function Rogue({
               onMenu={back}
             />
           )}
-          {view.hasSaved && ["home", "ended"].includes(view.screen) && (
+          {__DEV__ && view.hasSaved && ["home", "ended"].includes(view.screen) && (
             <NativePlaytestExport
               report={controller.exportPlaytest}
               disabled={disabled}

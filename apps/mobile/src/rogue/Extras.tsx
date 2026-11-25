@@ -59,7 +59,7 @@ function NativeHistory({
       {entries.map((entry) => (
         <View key={entry.id} style={s.card}>
           <Text style={s.bold}>
-            {ARCHIVE_STATUS_LABELS[entry.status]} · Graine {entry.seed} ·{" "}
+            {ARCHIVE_STATUS_LABELS[entry.status]}{__DEV__ && ` · Graine ${entry.seed}`} ·{" "}
             {entry.score} points
           </Text>
           <Text style={s.caption}>
@@ -69,7 +69,7 @@ function NativeHistory({
             label={
               selected === entry.id
                 ? "Réduire le résumé"
-                : `Consulter la run ${entry.seed}`
+                : "Consulter le résumé"
             }
             onPress={() => setSelected(selected === entry.id ? null : entry.id)}
           />
@@ -97,7 +97,7 @@ function NativeHistory({
                 onPress={() =>
                   Alert.alert(
                     "Supprimer cette archive ?",
-                    `Supprimer définitivement le résumé de graine ${entry.seed} ? La session active et les autres archives seront conservées.`,
+                    `Supprimer définitivement ce résumé ? La session active et les autres archives seront conservées.`,
                     [
                       { text: "Annuler", style: "cancel" },
                       {

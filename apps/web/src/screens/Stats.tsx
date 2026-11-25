@@ -22,6 +22,7 @@ export function Stats() {
   const frac = hi > lo ? Math.min(1, (xp - lo) / (hi - lo)) : 0;
   const progress = useGame((s) => s.classicProgress);
   const classicStars = useGame((s) => Object.values(s.classicStars).reduce((sum, v) => sum + v, 0));
+  const mastered = useGame((s) => Object.values(s.classicStars).filter(stars => stars === 3).length);
   const rate = stats.played ? `${Math.round((stats.perfect / stats.played) * 100)} %` : '—';
 
   return (
@@ -39,7 +40,7 @@ export function Stats() {
         <Link to="/niveaux" className="sheet mx-5 mt-4 p-4 flex items-center gap-3 text-graphite no-underline">
           <span className="flex-1">
             <span className="block text-[17px] font-extrabold">Classique, niveau {progress + 1} / 100</span>
-            <span className="text-mine text-[13.5px]">{classicStars} étoiles sur 300</span>
+            <span className="text-mine text-[13.5px]">{classicStars} étoiles sur 300 · {mastered} niveaux à 3 étoiles</span>
           </span>
           <ChevronRight size={18} aria-hidden="true" />
         </Link>

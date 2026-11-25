@@ -55,7 +55,7 @@ export function RogueHistory({
       {entries.map((entry) => (
         <details key={entry.id} className="rogue-active-card">
           <summary>
-            {ARCHIVE_STATUS_LABELS[entry.status]} · Graine {entry.seed} ·{" "}
+            {ARCHIVE_STATUS_LABELS[entry.status]}{import.meta.env?.DEV && ` · Graine ${entry.seed}`} ·{" "}
             {entry.score} points ·{" "}
             {new Date(entry.date).toLocaleString("fr-FR")}
           </summary>
@@ -76,7 +76,7 @@ export function RogueHistory({
           {pending === entry.id && (
             <div role="alertdialog" aria-label="Supprimer cette archive ?">
               <p>
-                Supprimer définitivement cette archive de graine {entry.seed} ?
+                Supprimer définitivement cette archive ?
                 La session active et les autres archives seront conservées.
               </p>
               <Button

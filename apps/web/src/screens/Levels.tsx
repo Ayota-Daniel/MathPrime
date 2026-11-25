@@ -20,7 +20,7 @@ export function Levels() {
         <ScreenTitle>Classique</ScreenTitle>
       </header>
       <main className="flex flex-col px-5 pb-6">
-        <p className="mt-3 mb-0 text-[15px] leading-snug">Trois étoiles débloquent le niveau suivant. Tu peux rejouer tous les niveaux ouverts.</p>
+        <p className="mt-3 mb-0 text-[15px] leading-snug">Toute solution correcte termine le niveau. Seul ton meilleur résultat compte. Tu peux rejouer tous les niveaux ouverts.</p>
         <div className="grid grid-cols-5 gap-2.5 mt-4">
           {levelNumbers(first, PAGE).map((n) => {
             const got = stars[n - 1] ?? 0;

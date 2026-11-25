@@ -36,7 +36,7 @@ export function Levels({ navigation }: NativeStackScreenProps<RootStack, 'Levels
         <Text accessibilityRole="header" style={{ fontSize: 28, fontWeight: '900', color: C.ink }}>Classique</Text>
       </View>
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingBottom: 24 }}>
-        <Text style={{ marginTop: 12, fontSize: 15, lineHeight: 21, color: C.graphite }}>Trois étoiles débloquent le niveau suivant. Tu peux rejouer tous les niveaux ouverts.</Text>
+        <Text style={{ marginTop: 12, fontSize: 15, lineHeight: 21, color: C.graphite }}>Toute solution correcte termine le niveau. Seul ton meilleur résultat compte. Tu peux rejouer tous les niveaux ouverts.</Text>
         <View onLayout={(e) => setGridWidth(e.nativeEvent.layout.width)} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: GAP, marginTop: 16, paddingRight: 3, paddingBottom: 3 }}>
           {cell > 0 && levelNumbers(first, PAGE).map((n) => {
             const got = stars[n - 1] ?? 0;

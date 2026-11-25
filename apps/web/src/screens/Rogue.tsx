@@ -38,7 +38,7 @@ export function Rogue() {
   const rogueTheme = useGame((s) => s.settings.rogueTheme);
   const theme = useMemo(() => rogueVars(rogueTheme), [rogueTheme]);
   const [confirmAbandon, setConfirmAbandon] = useState(false);
-  const [replacement, setReplacement] = useState<number | null>(null);
+  const [replacement, setReplacement] = useState<Extract<WebAction, { type: "new" }> | null>(null);
   const [deciding, setDeciding] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const container = useRef<HTMLElement>(null);
@@ -78,7 +78,7 @@ export function Rogue() {
       action.type === "new" &&
       (view.hasSaved || view.storageNotice || controller.isActive())
     )
-      setReplacement(action.seed);
+      setReplacement(action);
     else perform(action);
   }
   async function confirm() {
@@ -86,7 +86,7 @@ export function Rogue() {
     try {
       if (replacement !== null)
         await controller.dispatch(
-          { type: "new", seed: replacement, replace: true },
+          { type: "new", seed: replacement.seed, replace: true },
           controller.getSnapshot().revision,
         );
       else if (blocker.status === "blocked") {
@@ -106,7 +106,7 @@ export function Rogue() {
     }
   }
   const hasRun = view.screen !== "home";
-  const playtestExport = view.hasSaved && (
+  const playtestExport = import.meta.env?.DEV && view.hasSaved && (
     <RoguePlaytestExport
       report={controller.exportPlaytest}
       disabled={busy || Boolean(view.storageError)}
@@ -178,7 +178,7 @@ export function Rogue() {
           }
         >
           <div className="rogue-main-panel">
-            {view.screen === "home" && (
+            {view.screen === "home" && view.hydrated && (
               <RogueExtras
                 entries={view.history}
                 busy={busy || Boolean(view.storageError)}

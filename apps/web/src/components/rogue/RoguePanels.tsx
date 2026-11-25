@@ -55,7 +55,7 @@ export function RogueWelcome({
           <h2>{view?.hasSaved ? "Votre parcours" : "Commencer une run"}</h2>
           {view?.savedSummary ? (
             <p>
-              Graine {view.savedSummary.seed} · {view.savedSummary.score} points
+              {import.meta.env?.DEV && `Graine ${view.savedSummary.seed} · `} {view.savedSummary.score} points
             </p>
           ) : (
             <div className="rogue-hero-facts">
@@ -85,13 +85,13 @@ export function RogueWelcome({
         <div className="rogue-start-row">
           <Button
             variant={view?.hasSaved ? "ghost" : "primary"}
-            disabled={busy || !/^\d+$/.test(seed) || Number(seed) > 0xffffffff}
-            onClick={() => send({ type: "new", seed: Number(seed) })}
+            disabled={busy || (import.meta.env?.DEV && (!/^\d+$/.test(seed) || Number(seed) > 0xffffffff))}
+            onClick={() => send({ type: "new", seed: import.meta.env?.DEV ? Number(seed) : undefined })}
             icon={<ArrowRight size={18} />}
           >
             Nouvelle run
           </Button>
-          <label>
+          {import.meta.env?.DEV && <label>
             Graine de run
             <input
               aria-label="Graine de run"
@@ -100,7 +100,7 @@ export function RogueWelcome({
               onChange={(event) => setSeed(event.target.value)}
               maxLength={10}
             />
-          </label>
+          </label>}
         </div>
       </section>
       <section className="rogue-how" aria-label="Le parcours d’une run">
@@ -323,7 +323,7 @@ export function RogueSummary({
   const abandoned = view.endCause === "abandoned";
   return (
     <section className="rogue-summary" aria-labelledby="rogue-title">
-      <span className="rogue-kicker">Bilan de run · graine {view.seed}</span>
+      <span className="rogue-kicker">Bilan de run{import.meta.env?.DEV && ` · graine ${view.seed}`}</span>
       <h1 id="rogue-title" tabIndex={-1}>
         {view.officialVictory
           ? "Victoire, pour de bon."

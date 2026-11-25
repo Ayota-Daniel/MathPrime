@@ -84,7 +84,7 @@ export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'P
             <Highlight style={[num, { fontSize: 88, fontWeight: '900', color: C.graphite, letterSpacing: -3 }]}>{p.target}</Highlight>
           </View>
           {mode === 'classic' && (
-            <View style={{ marginTop: 10 }}><Pill><Text style={{ fontWeight: '700', fontSize: 13, color: C.graphite }}>3 étoiles pour passer au niveau {s.index + 2}</Text></Pill></View>
+            <View style={{ marginTop: 10 }}><Pill><Text style={{ fontWeight: '700', fontSize: 13, color: C.graphite }}>Atteins la cible avec le moins de chiffres possible</Text></Pill></View>
           )}
           {isBig && s.rules.required.length > 0 && (
             <View style={{ marginTop: 12, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 2.5, borderColor: C.pen, borderRadius: 6, transform: [{ rotate: '-2.5deg' }] }}>

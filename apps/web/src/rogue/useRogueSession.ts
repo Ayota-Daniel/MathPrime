@@ -1,3 +1,4 @@
+import { developmentStorage } from "@shortest/engine/rogue-v1/storage";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { RogueWebController } from "./controller";
 import type { WebAction } from "./controller";
@@ -13,7 +14,9 @@ export function useRogueSession() {
             window.setTimeout(callback, milliseconds),
           cancel: (handle) => window.clearTimeout(handle as number),
         },
-        rogueWebStorage,
+        import.meta.env?.DEV ? developmentStorage(rogueWebStorage) : rogueWebStorage,
+        { newId: () => crypto.randomUUID() },
+        import.meta.env?.DEV ? undefined : () => crypto.getRandomValues(new Uint32Array(1))[0],
       ),
   );
   const view = useSyncExternalStore(

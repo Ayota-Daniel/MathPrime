@@ -51,7 +51,7 @@ export function NativeHome({ view, disabled, send }: PanelProps) {
         <View style={s.card}>
           <Text style={s.title}>Votre dernière run</Text>
           <Text style={s.body}>
-            Graine {view.savedSummary?.seed} · {view.savedSummary?.score} points
+            {__DEV__ && `Graine ${view.savedSummary?.seed} · `} {view.savedSummary?.score} points
           </Text>
           <Button
             label={
@@ -64,7 +64,7 @@ export function NativeHome({ view, disabled, send }: PanelProps) {
         </View>
       )}
       <View style={s.card}>
-        <Text style={s.label}>Graine de run</Text>
+        {__DEV__ && <><Text style={s.label}>Graine de run</Text>
         <TextInput
           accessibilityLabel="Graine de run"
           value={seed}
@@ -72,14 +72,14 @@ export function NativeHome({ view, disabled, send }: PanelProps) {
           keyboardType="number-pad"
           maxLength={10}
           style={s.seed}
-        />
+        /></>}
         <Button
           label="Nouvelle run"
           variant="primary"
           disabled={
-            disabled || !/^\d+$/.test(seed) || Number(seed) > 0xffffffff
+            disabled || (__DEV__ && (!/^\d+$/.test(seed) || Number(seed) > 0xffffffff))
           }
-          onPress={() => send({ type: "new", seed: Number(seed) })}
+          onPress={() => send({ type: "new", seed: __DEV__ ? Number(seed) : undefined })}
         />
         <Text style={s.caption}>
           Le premier choix de carte arrive après deux puzzles. Sauvegarde
@@ -461,7 +461,7 @@ export function NativeSummary({
 }: PanelProps & { onMenu: () => void }) {
   return (
     <View style={s.card}>
-      <Text style={s.kicker}>BILAN · GRAINE {view.seed}</Text>
+      <Text style={s.kicker}>BILAN{__DEV__ && ` · GRAINE ${view.seed}`}</Text>
       <Text style={s.title}>
         {view.officialVictory
           ? "Victoire officielle conservée"

@@ -1,3 +1,5 @@
+import * as Crypto from "expo-crypto";
+import { developmentStorage } from "@shortest/engine/rogue-v1/storage";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { AppState } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -19,7 +21,9 @@ export function useRogue() {
           cancel: (handle) =>
             clearTimeout(handle as ReturnType<typeof setTimeout>),
         },
-        adapter,
+        __DEV__ ? developmentStorage(adapter) : adapter,
+        { newId: () => Crypto.randomUUID() },
+        __DEV__ ? undefined : () => Crypto.getRandomValues(new Uint32Array(1))[0],
       ),
   );
   const view = useSyncExternalStore(

@@ -48,7 +48,7 @@ export function archiveRun(
   const session = DurableSession.replay(save, environment, () => {});
   const run = session.game.run;
   const status: ArchiveStatus =
-    interrupted && !isConcluded(save)
+    interrupted && !isConcluded(save) && !run.officialVictory
       ? "interrupted"
       : run.officialVictory
         ? "victory"

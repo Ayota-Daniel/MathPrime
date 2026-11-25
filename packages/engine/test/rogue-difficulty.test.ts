@@ -355,3 +355,16 @@ test("R4.2: local exports cover time, failures, hints and cards without witnesse
     );
   }
 });
+
+test("R4.6: replacing a won run preserves the victory and bosses even before survival ends", () => {
+  const env = environment();
+  const session = DurableSession.replay(golden.samples.victory, env, () => {});
+  for (const screen of ["victory", "preparation"]) {
+    assert.equal(session.game.screen, screen);
+    const archive = archiveRun(session.capture(), env, true);
+    assert.equal(archive.status, "victory");
+    assert.deepEqual(archive.bosses, [1, 2, 3]);
+    assert.equal(archive.successes, 16);
+    if (screen === "victory") session.command("survie");
+  }
+});

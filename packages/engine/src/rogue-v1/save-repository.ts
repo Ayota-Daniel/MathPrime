@@ -14,6 +14,19 @@ export interface RogueStorage {
   storage: Storage;
   exclusive<T>(work: () => Promise<T>): Promise<T>;
 }
+/** Isolate playtests, including reads of pre-migration session keys. */
+export function developmentStorage(adapter: RogueStorage): RogueStorage {
+  const keyFor = (key: string) => `dev:${key}`;
+  return {
+    exclusive: adapter.exclusive,
+    storage: {
+      get: <T>(key: string) => adapter.storage.get<T>(keyFor(key)),
+      set: <T>(key: string, value: T) => adapter.storage.set(keyFor(key), value),
+      remove: (key: string) => adapter.storage.remove(keyFor(key)),
+    },
+  };
+}
+
 /** Session and bounded summaries share one atomic replacement, under the platform lock. */
 export class RogueSaveRepository {
   private expected: string | undefined;

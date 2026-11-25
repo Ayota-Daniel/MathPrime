@@ -495,12 +495,13 @@ test("R4.1: archives render distinct status, date, progress and card levels with
   for (const word of [
     "Interrompue",
     "850",
-    "28",
+    new Date(1_800_000_000_000).toLocaleString("fr-FR"),
     "5",
     "niveau 2",
     "Supprimer cette archive",
   ])
     assert.ok(html.includes(word));
+  assert.doesNotMatch(html, /graine|\b28\b/i);
   assert.ok(!html.includes("journal"));
   assert.ok(!html.includes("Victoire"));
 });

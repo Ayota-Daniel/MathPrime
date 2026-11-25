@@ -945,3 +945,31 @@ test('Classic peut rejouer un niveau ouvert sans perdre le plus haut niveau ni s
   start('daily', table, 2);
   assert.equal(store.getState().session?.index, 0);
 });
+
+test('R4.6 Classic débloque dès la résolution et conserve une seule maîtrise par niveau', () => {
+  const table = JSON.parse(readFileSync(new URL('../data/puzzles.base.json', import.meta.url), 'utf8')) as Puzzle[];
+  const store = createGameStore(createMemoryStorage());
+  for (const expected of [1, 2, 3, 3]) {
+    store.getState().start('classic', table, 0);
+    const session = store.getState().session!;
+    if (expected < 3) {
+      const count = expected === 2 ? 1 : session.puzzle.expr.length;
+      for (let i = 0; i < count; i++) store.getState().hint();
+    }
+    enterExpression(store, session.puzzle.expr);
+    assert.equal(store.getState().session!.feedback!.stars, expected);
+    assert.equal(store.getState().classicProgress, 1);
+    assert.deepEqual(store.getState().classicStars, { 0: expected });
+  }
+  assert.equal(store.getState().stats.perfect, 1);
+});
+
+test('R4.6 Classic restaure le niveau suivant depuis une ancienne victoire à une étoile', async () => {
+  const previous = { ...EMPTY_SAVE, classicProgress: 2, classicStars: { 0: 3, 1: 3, 2: 1 } };
+  const storage = createMemoryStorage({ 'shortest:save:v3': previous });
+  const store = createGameStore(storage);
+  await store.getState().hydrate();
+  assert.equal(store.getState().classicProgress, 3);
+  assert.deepEqual(store.getState().classicStars, previous.classicStars);
+  assert.equal((await loadSave(storage)).classicProgress, 3);
+});

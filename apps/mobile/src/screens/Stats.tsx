@@ -26,6 +26,7 @@ export function Stats() {
   const nav = useNavigation<NativeStackNavigationProp<RootStack>>();
   const progress = useGame((s) => s.classicProgress);
   const classicStars = useGame((s) => Object.values(s.classicStars).reduce((sum, v) => sum + v, 0));
+  const mastered = useGame((s) => Object.values(s.classicStars).filter(stars => stars === 3).length);
   const rate = stats.played ? `${Math.round((stats.perfect / stats.played) * 100)} %` : '—';
 
   return (
@@ -47,7 +48,7 @@ export function Stats() {
           inner={{ padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 17, fontWeight: '800', color: C.graphite }}>Classique, niveau {progress + 1} / 100</Text>
-            <Text style={{ color: C.mine, fontSize: 13.5 }}>{classicStars} étoiles sur 300</Text>
+            <Text style={{ color: C.mine, fontSize: 13.5 }}>{classicStars} étoiles sur 300 · {mastered} niveaux à 3 étoiles</Text>
           </View>
           <ChevronRight size={18} color={C.graphite} />
         </PressSheet>

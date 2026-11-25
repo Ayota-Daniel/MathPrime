@@ -490,3 +490,40 @@ test("R4.1: the last lost life archives defeat before the result is dismissed", 
   assert.equal(f.view().history[0].status, "defeat");
   assert.equal(f.view().history[0].failures, 3);
 });
+
+test("R4.6: production draws only on creation and restores the recorded seed", async () => {
+  const f = fixture();
+  let draws = 0;
+  const controller = new RogueController(f.clock, f.adapter, f.env, () => ++draws);
+  const send = (action: RogueAction) => controller.dispatch(action, controller.getSnapshot().revision);
+  await controller.hydrate();
+  await send({ type: "new", seed: 42 });
+  assert.equal(controller.getSnapshot().seed, 1);
+  await send({ type: "home" });
+  await send({ type: "new", seed: 42 });
+  assert.equal(draws, 1);
+  await send({ type: "continue" });
+  await send({ type: "new", replace: true });
+  assert.equal(controller.getSnapshot().seed, 2);
+  controller.dispose();
+  await f.reopen(true);
+  assert.equal(f.view().seed, 2);
+  assert.equal(f.view().history[0].seed, 1);
+});
+
+test("R4.6: same-seed playtests keep distinct archives isolated from release", async () => {
+  const { developmentStorage } = await import("../src/rogue-v1/save-repository");
+  const f = fixture();
+  const dev = new RogueController(f.clock, developmentStorage(f.adapter), f.env);
+  const send = (action: RogueAction) => dev.dispatch(action, dev.getSnapshot().revision);
+  await dev.hydrate();
+  for (let i = 0; i < 3; i++) {
+    await send({ type: "new", seed: 42, replace: i > 0 });
+    await send({ type: "abandon" });
+  }
+  assert.equal(new Set(dev.getSnapshot().history.map(entry => entry.id)).size, 3);
+  await f.init();
+  assert.equal(f.view().history.length, 0);
+  assert.equal(f.view().hasSaved, false);
+  dev.dispose();
+});

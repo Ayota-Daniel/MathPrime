@@ -18,7 +18,7 @@ import type { RogueStorage } from "./save-repository";
 import type { Clock, Screen } from "./playtest/session";
 
 export type RogueAction =
-  | { type: "new"; seed: number; replace?: boolean }
+  | { type: "new"; seed?: number; replace?: boolean }
   | {
       type:
         | "start"
@@ -163,6 +163,7 @@ export class RogueController {
     clock: Clock,
     adapter?: RogueStorage,
     environment?: Partial<Omit<SessionEnvironment, "clock">>,
+    private readonly randomSeed?: () => number,
   ) {
     this.repository = adapter ? new RogueSaveRepository(adapter) : null;
     this.environment = {
@@ -386,10 +387,11 @@ export class RogueController {
         this.message = "Confirmez le remplacement de la session existante.";
         return;
       }
+      const seed = this.randomSeed ? this.randomSeed() : action.seed;
       if (
-        !Number.isInteger(action.seed) ||
-        action.seed < 0 ||
-        action.seed > 0xffffffff
+        seed === undefined || !Number.isInteger(seed) ||
+        seed < 0 ||
+        seed > 0xffffffff
       ) {
         this.message =
           "Choisissez une graine entière entre 0 et 4 294 967 295.";
@@ -408,7 +410,7 @@ export class RogueController {
       }
       this.durable?.pause();
       this.durable = new DurableSession(
-        action.seed,
+        seed,
         this.environment,
         this.onTimeout,
       );

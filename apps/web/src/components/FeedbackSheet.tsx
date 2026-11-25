@@ -59,7 +59,7 @@ export function FeedbackSheet({ fb, input, mode, difficulty, streak, level, onCo
   if (fb.ok) {
     const prevStreak = Math.max(0, streak - 1);
     const streakMult = 1 + Math.min(0.5, prevStreak * 0.05);
-    const nextLabel = fb.canAdvance === false ? 'Rejouer ce niveau' : mode === 'classic' ? `Passer au niveau ${level + 2}` : mode === 'daily' ? "Continuer à s'entraîner" : 'Puzzle suivant';
+    const nextLabel = mode === 'classic' ? (level >= 99 ? 'Rejouer le dernier niveau' : `Passer au niveau ${level + 2}`) : mode === 'daily' ? "Continuer à s'entraîner" : 'Puzzle suivant';
     body = (
       <>
         {fb.pr && (
@@ -80,7 +80,6 @@ export function FeedbackSheet({ fb, input, mode, difficulty, streak, level, onCo
           </p>
           <Chain expr={input} result={fb.target} />
           {stars < 3 && <div className="mt-2"><Chain expr={fb.optimal} result={fb.target} /></div>}
-          {fb.canAdvance === false && <p className="text-pen font-bold text-[13.5px] mt-2 mb-0">Il faut 3 étoiles pour débloquer le niveau suivant.</p>}
         </div>
         {fb.training ? (
           <p className="m-0 text-mine text-[14.5px]">Entraînement : le défi du jour est déjà récompensé, pas de nouveaux points.</p>
