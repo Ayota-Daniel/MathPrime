@@ -960,6 +960,7 @@ test('R4.6 Classic débloque dès la résolution et conserve une seule maîtrise
     assert.equal(store.getState().session!.feedback!.stars, expected);
     assert.equal(store.getState().classicProgress, 1);
     assert.deepEqual(store.getState().classicStars, { 0: expected });
+    assert.equal(store.getState().stats.played, 1);
   }
   assert.equal(store.getState().stats.perfect, 1);
 });
@@ -971,5 +972,6 @@ test('R4.6 Classic restaure le niveau suivant depuis une ancienne victoire à un
   await store.getState().hydrate();
   assert.equal(store.getState().classicProgress, 3);
   assert.deepEqual(store.getState().classicStars, previous.classicStars);
+  assert.deepEqual(store.getState().stats, { played: 3, perfect: 2 });
   assert.equal((await loadSave(storage)).classicProgress, 3);
 });

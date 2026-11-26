@@ -95,10 +95,16 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
     async hydrate() {
       const s = await loadSave(storage);
       if (!s.deviceId) s.deviceId = makeDeviceId();
-      for (const [index, stars] of Object.entries(s.classicStars)) {
-        if (stars > 0 && /^\d+$/.test(index) && Number(index) < 100)
-          s.classicProgress = Math.max(s.classicProgress, Math.min(99, Number(index) + 1));
+      const completed = Object.entries(s.classicStars).filter(
+        ([index, stars]) => stars > 0 && /^\d+$/.test(index) && Number(index) < 100,
+      );
+      for (const [index] of completed) {
+        s.classicProgress = Math.max(s.classicProgress, Math.min(99, Number(index) + 1));
       }
+      s.stats = {
+        played: Math.max(s.stats.played, completed.length),
+        perfect: Math.max(s.stats.perfect, completed.filter(([, stars]) => stars === 3).length),
+      };
       set({ ...s, hydrated: true });
       save(get);
     },
@@ -221,8 +227,11 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
       const newStreaks = { ...st.streakByMode, [s.mode]: streak };
       const newBestStreaks = { ...st.bestStreakByMode, [s.mode]: Math.max(st.bestStreakByMode[s.mode] ?? 0, streak) };
       const newBests = { ...st.bestByMode, [s.mode]: Math.max(st.bestByMode[s.mode] ?? 0, current) };
-      const newPerfect = stars === 3 && (s.mode !== 'classic' || st.classicStars[s.index] !== 3);
-      const newStats = { ...st.stats, played: st.stats.played + 1, perfect: st.stats.perfect + Number(newPerfect) };
+      const previousStars = s.mode === 'classic' ? st.classicStars[s.index] ?? 0 : 0;
+      const newStats = {
+        played: st.stats.played + Number(previousStars === 0),
+        perfect: st.stats.perfect + Number(stars === 3 && previousStars < 3),
+      };
       const newDailyDone = s.mode === 'daily' ? today : st.dailyDone;
       const feedback: Feedback = { ok: true, stars, value: v.value, operands: v.operands, optimalOperands: v.optimalOperands, gained, optimal: s.puzzle.expr, target: s.puzzle.target, canAdvance: true, pr };
       const updatedSession: Session = { ...s, dailySaving: s.mode === 'daily', streak, score: sessionScore, fails: 0, prShown: s.prShown || pr, rogue: s.rogue ? { ...s.rogue, score: current } : null, feedback: s.mode === 'daily' ? null : feedback };

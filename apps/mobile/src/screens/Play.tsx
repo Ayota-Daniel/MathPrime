@@ -31,6 +31,7 @@ export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'P
   const { session, start, press, del, clear, submit, next, tick, hint, clearSoftFeedback, quit } = useGame();
   // Élément touché dans l'expression : valable tant que l'expression n'a pas changé.
   const [pick, setPick] = useState<{ at: number; input: string } | null>(null);
+  useEffect(() => setPick(null), [session?.input, session?.index]);
 
   useEffect(() => {
     if (mode === 'rogue') { navigation.replace('Rogue'); return; }

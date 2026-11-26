@@ -33,6 +33,7 @@ export function Play() {
   const shakeRef = useRef<HTMLDivElement>(null);
   // Élément touché dans l'expression : valable tant que l'expression n'a pas changé.
   const [pick, setPick] = useState<{ at: number; input: string } | null>(null);
+  useEffect(() => setPick(null), [session?.input, session?.index]);
   const tokens = exprTokens(session?.input ?? '');
   const sel = pick && session && pick.input === session.input && pick.at < tokens.length ? pick.at : null;
   const selOp = sel !== null && isOp(tokens[sel]);
