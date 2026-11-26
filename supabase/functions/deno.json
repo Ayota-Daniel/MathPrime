@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "../../packages/engine/src/evaluate": "../../packages/engine/src/evaluate.ts",
+    "../../packages/engine/src/difficulty": "../../packages/engine/src/difficulty.ts"
+  }
+}

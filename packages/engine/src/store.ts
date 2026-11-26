@@ -2,14 +2,13 @@
  *  Injecte un Storage et (optionnel) un LeaderboardClient. */
 import { create } from 'zustand';
 import type { Puzzle } from './difficulty';
-import { difficultyForOperands } from './difficulty';
 import {
   BASE_RULES, validateAnswer, scorePuzzle, rankForXp, breaksStreak,
   classicCurriculum, dailyPuzzle, freeSkillPick, adjustLevel, dateKey, FREESKILL_START,
-  newRogueRun, rogueOnSolve, rogueOnFail, applyModifier, draftModifiers, exprTokens, hintStarCeiling,
+  newRogueRun, rogueOnSolve, rogueOnFail, applyModifier, draftModifiers, isModifierCompatible, exprTokens, editExpression, hintStarCeiling,
   type Rules, type Mode, type Reason, type RogueRun, type RogueModifier,
 } from './game-engine';
-import { solveOne } from './solve-one';
+import { pickRoguePuzzle } from './rogue-puzzles';
 import { type Storage, type SaveState, EMPTY_SAVE, loadSave, persistSave } from './persistence';
 import { type LeaderboardClient, type LbEntry, makeDeviceId } from './leaderboard';
 
@@ -20,7 +19,7 @@ export interface Feedback {
   ok: boolean; stars?: 0 | 1 | 2 | 3; value?: number | null;
   operands?: number; optimalOperands?: number; gained?: number;
   optimal: string; target: number; soft?: boolean;
-  reason?: Reason | 'timeout'; canAdvance?: boolean; pr?: boolean;
+  reason?: Reason | 'timeout' | 'save_failed'; canAdvance?: boolean; pr?: boolean; training?: boolean;
 }
 
 export interface Session {
@@ -29,6 +28,9 @@ export interface Session {
   index: number; score: number;
   level: Diff; fails: number; secondsLeft: number; maxSeconds: number;
   streak: number;
+  dailyDate: string | null;
+  dailyTraining: boolean;
+  dailySaving: boolean;
   hintsUsed: number;            // indices consommés sur ce puzzle
   prevBest: number;             // meilleur score du mode AU DÉBUT de la run (snapshot)
   prShown: boolean;             // record perso déjà célébré sur cette run ? (anti-spam)
@@ -37,14 +39,15 @@ export interface Session {
 }
 
 export interface GameState extends Omit<SaveState, 'version'> {
-  session: Session | null; hydrated: boolean;
+  session: Session | null; hydrated: boolean; rogueSelectionFailed: boolean; localLeaderboardError: boolean;
   rank: () => number;
   hydrate: () => Promise<void>;
   setSetting: <K extends keyof SaveState['settings']>(k: K, v: SaveState['settings'][K]) => void;
   setPseudo: (p: string) => void;
   resetProgress: () => void;
-  start: (mode: Mode, table: Puzzle[]) => void;
-  press: (tok: string) => void; del: () => void; clear: () => void;
+  start: (mode: Mode, table: Puzzle[], classicIndex?: number) => void;
+  /** `at` : indice d'un élément de l'expression à remplacer (press) ou à retirer (del) au lieu de la fin. */
+  press: (tok: string, at?: number) => void; del: (at?: number) => void; clear: () => void;
   hint: () => void;
   submit: () => void; tick: () => void; next: () => void;
   chooseModifier: (mod: RogueModifier) => void; clearSoftFeedback: () => void; quit: () => void;
@@ -54,88 +57,136 @@ export interface GameState extends Omit<SaveState, 'version'> {
 function rulesFor(mode: Mode): Rules {
   return mode.startsWith('big') ? { ...BASE_RULES, required: [Number(mode.slice(3))] } : { ...BASE_RULES };
 }
-function pickPuzzle(mode: Mode, table: Puzzle[], rules: Rules, level: Diff, index: number): { puzzle: Puzzle; optimalOperands: number } {
-  if (mode === 'rogue') {
-    for (let t = 0; t < 60; t++) {
-      const target = 5 + Math.floor(Math.random() * 195);
-      const sol = solveOne(target, rules);
-      if (sol) return { puzzle: { target, expr: sol.expr, operands: sol.operands, difficulty: difficultyForOperands(sol.operands) }, optimalOperands: sol.operands };
-    }
-  }
+function pickTablePuzzle(mode: Exclude<Mode, 'rogue'>, table: Puzzle[], level: Diff, index: number, date = new Date()): Puzzle {
   let puzzle: Puzzle;
   if (mode === 'freeskill') puzzle = freeSkillPick(table, level);
-  else if (mode === 'daily') puzzle = dailyPuzzle(table);
+  else if (mode === 'daily') puzzle = dailyPuzzle(table, date);
   else { const list = classicCurriculum(table, mode.startsWith('big') ? 60 : 100); puzzle = list[index % list.length]; }
-  return { puzzle, optimalOperands: puzzle.operands };
+  return puzzle;
 }
 
-export function createGameStore(storage: Storage, leaderboard?: LeaderboardClient) {
-  const save = (get: () => GameState) => {
-    const s = get();
-    const st: SaveState = {
+function stopRogueSelection(session: Session, run: RogueRun): Session {
+  return { ...session, rogue: { ...run, over: true }, draft: null, feedback: null, input: '' };
+}
+
+export function createGameStore(storage: Storage, leaderboard?: LeaderboardClient, now: () => Date = () => new Date()) {
+  let pendingSave: Promise<void> = Promise.resolve();
+  const pendingDailyRewards = new Set<string>();
+  let progressGeneration = 0;
+  const saveState = (s: GameState, updates: Partial<SaveState> = {}): SaveState => ({
       version: 3, xp: s.xp, classicProgress: s.classicProgress, classicStars: s.classicStars,
       bestByMode: s.bestByMode, streakByMode: s.streakByMode, bestStreakByMode: s.bestStreakByMode,
       dailyDone: s.dailyDone, deviceId: s.deviceId, pseudo: s.pseudo, settings: s.settings, stats: s.stats,
-    };
-    void persistSave(storage, st);
+      ...updates,
+  });
+  const persistQueued = (snapshot: SaveState | (() => SaveState)): Promise<void> => {
+    const write = pendingSave.then(() => persistSave(storage, typeof snapshot === 'function' ? snapshot() : snapshot));
+    pendingSave = write.catch(() => {});
+    return write;
+  };
+  const save = (get: () => GameState) => {
+    void persistQueued(() => saveState(get())).catch(() => {});
   };
 
   return create<GameState>((set, get) => ({
-    ...(() => { const { version: _v, ...rest } = EMPTY_SAVE; return rest; })(), session: null, hydrated: false,
+    ...(() => { const { version: _v, ...rest } = EMPTY_SAVE; return rest; })(), session: null, hydrated: false, rogueSelectionFailed: false, localLeaderboardError: false,
     rank: () => rankForXp(get().xp),
 
     async hydrate() {
       const s = await loadSave(storage);
       if (!s.deviceId) s.deviceId = makeDeviceId();
+      const completed = Object.entries(s.classicStars).filter(
+        ([index, stars]) => stars > 0 && /^\d+$/.test(index) && Number(index) < 100,
+      );
+      for (const [index] of completed) {
+        s.classicProgress = Math.max(s.classicProgress, Math.min(99, Number(index) + 1));
+      }
+      s.stats = {
+        played: Math.max(s.stats.played, completed.length),
+        perfect: Math.max(s.stats.perfect, completed.filter(([, stars]) => stars === 3).length),
+      };
       set({ ...s, hydrated: true });
       save(get);
     },
     setSetting(k, v) { set((st) => ({ settings: { ...st.settings, [k]: v } })); save(get); },
     setPseudo(p) { set({ pseudo: p.slice(0, 16) }); save(get); },
     resetProgress() {
+      progressGeneration += 1;
       set({ xp: 0, classicProgress: 0, classicStars: {}, bestByMode: {}, streakByMode: {}, bestStreakByMode: {}, dailyDone: null });
       save(get);
     },
 
-    start(mode, table) {
+    start(mode, table, classicIndex) {
       const rogue = mode === 'rogue' ? newRogueRun() : null;
       const rules = rogue ? rogue.rules : rulesFor(mode);
-      const index = mode === 'classic' ? get().classicProgress : 0;
+      const unlocked = get().classicProgress;
+      const selected = classicIndex !== undefined && Number.isInteger(classicIndex) && classicIndex >= 0 && classicIndex <= unlocked
+        ? classicIndex : unlocked;
+      const index = mode === 'classic' ? selected : 0;
       const level = mode === 'freeskill' ? FREESKILL_START : 1;
-      const { puzzle, optimalOperands } = pickPuzzle(mode, table, rules, level, index);
+      const startedAt = now();
+      const today = dateKey(startedAt);
+      const puzzle = mode === 'rogue' ? pickRoguePuzzle(rules) : pickTablePuzzle(mode, table, level, index, startedAt);
+      if (!puzzle) { set({ session: null, rogueSelectionFailed: true }); return; }
+      const optimalOperands = puzzle.operands;
       const maxSeconds = mode === 'freeskill' ? FREE_BASE_SECONDS + (level - 1) * 8 : 0;
       set({
+        rogueSelectionFailed: false,
         session: {
           mode, rules, table, puzzle, optimalOperands, input: '', index, score: 0,
           level, fails: 0, secondsLeft: maxSeconds, maxSeconds, streak: get().streakByMode[mode] ?? 0,
+          dailyDate: mode === 'daily' ? today : null,
+          dailyTraining: mode === 'daily' && (get().dailyDone === today || pendingDailyRewards.has(today)),
+          dailySaving: mode === 'daily' && pendingDailyRewards.has(today),
           hintsUsed: 0, prevBest: get().bestByMode[mode] ?? 0, prShown: false,
           rogue, feedback: null, draft: null,
         },
       });
     },
 
-    press(tok) { set((st) => st.session && !st.session.feedback ? { session: { ...st.session, input: st.session.input + tok } } : {}); },
-    del() { set((st) => st.session ? { session: { ...st.session, input: st.session.input.replace(/[+\-*]?\d+$|.$/, '') } } : {}); },
-    clear() { set((st) => st.session ? { session: { ...st.session, input: '' } } : {}); },
+    press(tok, at) {
+      const s = get().session;
+      if (!s || s.feedback || s.dailySaving || s.draft || s.rogue?.over) return;
+      set({ session: { ...s, input: typeof at === 'number' ? editExpression(s.input, at, tok) : s.input + tok } });
+    },
+    del(at) {
+      set((st) => {
+        const s = st.session;
+        if (!s || s.dailySaving) return {};
+        // `at` n'est pris que s'il s'agit d'un nombre : un gestionnaire d'événement peut passer son événement.
+        const input = typeof at === 'number' ? editExpression(s.input, at, null) : s.input.replace(/[+\-*]?\d+$|.$/, '');
+        return { session: { ...s, input } };
+      });
+    },
+    clear() { set((st) => st.session && !st.session.dailySaving ? { session: { ...st.session, input: '' } } : {}); },
     clearSoftFeedback() { set((st) => st.session ? { session: { ...st.session, feedback: null } } : {}); },
 
     hint() {
-      const s = get().session; if (!s || s.feedback) return;
+      const s = get().session; if (!s || s.feedback || s.dailySaving || s.draft || s.rogue?.over) return;
       const total = exprTokens(s.puzzle.expr).length;
       if (s.hintsUsed < total) set({ session: { ...s, hintsUsed: s.hintsUsed + 1 } });
     },
 
     submit() {
-      const st = get(); const s = st.session; if (!s || s.feedback) return;
+      const st = get(); const s = st.session; if (!s || s.feedback || s.draft || s.rogue?.over) return;
+      if (s.dailySaving) return;
+      const today = dateKey(now());
+      if (s.mode === 'daily' && pendingDailyRewards.has(today)) return;
+      if (s.mode === 'daily' && s.dailyDate !== today) {
+        const puzzle = pickTablePuzzle('daily', s.table, s.level, s.index, now());
+        set({ session: { ...s, puzzle, optimalOperands: puzzle.operands, dailyDate: today, dailyTraining: st.dailyDone === today, input: '', feedback: null, hintsUsed: 0 } });
+        return;
+      }
+      const dailyTraining = s.mode === 'daily' && st.dailyDone === today;
       const v = validateAnswer(s.input, s.puzzle.target, s.optimalOperands, s.rules);
 
       if (!v.ok) {
         const lose = breaksStreak(v.reason);
         set({
-          streakByMode: lose ? { ...st.streakByMode, [s.mode]: 0 } : st.streakByMode,
-          session: { ...s, streak: lose ? 0 : s.streak, fails: lose ? s.fails + 1 : s.fails, feedback: { ok: false, soft: !lose, reason: v.reason, optimal: s.puzzle.expr, target: s.puzzle.target } },
+          streakByMode: lose && !dailyTraining ? { ...st.streakByMode, [s.mode]: 0 } : st.streakByMode,
+          session: { ...s, streak: lose && !dailyTraining ? 0 : s.streak, fails: lose ? s.fails + 1 : s.fails, feedback: { ok: false, soft: !lose, reason: v.reason, optimal: s.puzzle.expr, target: s.puzzle.target } },
         });
-        if (lose) save(get);
+        if (lose && !dailyTraining) save(get);
         return;
       }
 
@@ -144,32 +195,109 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
       const stars = Math.min(v.stars, hintStarCeiling(s.hintsUsed, totalTokens)) as 0 | 1 | 2 | 3;
 
       const streak = s.streak + 1;
-      const gained = scorePuzzle({ difficulty: s.puzzle.difficulty, stars, mode: s.mode, secondsLeft: s.secondsLeft, rogueMult: s.rogue?.scoreMult ?? 1, streak: s.streak });
-      const sessionScore = s.score + gained;
+      const calculatedScore = scorePuzzle({ difficulty: s.puzzle.difficulty, stars, mode: s.mode, secondsLeft: s.secondsLeft, rogueMult: s.rogue?.scoreMult ?? 1, streak: s.streak });
+      const gained = dailyTraining ? 0 : calculatedScore;
+      const sessionScore = s.rogue ? 0 : s.score + gained;
       const current = s.rogue ? s.rogue.score + gained : sessionScore;
+
+      if (dailyTraining) {
+        set({ session: { ...s, dailyTraining: true, streak: s.streak, fails: 0,
+          feedback: { ok: true, stars, value: v.value, operands: v.operands, optimalOperands: v.optimalOperands, gained: 0, optimal: s.puzzle.expr, target: s.puzzle.target, canAdvance: true, training: true } } });
+        return;
+      }
 
       // RECORD PERSO : célébré UNE seule fois par run (anti-spam)
       const isPr = current > s.prevBest && !s.prShown && s.prevBest > 0;
-      if ((isPr || (s.prevBest === 0 && current > 0 && !s.prShown)) && st.settings.leaderboardOptIn && st.pseudo && leaderboard) {
-        void leaderboard.submit({ id: st.deviceId, pseudo: st.pseudo, mode: s.mode, score: current, expr: s.input, at: Date.now() });
-      }
       const pr = (isPr || (s.prevBest === 0 && current > 0 && !s.prShown));
+      const submitLocalScore = () => {
+        if (!leaderboard) return;
+        // Le classement de cet appareil reste indépendant du consentement distant et du toast de record.
+        const localBest = Math.max(st.bestByMode[s.mode] ?? 0, current);
+        void leaderboard.submit({ id: st.deviceId, pseudo: st.pseudo || 'Moi', mode: s.mode, score: localBest, at: Date.now() })
+          .then(() => set({ localLeaderboardError: false }))
+          .catch(() => set({ localLeaderboardError: true }));
+      };
 
       const classicStars = s.mode === 'classic' ? { ...st.classicStars, [s.index]: Math.max(st.classicStars[s.index] ?? 0, stars) } : st.classicStars;
-      const canAdvance = s.mode !== 'classic' || stars === 3;
+      const classicProgress = s.mode === 'classic'
+        ? Math.max(st.classicProgress, Math.min(s.index + 1, classicCurriculum(s.table, 100).length - 1))
+        : st.classicProgress;
+
+      const newXp = st.xp + gained;
+      const newStreaks = { ...st.streakByMode, [s.mode]: streak };
+      const newBestStreaks = { ...st.bestStreakByMode, [s.mode]: Math.max(st.bestStreakByMode[s.mode] ?? 0, streak) };
+      const newBests = { ...st.bestByMode, [s.mode]: Math.max(st.bestByMode[s.mode] ?? 0, current) };
+      const previousStars = s.mode === 'classic' ? st.classicStars[s.index] ?? 0 : 0;
+      const newStats = {
+        played: st.stats.played + Number(previousStars === 0),
+        perfect: st.stats.perfect + Number(stars === 3 && previousStars < 3),
+      };
+      const newDailyDone = s.mode === 'daily' ? today : st.dailyDone;
+      const feedback: Feedback = { ok: true, stars, value: v.value, operands: v.operands, optimalOperands: v.optimalOperands, gained, optimal: s.puzzle.expr, target: s.puzzle.target, canAdvance: true, pr };
+      const updatedSession: Session = { ...s, dailySaving: s.mode === 'daily', streak, score: sessionScore, fails: 0, prShown: s.prShown || pr, rogue: s.rogue ? { ...s.rogue, score: current } : null, feedback: s.mode === 'daily' ? null : feedback };
+
+      if (s.mode === 'daily') {
+        const snapshot = saveState(st, { xp: newXp, streakByMode: newStreaks, bestStreakByMode: newBestStreaks, bestByMode: newBests, classicStars, stats: newStats, dailyDone: newDailyDone });
+        const submissionGeneration = progressGeneration;
+        pendingDailyRewards.add(today);
+        set({ session: updatedSession });
+        void persistQueued(snapshot).then(() => {
+          pendingDailyRewards.delete(today);
+          const activeSession = get().session;
+          if (submissionGeneration !== progressGeneration) {
+            if (activeSession === updatedSession) {
+              set({ session: { ...updatedSession, dailySaving: false } });
+            } else if (activeSession?.dailySaving && activeSession.dailyDate === today) {
+              set({ session: { ...activeSession, dailySaving: false, dailyTraining: get().dailyDone === today } });
+            }
+            return;
+          }
+
+          set((currentState) => {
+            const currentDailyStreak = currentState.streakByMode.daily ?? 0;
+            const dailyDone = currentState.dailyDone && currentState.dailyDone > today ? currentState.dailyDone : today;
+            let session = currentState.session;
+            if (session === updatedSession) {
+              session = { ...updatedSession, dailySaving: false, feedback };
+            } else if (session?.dailySaving && session.dailyDate === today) {
+              session = { ...session, dailySaving: false, dailyTraining: true };
+            }
+            return {
+              xp: currentState.xp + gained,
+              streakByMode: { ...currentState.streakByMode, daily: Math.max(currentDailyStreak, streak) },
+              bestStreakByMode: { ...currentState.bestStreakByMode, daily: Math.max(currentState.bestStreakByMode.daily ?? 0, streak) },
+              bestByMode: { ...currentState.bestByMode, daily: Math.max(currentState.bestByMode.daily ?? 0, current) },
+              stats: { played: currentState.stats.played + 1, perfect: currentState.stats.perfect + (stars === 3 ? 1 : 0) },
+              dailyDone,
+              session,
+            };
+          });
+          submitLocalScore();
+        }).catch(() => {
+          pendingDailyRewards.delete(today);
+          const currentSession = get().session;
+          if (currentSession === updatedSession) {
+            set({ session: { ...currentSession, dailySaving: false, streak: s.streak, score: s.score, prShown: s.prShown, rogue: s.rogue, feedback: { ok: false, soft: true, reason: 'save_failed', optimal: currentSession.puzzle.expr, target: currentSession.puzzle.target } } });
+          } else if (currentSession?.dailySaving && currentSession.dailyDate === today) {
+            set({ session: { ...currentSession, dailySaving: false, dailyTraining: get().dailyDone === today } });
+          }
+        });
+        return;
+      }
 
       set({
-        xp: st.xp + gained,
-        streakByMode: { ...st.streakByMode, [s.mode]: streak },
-        bestStreakByMode: { ...st.bestStreakByMode, [s.mode]: Math.max(st.bestStreakByMode[s.mode] ?? 0, streak) },
-        bestByMode: { ...st.bestByMode, [s.mode]: Math.max(st.bestByMode[s.mode] ?? 0, current) },
+        xp: newXp,
+        streakByMode: newStreaks,
+        bestStreakByMode: newBestStreaks,
+        bestByMode: newBests,
         classicStars,
-        stats: { ...st.stats, played: st.stats.played + 1, perfect: st.stats.perfect + (stars === 3 ? 1 : 0) },
-        dailyDone: s.mode === 'daily' ? dateKey() : st.dailyDone,
-        session: { ...s, streak, score: sessionScore, fails: 0, prShown: s.prShown || pr,
-          feedback: { ok: true, stars, value: v.value, operands: v.operands, optimalOperands: v.optimalOperands, gained, optimal: s.puzzle.expr, target: s.puzzle.target, canAdvance, pr } },
+        classicProgress,
+        stats: newStats,
+        dailyDone: newDailyDone,
+        session: updatedSession,
       });
       save(get);
+      submitLocalScore();
     },
 
     tick() {
@@ -185,18 +313,44 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
 
     next() {
       const st = get(); const s = st.session; if (!s) return;
+      if (s.dailySaving) return;
 
-      if (s.mode === 'rogue' && s.rogue) {
-        const won = !!s.feedback?.ok;
+      if (s.mode === 'daily') {
+        const today = dateKey(now());
+        if (s.dailyDate !== today) {
+          const puzzle = pickTablePuzzle('daily', s.table, s.level, s.index, now());
+          set({ session: { ...s, puzzle, optimalOperands: puzzle.operands, dailyDate: today, dailyTraining: st.dailyDone === today, input: '', feedback: null, hintsUsed: 0 } });
+          return;
+        }
+        if (!s.feedback) return;
+      }
+
+      if (s.mode === 'rogue') {
+        if (!s.rogue || s.rogue.over || s.draft) return;
+        const feedback = s.feedback;
+        if (!feedback || feedback.soft) return;
+        const won = feedback.ok;
+        if (!won && (feedback.reason === 'save_failed' || !breaksStreak(feedback.reason))) return;
         let run = s.rogue;
         if (won) {
-          const r = rogueOnSolve(run, s.feedback?.gained ?? 0); run = r.run;
-          if (r.shouldDraft) { set({ session: { ...s, rogue: run, draft: draftModifiers(), feedback: null, input: '', hintsUsed: 0 } }); return; }
+          const r = rogueOnSolve(run, 0); run = r.run;
+          if (r.shouldDraft) {
+            const draft = draftModifiers(Math.random, 3, run.rules);
+            if (draft.length > 0) {
+              set({ session: { ...s, rogue: run, draft, feedback: null, input: '', hintsUsed: 0 } });
+              return;
+            }
+          }
         } else {
           run = rogueOnFail(run);
           if (run.over) { set({ bestByMode: { ...st.bestByMode, rogue: Math.max(st.bestByMode.rogue ?? 0, run.score) }, session: { ...s, rogue: run, feedback: null } }); save(get); return; }
         }
-        const { puzzle, optimalOperands } = pickPuzzle('rogue', s.table, run.rules, 1, 0);
+        const puzzle = pickRoguePuzzle(run.rules);
+        if (!puzzle) {
+          set({ rogueSelectionFailed: true, session: stopRogueSelection(s, run) });
+          return;
+        }
+        const optimalOperands = puzzle.operands;
         set({ session: { ...s, rogue: run, rules: run.rules, puzzle, optimalOperands, input: '', feedback: null, hintsUsed: 0 } });
         return;
       }
@@ -205,28 +359,44 @@ export function createGameStore(storage: Storage, leaderboard?: LeaderboardClien
         const advance = s.feedback?.canAdvance === true;
         const index = advance ? Math.min(s.index + 1, classicCurriculum(s.table, 100).length - 1) : s.index;
         if (advance) set({ classicProgress: Math.max(st.classicProgress, index) });
-        const { puzzle, optimalOperands } = pickPuzzle('classic', s.table, s.rules, s.level, index);
+        const puzzle = pickTablePuzzle('classic', s.table, s.level, index);
+        const optimalOperands = puzzle.operands;
         set({ session: { ...s, index, puzzle, optimalOperands, input: '', feedback: null, hintsUsed: 0 } });
         if (advance) save(get);
+        return;
+      }
+
+      if (s.mode === 'daily') {
+        const puzzle = pickTablePuzzle('daily', s.table, s.level, s.index, now());
+        set({ session: { ...s, index: s.index + 1, puzzle, optimalOperands: puzzle.operands, dailyTraining: st.dailyDone === s.dailyDate, input: '', feedback: null, hintsUsed: 0 } });
         return;
       }
 
       let { level, fails } = s; let index = s.index;
       if (s.mode === 'freeskill') { level = adjustLevel(level, s.streak, fails); fails = 0; }
       else index = s.index + 1;
-      const { puzzle, optimalOperands } = pickPuzzle(s.mode, s.table, s.rules, level, index);
+      const puzzle = pickTablePuzzle(s.mode, s.table, level, index);
+      const optimalOperands = puzzle.operands;
       const maxSeconds = s.mode === 'freeskill' ? FREE_BASE_SECONDS + (level - 1) * 8 : 0;
       set({ session: { ...s, level, fails, index, puzzle, optimalOperands, input: '', feedback: null, hintsUsed: 0, secondsLeft: maxSeconds, maxSeconds } });
     },
 
     chooseModifier(mod) {
-      const s = get().session; if (!s || !s.rogue) return;
-      const run = applyModifier(s.rogue, mod);
-      const { puzzle, optimalOperands } = pickPuzzle('rogue', s.table, run.rules, 1, 0);
+      const s = get().session; if (!s || !s.rogue || s.rogue.over) return;
+      const offered = s.draft?.find((candidate) => candidate.id === mod.id);
+      if (!offered || !isModifierCompatible(s.rogue.rules, offered)) return;
+      const run = applyModifier(s.rogue, offered);
+      const puzzle = pickRoguePuzzle(run.rules);
+      if (!puzzle) {
+        // Keep the last valid rules and rewards if the candidate cannot produce a puzzle.
+        set({ rogueSelectionFailed: true, session: stopRogueSelection(s, s.rogue) });
+        return;
+      }
+      const optimalOperands = puzzle.operands;
       set({ session: { ...s, rogue: run, rules: run.rules, puzzle, optimalOperands, input: '', feedback: null, draft: null, hintsUsed: 0 } });
     },
 
-    quit() { set({ session: null }); },
+    quit() { set({ session: null, rogueSelectionFailed: false }); },
     async fetchLeaderboard(mode, limit = 50) { return leaderboard ? leaderboard.top(mode, limit) : []; },
   }));
 }

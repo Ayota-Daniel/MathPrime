@@ -1,0 +1,1096 @@
+{
+  "source": "5530b8f",
+  "seed": 42,
+  "runsPerPolicy": 300,
+  "survival": 4,
+  "disclaimer": "Agents synthétiques avec accès aux témoins. Indicateurs mathématiques, pas difficulté humaine validée.",
+  "policies": {
+    "prudent": {
+      "summary": {
+        "officialVictories": 281,
+        "blocked": 0,
+        "meanScore": 5488.723333333333,
+        "bestScore": 7812,
+        "maxProgress": 20,
+        "meanProgress": 19.26,
+        "bossVictories": [
+          298,
+          290,
+          281
+        ],
+        "endings": {
+          "simulation-survival-limit": 270,
+          "incorrect-terminal-answer": 18,
+          "timeout": 12
+        },
+        "chosenCards": {
+          "T4": 474,
+          "T2": 284,
+          "T5": 324,
+          "T3": 50,
+          "E3": 104,
+          "E2": 132,
+          "D1": 26,
+          "D3": 30,
+          "D4": 46,
+          "D2": 3
+        },
+        "warnings": 0
+      },
+      "withinRunRepeatedTargets": 585,
+      "acts": [
+        {
+          "act": 1,
+          "puzzles": 1626,
+          "repeatedTargets": 15,
+          "sameRulesRepeats": 3,
+          "repeatedShapes": 127,
+          "operands": {
+            "mean": 3.9993849938499384,
+            "min": 2,
+            "max": 6
+          },
+          "candidates": {
+            "mean": 144.9009840098401,
+            "min": 141
+          },
+          "digits": {
+            "3": 2589,
+            "5": 1969,
+            "7": 1945
+          },
+          "operations": {
+            "+": 1557,
+            "*": 2640,
+            "-": 680
+          },
+          "obligations": {
+            "restrictive": 24,
+            "suspect": 6,
+            "unmeasured": 0
+          },
+          "cards": {
+            "T4": {
+              "puzzles": 384,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T2": {
+              "puzzles": 142,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T5": {
+              "puzzles": 80,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "E2": {
+              "puzzles": 45,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "E3": {
+              "puzzles": 105,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T3": {
+              "puzzles": 30,
+              "restrictive": 24,
+              "suspect": 6,
+              "unmeasured": 0
+            }
+          }
+        },
+        {
+          "act": 2,
+          "puzzles": 1611,
+          "repeatedTargets": 19,
+          "sameRulesRepeats": 4,
+          "repeatedShapes": 96,
+          "operands": {
+            "mean": 4.63625077591558,
+            "min": 3,
+            "max": 6
+          },
+          "candidates": {
+            "mean": 109.9211669770329,
+            "min": 19
+          },
+          "digits": {
+            "3": 3087,
+            "5": 2262,
+            "7": 2120
+          },
+          "operations": {
+            "*": 2984,
+            "-": 969,
+            "+": 1905
+          },
+          "obligations": {
+            "restrictive": 93,
+            "suspect": 65,
+            "unmeasured": 0
+          },
+          "cards": {
+            "T2": {
+              "puzzles": 258,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T4": {
+              "puzzles": 516,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T5": {
+              "puzzles": 230,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T3": {
+              "puzzles": 42,
+              "restrictive": 35,
+              "suspect": 7,
+              "unmeasured": 0
+            },
+            "E3": {
+              "puzzles": 159,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "E2": {
+              "puzzles": 147,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D1": {
+              "puzzles": 116,
+              "restrictive": 58,
+              "suspect": 58,
+              "unmeasured": 0
+            },
+            "D3": {
+              "puzzles": 52,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D4": {
+              "puzzles": 165,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D2": {
+              "puzzles": 5,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            }
+          }
+        },
+        {
+          "act": 3,
+          "puzzles": 1885,
+          "repeatedTargets": 29,
+          "sameRulesRepeats": 14,
+          "repeatedShapes": 247,
+          "operands": {
+            "mean": 4.849867374005305,
+            "min": 4,
+            "max": 6
+          },
+          "candidates": {
+            "mean": 83.22811671087533,
+            "min": 19
+          },
+          "digits": {
+            "3": 3840,
+            "5": 2932,
+            "7": 2370
+          },
+          "operations": {
+            "*": 4080,
+            "+": 2124,
+            "-": 1053
+          },
+          "obligations": {
+            "restrictive": 131,
+            "suspect": 98,
+            "unmeasured": 6
+          },
+          "cards": {
+            "T4": {
+              "puzzles": 522,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T5": {
+              "puzzles": 337,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "E2": {
+              "puzzles": 204,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T2": {
+              "puzzles": 167,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D1": {
+              "puzzles": 157,
+              "restrictive": 70,
+              "suspect": 81,
+              "unmeasured": 6
+            },
+            "D3": {
+              "puzzles": 201,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T3": {
+              "puzzles": 78,
+              "restrictive": 61,
+              "suspect": 17,
+              "unmeasured": 0
+            },
+            "E3": {
+              "puzzles": 48,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D4": {
+              "puzzles": 270,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D2": {
+              "puzzles": 20,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            }
+          }
+        },
+        {
+          "act": 4,
+          "puzzles": 1190,
+          "repeatedTargets": 154,
+          "sameRulesRepeats": 126,
+          "repeatedShapes": 176,
+          "operands": {
+            "mean": 6,
+            "min": 6,
+            "max": 6
+          },
+          "candidates": {
+            "mean": 8.400840336134454,
+            "min": 2
+          },
+          "digits": {
+            "3": 3378,
+            "5": 2235,
+            "7": 1527
+          },
+          "operations": {
+            "+": 2291,
+            "*": 2972,
+            "-": 687
+          },
+          "obligations": {
+            "restrictive": 78,
+            "suspect": 14,
+            "unmeasured": 4
+          },
+          "cards": {
+            "D1": {
+              "puzzles": 96,
+              "restrictive": 78,
+              "suspect": 14,
+              "unmeasured": 4
+            },
+            "D3": {
+              "puzzles": 124,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D4": {
+              "puzzles": 185,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D2": {
+              "puzzles": 14,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            }
+          }
+        }
+      ],
+      "generator": {
+        "searches": 39,
+        "cacheHits": 680558,
+        "states": 297891
+      },
+      "refusals": [],
+      "performance": {
+        "elapsedMs": 7272.142817,
+        "generationMeanMs": 0.026490424429658262,
+        "generationP95Ms": 0.03743500000018685,
+        "generationMaxMs": 18.01391700000002
+      }
+    },
+    "equilibre": {
+      "summary": {
+        "officialVictories": 219,
+        "blocked": 0,
+        "meanScore": 5505.72,
+        "bestScore": 8895,
+        "maxProgress": 20,
+        "meanProgress": 16.836666666666666,
+        "bossVictories": [
+          288,
+          259,
+          219
+        ],
+        "endings": {
+          "simulation-survival-limit": 182,
+          "timeout": 55,
+          "incorrect-terminal-answer": 63
+        },
+        "chosenCards": {
+          "T4": 418,
+          "T2": 209,
+          "T5": 151,
+          "D1": 93,
+          "E2": 155,
+          "D3": 149,
+          "T3": 90,
+          "D4": 63,
+          "E3": 31,
+          "D2": 10
+        },
+        "warnings": 0
+      },
+      "withinRunRepeatedTargets": 505,
+      "acts": [
+        {
+          "act": 1,
+          "puzzles": 1707,
+          "repeatedTargets": 12,
+          "sameRulesRepeats": 3,
+          "repeatedShapes": 134,
+          "operands": {
+            "mean": 3.9953134153485648,
+            "min": 2,
+            "max": 6
+          },
+          "candidates": {
+            "mean": 145.10661980082014,
+            "min": 141
+          },
+          "digits": {
+            "3": 2692,
+            "5": 2072,
+            "7": 2056
+          },
+          "operations": {
+            "+": 1634,
+            "*": 2756,
+            "-": 723
+          },
+          "obligations": {
+            "restrictive": 74,
+            "suspect": 19,
+            "unmeasured": 0
+          },
+          "cards": {
+            "T4": {
+              "puzzles": 387,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T2": {
+              "puzzles": 148,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T5": {
+              "puzzles": 54,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "E2": {
+              "puzzles": 71,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T3": {
+              "puzzles": 93,
+              "restrictive": 74,
+              "suspect": 19,
+              "unmeasured": 0
+            },
+            "E3": {
+              "puzzles": 33,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            }
+          }
+        },
+        {
+          "act": 2,
+          "puzzles": 1671,
+          "repeatedTargets": 21,
+          "sameRulesRepeats": 2,
+          "repeatedShapes": 120,
+          "operands": {
+            "mean": 4.708557749850389,
+            "min": 3,
+            "max": 6
+          },
+          "candidates": {
+            "mean": 108.69539198084979,
+            "min": 19
+          },
+          "digits": {
+            "3": 3261,
+            "5": 2363,
+            "7": 2244
+          },
+          "operations": {
+            "*": 3109,
+            "-": 1009,
+            "+": 2079
+          },
+          "obligations": {
+            "restrictive": 224,
+            "suspect": 190,
+            "unmeasured": 0
+          },
+          "cards": {
+            "T2": {
+              "puzzles": 174,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T4": {
+              "puzzles": 474,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D1": {
+              "puzzles": 330,
+              "restrictive": 156,
+              "suspect": 174,
+              "unmeasured": 0
+            },
+            "E2": {
+              "puzzles": 192,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D3": {
+              "puzzles": 422,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T3": {
+              "puzzles": 84,
+              "restrictive": 68,
+              "suspect": 16,
+              "unmeasured": 0
+            },
+            "D4": {
+              "puzzles": 192,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T5": {
+              "puzzles": 100,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "E3": {
+              "puzzles": 41,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D2": {
+              "puzzles": 33,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            }
+          }
+        },
+        {
+          "act": 3,
+          "puzzles": 1654,
+          "repeatedTargets": 34,
+          "sameRulesRepeats": 24,
+          "repeatedShapes": 242,
+          "operands": {
+            "mean": 4.896614268440145,
+            "min": 4,
+            "max": 6
+          },
+          "candidates": {
+            "mean": 85.05199516324063,
+            "min": 17
+          },
+          "digits": {
+            "3": 3388,
+            "5": 2462,
+            "7": 2249
+          },
+          "operations": {
+            "*": 3580,
+            "+": 1852,
+            "-": 1013
+          },
+          "obligations": {
+            "restrictive": 267,
+            "suspect": 262,
+            "unmeasured": 63
+          },
+          "cards": {
+            "T4": {
+              "puzzles": 393,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T5": {
+              "puzzles": 147,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D1": {
+              "puzzles": 501,
+              "restrictive": 202,
+              "suspect": 236,
+              "unmeasured": 63
+            },
+            "E2": {
+              "puzzles": 200,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D3": {
+              "puzzles": 748,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T3": {
+              "puzzles": 91,
+              "restrictive": 65,
+              "suspect": 26,
+              "unmeasured": 0
+            },
+            "T2": {
+              "puzzles": 94,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D4": {
+              "puzzles": 346,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D2": {
+              "puzzles": 64,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "E3": {
+              "puzzles": 18,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            }
+          }
+        },
+        {
+          "act": 4,
+          "puzzles": 908,
+          "repeatedTargets": 106,
+          "sameRulesRepeats": 94,
+          "repeatedShapes": 131,
+          "operands": {
+            "mean": 6,
+            "min": 6,
+            "max": 6
+          },
+          "candidates": {
+            "mean": 10.049559471365638,
+            "min": 2
+          },
+          "digits": {
+            "3": 2604,
+            "5": 1524,
+            "7": 1320
+          },
+          "operations": {
+            "+": 1636,
+            "*": 2272,
+            "-": 632
+          },
+          "obligations": {
+            "restrictive": 169,
+            "suspect": 59,
+            "unmeasured": 32
+          },
+          "cards": {
+            "D3": {
+              "puzzles": 407,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D1": {
+              "puzzles": 260,
+              "restrictive": 169,
+              "suspect": 59,
+              "unmeasured": 32
+            },
+            "D4": {
+              "puzzles": 206,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D2": {
+              "puzzles": 31,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            }
+          }
+        }
+      ],
+      "generator": {
+        "searches": 47,
+        "cacheHits": 655396,
+        "states": 314317
+      },
+      "refusals": [],
+      "performance": {
+        "elapsedMs": 6862.262221999999,
+        "generationMeanMs": 0.02965638720539613,
+        "generationP95Ms": 0.03980999999839696,
+        "generationMaxMs": 9.865601999999853
+      }
+    },
+    "temeraire": {
+      "summary": {
+        "officialVictories": 57,
+        "blocked": 0,
+        "meanScore": 2190.74,
+        "bestScore": 8661,
+        "maxProgress": 20,
+        "meanProgress": 9.346666666666666,
+        "bossVictories": [
+          226,
+          123,
+          57
+        ],
+        "endings": {
+          "simulation-survival-limit": 27,
+          "incorrect-terminal-answer": 118,
+          "timeout": 155
+        },
+        "chosenCards": {
+          "T1": 210,
+          "D2": 79,
+          "E2": 128,
+          "D1": 41,
+          "E3": 38,
+          "E1": 212,
+          "T3": 96,
+          "D4": 12,
+          "T4": 78,
+          "D3": 23,
+          "T5": 2
+        },
+        "warnings": 0
+      },
+      "withinRunRepeatedTargets": 220,
+      "acts": [
+        {
+          "act": 1,
+          "puzzles": 1726,
+          "repeatedTargets": 15,
+          "sameRulesRepeats": 3,
+          "repeatedShapes": 129,
+          "operands": {
+            "mean": 4.012746234067207,
+            "min": 2,
+            "max": 6
+          },
+          "candidates": {
+            "mean": 145.42468134414833,
+            "min": 141
+          },
+          "digits": {
+            "3": 2781,
+            "5": 2066,
+            "7": 2079
+          },
+          "operations": {
+            "+": 1623,
+            "*": 2796,
+            "-": 781
+          },
+          "obligations": {
+            "restrictive": 91,
+            "suspect": 28,
+            "unmeasured": 0
+          },
+          "cards": {
+            "T1": {
+              "puzzles": 280,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "E1": {
+              "puzzles": 368,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "E3": {
+              "puzzles": 47,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T4": {
+              "puzzles": 29,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T3": {
+              "puzzles": 119,
+              "restrictive": 91,
+              "suspect": 28,
+              "unmeasured": 0
+            },
+            "E2": {
+              "puzzles": 33,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            }
+          }
+        },
+        {
+          "act": 2,
+          "puzzles": 1056,
+          "repeatedTargets": 17,
+          "sameRulesRepeats": 8,
+          "repeatedShapes": 68,
+          "operands": {
+            "mean": 4.744318181818182,
+            "min": 3,
+            "max": 6
+          },
+          "candidates": {
+            "mean": 95.32765151515152,
+            "min": 19
+          },
+          "digits": {
+            "3": 1966,
+            "5": 1408,
+            "7": 1636
+          },
+          "operations": {
+            "+": 1567,
+            "*": 1818,
+            "-": 569
+          },
+          "obligations": {
+            "restrictive": 142,
+            "suspect": 89,
+            "unmeasured": 0
+          },
+          "cards": {
+            "D2": {
+              "puzzles": 232,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "E2": {
+              "puzzles": 200,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T3": {
+              "puzzles": 103,
+              "restrictive": 89,
+              "suspect": 14,
+              "unmeasured": 0
+            },
+            "D4": {
+              "puzzles": 45,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T1": {
+              "puzzles": 226,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T4": {
+              "puzzles": 106,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D1": {
+              "puzzles": 128,
+              "restrictive": 53,
+              "suspect": 75,
+              "unmeasured": 0
+            },
+            "E1": {
+              "puzzles": 181,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D3": {
+              "puzzles": 57,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "E3": {
+              "puzzles": 47,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            }
+          }
+        },
+        {
+          "act": 3,
+          "puzzles": 649,
+          "repeatedTargets": 29,
+          "sameRulesRepeats": 22,
+          "repeatedShapes": 107,
+          "operands": {
+            "mean": 5.151001540832049,
+            "min": 4,
+            "max": 6
+          },
+          "candidates": {
+            "mean": 64.38674884437596,
+            "min": 17
+          },
+          "digits": {
+            "3": 1333,
+            "5": 1011,
+            "7": 999
+          },
+          "operations": {
+            "+": 1078,
+            "*": 1272,
+            "-": 344
+          },
+          "obligations": {
+            "restrictive": 92,
+            "suspect": 64,
+            "unmeasured": 9
+          },
+          "cards": {
+            "D2": {
+              "puzzles": 234,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D1": {
+              "puzzles": 117,
+              "restrictive": 51,
+              "suspect": 57,
+              "unmeasured": 9
+            },
+            "E3": {
+              "puzzles": 15,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T4": {
+              "puzzles": 93,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T1": {
+              "puzzles": 85,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "E2": {
+              "puzzles": 144,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "E1": {
+              "puzzles": 77,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T3": {
+              "puzzles": 48,
+              "restrictive": 41,
+              "suspect": 7,
+              "unmeasured": 0
+            },
+            "D3": {
+              "puzzles": 115,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D4": {
+              "puzzles": 40,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "T5": {
+              "puzzles": 4,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            }
+          }
+        },
+        {
+          "act": 4,
+          "puzzles": 191,
+          "repeatedTargets": 26,
+          "sameRulesRepeats": 21,
+          "repeatedShapes": 41,
+          "operands": {
+            "mean": 6,
+            "min": 6,
+            "max": 6
+          },
+          "candidates": {
+            "mean": 7.0890052356020945,
+            "min": 2
+          },
+          "digits": {
+            "3": 535,
+            "5": 326,
+            "7": 285
+          },
+          "operations": {
+            "*": 443,
+            "-": 140,
+            "+": 372
+          },
+          "obligations": {
+            "restrictive": 25,
+            "suspect": 10,
+            "unmeasured": 0
+          },
+          "cards": {
+            "D2": {
+              "puzzles": 52,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D1": {
+              "puzzles": 35,
+              "restrictive": 25,
+              "suspect": 10,
+              "unmeasured": 0
+            },
+            "D3": {
+              "puzzles": 36,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            },
+            "D4": {
+              "puzzles": 12,
+              "restrictive": 0,
+              "suspect": 0,
+              "unmeasured": 0
+            }
+          }
+        }
+      ],
+      "generator": {
+        "searches": 47,
+        "cacheHits": 491442,
+        "states": 309749
+      },
+      "refusals": [],
+      "performance": {
+        "elapsedMs": 4915.1276880000005,
+        "generationMeanMs": 0.03321001905025263,
+        "generationP95Ms": 0.03890200000023469,
+        "generationMaxMs": 11.887332000000242
+      }
+    }
+  }
+}

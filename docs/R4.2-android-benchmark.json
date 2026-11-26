@@ -1,0 +1,27 @@
+{
+  "runtime": "Android Hermes, release, x86_64 emulator",
+  "results": [
+    {
+      "profile": "legacy",
+      "calls": 40,
+      "refused": 0,
+      "maximumSearchStates": 14099,
+      "meanMs": 23.037932249810545,
+      "p95Ms": 97.03739899769425,
+      "maximumMs": 151.58413600176573,
+      "threeRunsMs": 1836.708980999887,
+      "blockedRuns": 0
+    },
+    {
+      "profile": "r4.2",
+      "calls": 40,
+      "refused": 0,
+      "maximumSearchStates": 15117,
+      "meanMs": 26.288996374886484,
+      "p95Ms": 152.78860200196505,
+      "maximumMs": 181.38053200021386,
+      "threeRunsMs": 2204.5070549994707,
+      "blockedRuns": 0
+    }
+  ]
+}

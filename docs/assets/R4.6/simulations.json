@@ -1,0 +1,302 @@
+{
+  "parameters": {
+    "seed": 42,
+    "runsPerPolicy": 300,
+    "survivalPuzzles": 4,
+    "policies": {
+      "prudent": {
+        "errorRate": 0.08,
+        "timeFraction": 0.65,
+        "hintRate": 0.3,
+        "nonOptimalRate": 0.3
+      },
+      "equilibre": {
+        "errorRate": 0.14,
+        "timeFraction": 0.55,
+        "hintRate": 0.15,
+        "nonOptimalRate": 0.15
+      },
+      "temeraire": {
+        "errorRate": 0.23,
+        "timeFraction": 0.4,
+        "hintRate": 0.05,
+        "nonOptimalRate": 0.4
+      }
+    }
+  },
+  "baseline": "docs/R4.2-rogue-comparison.json",
+  "results": [
+    {
+      "profile": "legacy",
+      "policy": "prudent",
+      "digest": "4696646417c37c3d19bd2c290b19e85b8a1992dcbb453b6f53dca79d1e0c698e",
+      "summary": {
+        "officialVictories": 281,
+        "blocked": 0,
+        "meanScore": 5488.723333333333,
+        "bestScore": 7812,
+        "maxProgress": 20,
+        "meanProgress": 19.26,
+        "bossVictories": [
+          298,
+          290,
+          281
+        ],
+        "endings": {
+          "simulation-survival-limit": 270,
+          "incorrect-terminal-answer": 18,
+          "timeout": 12
+        },
+        "chosenCards": {
+          "T4": 474,
+          "T2": 284,
+          "T5": 324,
+          "T3": 50,
+          "E3": 104,
+          "E2": 132,
+          "D1": 26,
+          "D3": 30,
+          "D4": 46,
+          "D2": 3
+        },
+        "warnings": 0
+      },
+      "refusals": [],
+      "baselineMatch": true,
+      "redundantAcrossRun": 481,
+      "meanOperandsByActAndSurvival": [
+        3.9993849938499384,
+        4.63625077591558,
+        4.849867374005305,
+        6
+      ]
+    },
+    {
+      "profile": "legacy",
+      "policy": "equilibre",
+      "digest": "256a1be0df75c1fef83f2b5af5d38bc33b0335f65d7c686e88d401c4b5155b43",
+      "summary": {
+        "officialVictories": 219,
+        "blocked": 0,
+        "meanScore": 5505.72,
+        "bestScore": 8895,
+        "maxProgress": 20,
+        "meanProgress": 16.836666666666666,
+        "bossVictories": [
+          288,
+          259,
+          219
+        ],
+        "endings": {
+          "simulation-survival-limit": 182,
+          "timeout": 55,
+          "incorrect-terminal-answer": 63
+        },
+        "chosenCards": {
+          "T4": 418,
+          "T2": 209,
+          "T5": 151,
+          "D1": 93,
+          "E2": 155,
+          "D3": 149,
+          "T3": 90,
+          "D4": 63,
+          "E3": 31,
+          "D2": 10
+        },
+        "warnings": 0
+      },
+      "refusals": [],
+      "baselineMatch": true,
+      "redundantAcrossRun": 411,
+      "meanOperandsByActAndSurvival": [
+        3.9953134153485648,
+        4.708557749850389,
+        4.896614268440145,
+        6
+      ]
+    },
+    {
+      "profile": "legacy",
+      "policy": "temeraire",
+      "digest": "eea2ded93469baefd4d718547565d6b61fc7ff2ad9a53c4c9d08f8f7a01fd715",
+      "summary": {
+        "officialVictories": 57,
+        "blocked": 0,
+        "meanScore": 2190.74,
+        "bestScore": 8661,
+        "maxProgress": 20,
+        "meanProgress": 9.346666666666666,
+        "bossVictories": [
+          226,
+          123,
+          57
+        ],
+        "endings": {
+          "simulation-survival-limit": 27,
+          "incorrect-terminal-answer": 118,
+          "timeout": 155
+        },
+        "chosenCards": {
+          "T1": 210,
+          "D2": 79,
+          "E2": 128,
+          "D1": 41,
+          "E3": 38,
+          "E1": 212,
+          "T3": 96,
+          "D4": 12,
+          "T4": 78,
+          "D3": 23,
+          "T5": 2
+        },
+        "warnings": 0
+      },
+      "refusals": [],
+      "baselineMatch": true,
+      "redundantAcrossRun": 168,
+      "meanOperandsByActAndSurvival": [
+        4.012746234067207,
+        4.744318181818182,
+        5.151001540832049,
+        6
+      ]
+    },
+    {
+      "profile": "r4.2",
+      "policy": "prudent",
+      "digest": "1279641339b6d2032d138cb18b71a88e18f4ff3646900aba52456425ea9bcf7e",
+      "summary": {
+        "officialVictories": 281,
+        "blocked": 0,
+        "meanScore": 5533.943333333334,
+        "bestScore": 7812,
+        "maxProgress": 20,
+        "meanProgress": 19.26,
+        "bossVictories": [
+          298,
+          290,
+          281
+        ],
+        "endings": {
+          "simulation-survival-limit": 270,
+          "incorrect-terminal-answer": 18,
+          "timeout": 12
+        },
+        "chosenCards": {
+          "T4": 474,
+          "T2": 284,
+          "T5": 324,
+          "T3": 50,
+          "E3": 104,
+          "E2": 132,
+          "D1": 26,
+          "D3": 30,
+          "D4": 46,
+          "D2": 3
+        },
+        "warnings": 0
+      },
+      "refusals": [],
+      "baselineMatch": true,
+      "redundantAcrossRun": 199,
+      "meanOperandsByActAndSurvival": [
+        4.073185731857318,
+        4.931719428926133,
+        5.516180371352785,
+        6
+      ]
+    },
+    {
+      "profile": "r4.2",
+      "policy": "equilibre",
+      "digest": "1182322b3c21cd9ba32116f122f884fee7d7649a4646b368d2ba7a0d98f59e27",
+      "summary": {
+        "officialVictories": 219,
+        "blocked": 0,
+        "meanScore": 5526.503333333333,
+        "bestScore": 8895,
+        "maxProgress": 20,
+        "meanProgress": 16.836666666666666,
+        "bossVictories": [
+          288,
+          259,
+          219
+        ],
+        "endings": {
+          "simulation-survival-limit": 182,
+          "timeout": 55,
+          "incorrect-terminal-answer": 63
+        },
+        "chosenCards": {
+          "T4": 418,
+          "T2": 209,
+          "T5": 151,
+          "D1": 93,
+          "E2": 155,
+          "D3": 149,
+          "T3": 90,
+          "D4": 63,
+          "E3": 31,
+          "D2": 10
+        },
+        "warnings": 0
+      },
+      "refusals": [],
+      "baselineMatch": true,
+      "redundantAcrossRun": 163,
+      "meanOperandsByActAndSurvival": [
+        4.106619800820153,
+        4.97606223818073,
+        5.549576783555018,
+        6
+      ]
+    },
+    {
+      "profile": "r4.2",
+      "policy": "temeraire",
+      "digest": "f33c2ec64172d5a178f69237c2a1d22223d7ce945851ea47c34aa4a0ad48b081",
+      "summary": {
+        "officialVictories": 57,
+        "blocked": 0,
+        "meanScore": 2220.03,
+        "bestScore": 8661,
+        "maxProgress": 20,
+        "meanProgress": 9.346666666666666,
+        "bossVictories": [
+          226,
+          123,
+          57
+        ],
+        "endings": {
+          "simulation-survival-limit": 27,
+          "incorrect-terminal-answer": 118,
+          "timeout": 155
+        },
+        "chosenCards": {
+          "T1": 210,
+          "D2": 79,
+          "E2": 128,
+          "D1": 41,
+          "E3": 38,
+          "E1": 212,
+          "T3": 96,
+          "D4": 12,
+          "T4": 78,
+          "D3": 23,
+          "T5": 2
+        },
+        "warnings": 0
+      },
+      "refusals": [],
+      "baselineMatch": true,
+      "redundantAcrossRun": 37,
+      "meanOperandsByActAndSurvival": [
+        4.107763615295481,
+        4.950757575757576,
+        5.582434514637905,
+        6
+      ]
+    }
+  ]
+}

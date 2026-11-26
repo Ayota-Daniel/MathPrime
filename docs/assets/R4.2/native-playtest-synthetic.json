@@ -1,0 +1,497 @@
+{
+  "schemaVersion": 1,
+  "ruleset": "rogue-v1-r4.2-1",
+  "seed": 42,
+  "state": "ended",
+  "actReached": 3,
+  "successes": 16,
+  "failures": 0,
+  "encountersPrepared": 16,
+  "answersSubmitted": 16,
+  "hintsUsed": 0,
+  "playingSeconds": 201.89855976500513,
+  "officialVictory": true,
+  "endCause": "victory-finished",
+  "feedback": {
+    "difficulty": "unspecified",
+    "reason": "unspecified"
+  },
+  "omittedEncounters": 0,
+  "encounters": [
+    {
+      "stage": 0,
+      "act": 1,
+      "boss": false,
+      "phase": 1,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 9.435993822999299,
+      "allottedSeconds": 95,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {},
+        "requireSubtraction": false,
+        "maxMultiplications": null
+      },
+      "minimumStars": 1,
+      "cards": []
+    },
+    {
+      "stage": 1,
+      "act": 1,
+      "boss": false,
+      "phase": 2,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 7.804016694001854,
+      "allottedSeconds": 95,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {},
+        "requireSubtraction": false,
+        "maxMultiplications": null
+      },
+      "minimumStars": 1,
+      "cards": []
+    },
+    {
+      "stage": 2,
+      "act": 1,
+      "boss": false,
+      "phase": 3,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 9.58326784100011,
+      "allottedSeconds": 95,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {},
+        "requireSubtraction": false,
+        "maxMultiplications": null
+      },
+      "minimumStars": 1,
+      "cards": []
+    },
+    {
+      "stage": 3,
+      "act": 1,
+      "boss": true,
+      "phase": 1,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 10.820255228001624,
+      "allottedSeconds": 105,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {
+          "3": 1
+        },
+        "requireSubtraction": false,
+        "maxMultiplications": null
+      },
+      "minimumStars": 1,
+      "cards": []
+    },
+    {
+      "stage": 4,
+      "act": 1,
+      "boss": true,
+      "phase": 2,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 10.886074941001832,
+      "allottedSeconds": 113,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {
+          "5": 1
+        },
+        "requireSubtraction": false,
+        "maxMultiplications": null
+      },
+      "minimumStars": 1,
+      "cards": []
+    },
+    {
+      "stage": 5,
+      "act": 2,
+      "boss": false,
+      "phase": 1,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 22.755758694998917,
+      "allottedSeconds": 105,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {},
+        "requireSubtraction": false,
+        "maxMultiplications": null
+      },
+      "minimumStars": 1,
+      "cards": []
+    },
+    {
+      "stage": 6,
+      "act": 2,
+      "boss": false,
+      "phase": 2,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 11.087040382999927,
+      "allottedSeconds": 105,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {
+          "3": 1
+        },
+        "requireSubtraction": false,
+        "maxMultiplications": null
+      },
+      "minimumStars": 1,
+      "cards": []
+    },
+    {
+      "stage": 7,
+      "act": 2,
+      "boss": false,
+      "phase": 3,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 9.68633677700162,
+      "allottedSeconds": 105,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {},
+        "requireSubtraction": false,
+        "maxMultiplications": 1
+      },
+      "minimumStars": 1,
+      "cards": []
+    },
+    {
+      "stage": 8,
+      "act": 2,
+      "boss": true,
+      "phase": 1,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 11.752736719999985,
+      "allottedSeconds": 115,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {},
+        "requireSubtraction": true,
+        "maxMultiplications": null
+      },
+      "minimumStars": 1,
+      "cards": []
+    },
+    {
+      "stage": 9,
+      "act": 2,
+      "boss": true,
+      "phase": 2,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 12.080882150999999,
+      "allottedSeconds": 115,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {},
+        "requireSubtraction": false,
+        "maxMultiplications": 2
+      },
+      "minimumStars": 1,
+      "cards": []
+    },
+    {
+      "stage": 10,
+      "act": 3,
+      "boss": false,
+      "phase": 1,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 13.51834024099994,
+      "allottedSeconds": 115,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {},
+        "requireSubtraction": true,
+        "maxMultiplications": null
+      },
+      "minimumStars": 1,
+      "cards": []
+    },
+    {
+      "stage": 11,
+      "act": 3,
+      "boss": false,
+      "phase": 2,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 13.219429531000031,
+      "allottedSeconds": 115,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {
+          "3": 1
+        },
+        "requireSubtraction": true,
+        "maxMultiplications": null
+      },
+      "minimumStars": 1,
+      "cards": []
+    },
+    {
+      "stage": 12,
+      "act": 3,
+      "boss": false,
+      "phase": 3,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 12.61895590599999,
+      "allottedSeconds": 115,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {},
+        "requireSubtraction": true,
+        "maxMultiplications": 2
+      },
+      "minimumStars": 2,
+      "cards": []
+    },
+    {
+      "stage": 13,
+      "act": 3,
+      "boss": true,
+      "phase": 1,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 16.35680134399998,
+      "allottedSeconds": 125,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {},
+        "requireSubtraction": true,
+        "maxMultiplications": 2
+      },
+      "minimumStars": 1,
+      "cards": []
+    },
+    {
+      "stage": 14,
+      "act": 3,
+      "boss": true,
+      "phase": 2,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 16.658605112999968,
+      "allottedSeconds": 125,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {},
+        "requireSubtraction": true,
+        "maxMultiplications": 2
+      },
+      "minimumStars": 2,
+      "cards": []
+    },
+    {
+      "stage": 15,
+      "act": 3,
+      "boss": true,
+      "phase": 3,
+      "survival": 0,
+      "outcome": "success",
+      "cause": null,
+      "seconds": 13.634064377000032,
+      "allottedSeconds": 106.25,
+      "hints": 0,
+      "rules": {
+        "numbers": [
+          3,
+          5,
+          7
+        ],
+        "operations": [
+          "+",
+          "-",
+          "*"
+        ],
+        "minimumOccurrences": {
+          "3": 1
+        },
+        "requireSubtraction": true,
+        "maxMultiplications": null
+      },
+      "minimumStars": 2,
+      "cards": []
+    }
+  ],
+  "note": "Mesures locales dérivées du journal. Les derniers 200 échanges au maximum sont détaillés ; les totaux couvrent toute la session. Pas de nom, identifiant de profil, date, expression ou solution. Aucun envoi automatique."
+}

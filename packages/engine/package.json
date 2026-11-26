@@ -8,14 +8,23 @@
   "exports": {
     ".": "./src/index.ts",
     "./solver": "./src/solver.ts",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./rogue-v1": "./src/rogue-v1/index.ts",
+    "./rogue-v1/session": "./src/rogue-v1/playtest/session.ts",
+    "./rogue-v1/controller": "./src/rogue-v1/controller.ts",
+    "./rogue-v1/persistence": "./src/rogue-v1/saved-session.ts",
+    "./rogue-v1/storage": "./src/rogue-v1/save-repository.ts"
   },
   "scripts": {
     "build:puzzles": "tsx scripts/build-puzzles.ts",
-    "test": "node --import tsx --input-type=module -e \"await import('./test/characterization.test.ts')\"",
-    "typecheck": "tsc --noEmit"
+    "test": "node --import tsx --input-type=module -e \"await import('./test/characterization.test.ts'); await import('./test/competitive.test.ts'); await import('./test/rogue-v1.test.ts'); await import('./test/rogue-playtest.test.ts'); await import('./test/rogue-persistence.test.ts'); await import('./test/rogue-quality-of-life.test.ts'); await import('./test/rogue-difficulty.test.ts')\"",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p ../../supabase/tsconfig.json && tsc --noEmit -p tsconfig.playtest.json",
+    "compare:rogue-difficulty": "node --import tsx scripts/compare-rogue-difficulty.ts",
+    "simulate:rogue-v1": "node --import tsx scripts/simulate-rogue-v1.ts",
+    "playtest:rogue-v1": "node --import tsx scripts/playtest-rogue-v1.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.118.0",
     "zustand": "^5.0.0"
   },
   "devDependencies": {

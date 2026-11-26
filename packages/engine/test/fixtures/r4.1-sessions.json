@@ -1,0 +1,2881 @@
+{
+  "sourceCommit": "5530b8f",
+  "samples": {
+    "preparation": {
+      "version": 2,
+      "ruleset": "rogue-v1-r3.2.2-1",
+      "id": "r41-golden-session",
+      "seed": 42,
+      "savedAt": 1800000000000,
+      "timeline": 0,
+      "clockAdjusted": false,
+      "journal": [],
+      "checkpoint": {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 0,
+        "phase": {
+          "act": 1,
+          "boss": false,
+          "index": 0,
+          "difficulty": 1,
+          "survival": 0
+        },
+        "seedState": 1083814273,
+        "lives": 3,
+        "hints": 3,
+        "score": 0,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [],
+        "officialVictory": false,
+        "progress": 0,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 41,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 95,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      }
+    },
+    "playing": {
+      "version": 2,
+      "ruleset": "rogue-v1-r3.2.2-1",
+      "id": "r41-golden-session",
+      "seed": 42,
+      "savedAt": 1800000007000,
+      "timeline": 7000,
+      "clockAdjusted": false,
+      "journal": [
+        {
+          "at": 0,
+          "command": "demarrer"
+        },
+        {
+          "at": 7000,
+          "command": "indice"
+        },
+        {
+          "at": 7000,
+          "command": "temps"
+        }
+      ],
+      "checkpoint": {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "playing",
+        "stage": 0,
+        "phase": {
+          "act": 1,
+          "boss": false,
+          "index": 0,
+          "difficulty": 1,
+          "survival": 0
+        },
+        "seedState": 1083814273,
+        "lives": 3,
+        "hints": 2,
+        "score": 0,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [],
+        "officialVictory": false,
+        "progress": 0,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 41,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 95,
+          "minimumStars": 1
+        },
+        "elapsed": 7,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "playing",
+          "cause": null,
+          "points": 0,
+          "hints": [
+            "Une solution valide utilise 1 multiplication(s)."
+          ]
+        }
+      }
+    },
+    "bossPreparation": {
+      "version": 2,
+      "ruleset": "rogue-v1-r3.2.2-1",
+      "id": "r41-golden-session",
+      "seed": 42,
+      "savedAt": 1800000010000,
+      "timeline": 10000,
+      "clockAdjusted": false,
+      "journal": [
+        {
+          "at": 0,
+          "command": "demarrer"
+        },
+        {
+          "at": 7000,
+          "command": "indice"
+        },
+        {
+          "at": 7000,
+          "command": "temps"
+        },
+        {
+          "at": 8000,
+          "command": "soumettre 3+3+5*7"
+        },
+        {
+          "at": 8000,
+          "command": "suivant"
+        },
+        {
+          "at": 8000,
+          "command": "demarrer"
+        },
+        {
+          "at": 9000,
+          "command": "soumettre 3*3+7"
+        },
+        {
+          "at": 9000,
+          "command": "suivant"
+        },
+        {
+          "at": 9000,
+          "command": "choisir 0"
+        },
+        {
+          "at": 9000,
+          "command": "demarrer"
+        },
+        {
+          "at": 10000,
+          "command": "soumettre 5*5*5+7"
+        },
+        {
+          "at": 10000,
+          "command": "suivant"
+        }
+      ],
+      "checkpoint": {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 3,
+        "phase": {
+          "act": 1,
+          "boss": true,
+          "index": 0,
+          "difficulty": 2,
+          "survival": 0
+        },
+        "seedState": 4271921684,
+        "lives": 3,
+        "hints": 2,
+        "score": 285,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [],
+        "officialVictory": false,
+        "progress": 3,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 150,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {
+              "3": 1
+            },
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 105,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      }
+    },
+    "bossPlaying": {
+      "version": 2,
+      "ruleset": "rogue-v1-r3.2.2-1",
+      "id": "r41-golden-session",
+      "seed": 42,
+      "savedAt": 1800000012000,
+      "timeline": 12000,
+      "clockAdjusted": false,
+      "journal": [
+        {
+          "at": 0,
+          "command": "demarrer"
+        },
+        {
+          "at": 7000,
+          "command": "indice"
+        },
+        {
+          "at": 7000,
+          "command": "temps"
+        },
+        {
+          "at": 8000,
+          "command": "soumettre 3+3+5*7"
+        },
+        {
+          "at": 8000,
+          "command": "suivant"
+        },
+        {
+          "at": 8000,
+          "command": "demarrer"
+        },
+        {
+          "at": 9000,
+          "command": "soumettre 3*3+7"
+        },
+        {
+          "at": 9000,
+          "command": "suivant"
+        },
+        {
+          "at": 9000,
+          "command": "choisir 0"
+        },
+        {
+          "at": 9000,
+          "command": "demarrer"
+        },
+        {
+          "at": 10000,
+          "command": "soumettre 5*5*5+7"
+        },
+        {
+          "at": 10000,
+          "command": "suivant"
+        },
+        {
+          "at": 10000,
+          "command": "demarrer"
+        },
+        {
+          "at": 12000,
+          "command": "temps"
+        }
+      ],
+      "checkpoint": {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "playing",
+        "stage": 3,
+        "phase": {
+          "act": 1,
+          "boss": true,
+          "index": 0,
+          "difficulty": 2,
+          "survival": 0
+        },
+        "seedState": 4271921684,
+        "lives": 3,
+        "hints": 2,
+        "score": 285,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [],
+        "officialVictory": false,
+        "progress": 3,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 150,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {
+              "3": 1
+            },
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 105,
+          "minimumStars": 1
+        },
+        "elapsed": 2,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "playing",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      }
+    },
+    "victory": {
+      "version": 2,
+      "ruleset": "rogue-v1-r3.2.2-1",
+      "id": "r41-golden-session",
+      "seed": 42,
+      "savedAt": 1800000025000,
+      "timeline": 25000,
+      "clockAdjusted": false,
+      "journal": [
+        {
+          "at": 0,
+          "command": "demarrer"
+        },
+        {
+          "at": 7000,
+          "command": "indice"
+        },
+        {
+          "at": 7000,
+          "command": "temps"
+        },
+        {
+          "at": 8000,
+          "command": "soumettre 3+3+5*7"
+        },
+        {
+          "at": 8000,
+          "command": "suivant"
+        },
+        {
+          "at": 8000,
+          "command": "demarrer"
+        },
+        {
+          "at": 9000,
+          "command": "soumettre 3*3+7"
+        },
+        {
+          "at": 9000,
+          "command": "suivant"
+        },
+        {
+          "at": 9000,
+          "command": "choisir 0"
+        },
+        {
+          "at": 9000,
+          "command": "demarrer"
+        },
+        {
+          "at": 10000,
+          "command": "soumettre 5*5*5+7"
+        },
+        {
+          "at": 10000,
+          "command": "suivant"
+        },
+        {
+          "at": 10000,
+          "command": "demarrer"
+        },
+        {
+          "at": 12000,
+          "command": "temps"
+        },
+        {
+          "at": 13000,
+          "command": "soumettre 3+3*7*7"
+        },
+        {
+          "at": 13000,
+          "command": "suivant"
+        },
+        {
+          "at": 13000,
+          "command": "demarrer"
+        },
+        {
+          "at": 14000,
+          "command": "soumettre 5*5*5-3+7"
+        },
+        {
+          "at": 14000,
+          "command": "suivant"
+        },
+        {
+          "at": 14000,
+          "command": "choisir 0"
+        },
+        {
+          "at": 14000,
+          "command": "demarrer"
+        },
+        {
+          "at": 15000,
+          "command": "soumettre 5+5*7"
+        },
+        {
+          "at": 15000,
+          "command": "suivant"
+        },
+        {
+          "at": 15000,
+          "command": "demarrer"
+        },
+        {
+          "at": 16000,
+          "command": "soumettre 3*5*7-7-7"
+        },
+        {
+          "at": 16000,
+          "command": "suivant"
+        },
+        {
+          "at": 16000,
+          "command": "choisir 0"
+        },
+        {
+          "at": 16000,
+          "command": "demarrer"
+        },
+        {
+          "at": 17000,
+          "command": "soumettre 3*5+7"
+        },
+        {
+          "at": 17000,
+          "command": "suivant"
+        },
+        {
+          "at": 17000,
+          "command": "demarrer"
+        },
+        {
+          "at": 18000,
+          "command": "soumettre 3+3*7-7"
+        },
+        {
+          "at": 18000,
+          "command": "suivant"
+        },
+        {
+          "at": 18000,
+          "command": "demarrer"
+        },
+        {
+          "at": 19000,
+          "command": "soumettre 3+3+3+3*5*7"
+        },
+        {
+          "at": 19000,
+          "command": "suivant"
+        },
+        {
+          "at": 19000,
+          "command": "choisir 0"
+        },
+        {
+          "at": 19000,
+          "command": "demarrer"
+        },
+        {
+          "at": 20000,
+          "command": "soumettre 3-5+7*7"
+        },
+        {
+          "at": 20000,
+          "command": "suivant"
+        },
+        {
+          "at": 20000,
+          "command": "demarrer"
+        },
+        {
+          "at": 21000,
+          "command": "soumettre 5+7*7+7"
+        },
+        {
+          "at": 21000,
+          "command": "suivant"
+        },
+        {
+          "at": 21000,
+          "command": "choisir 0"
+        },
+        {
+          "at": 21000,
+          "command": "demarrer"
+        },
+        {
+          "at": 22000,
+          "command": "soumettre 3*3*7-3+5"
+        },
+        {
+          "at": 22000,
+          "command": "suivant"
+        },
+        {
+          "at": 22000,
+          "command": "demarrer"
+        },
+        {
+          "at": 23000,
+          "command": "soumettre 3*5+3*5*5"
+        },
+        {
+          "at": 23000,
+          "command": "suivant"
+        },
+        {
+          "at": 23000,
+          "command": "demarrer"
+        },
+        {
+          "at": 24000,
+          "command": "soumettre 3*3*7-3+5"
+        },
+        {
+          "at": 24000,
+          "command": "suivant"
+        },
+        {
+          "at": 24000,
+          "command": "demarrer"
+        },
+        {
+          "at": 25000,
+          "command": "soumettre 3*5*5+7+7"
+        },
+        {
+          "at": 25000,
+          "command": "suivant"
+        }
+      ],
+      "checkpoint": {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "victory",
+        "stage": 16,
+        "phase": {
+          "act": 4,
+          "boss": false,
+          "index": 0,
+          "difficulty": 5,
+          "survival": 1
+        },
+        "seedState": 1193880016,
+        "lives": 3,
+        "hints": 2,
+        "score": 4885,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [
+          1,
+          2,
+          3
+        ],
+        "officialVictory": true,
+        "progress": 16,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": null,
+        "elapsed": 1,
+        "attempt": {
+          "expression": "3*5*5+7+7",
+          "value": 89,
+          "stars": 3,
+          "outcome": "success",
+          "cause": null,
+          "points": 900,
+          "hints": []
+        }
+      }
+    },
+    "ended": {
+      "version": 2,
+      "ruleset": "rogue-v1-r3.2.2-1",
+      "id": "r41-golden-session",
+      "seed": 42,
+      "savedAt": 1800000025000,
+      "timeline": 25000,
+      "clockAdjusted": false,
+      "journal": [
+        {
+          "at": 0,
+          "command": "demarrer"
+        },
+        {
+          "at": 7000,
+          "command": "indice"
+        },
+        {
+          "at": 7000,
+          "command": "temps"
+        },
+        {
+          "at": 8000,
+          "command": "soumettre 3+3+5*7"
+        },
+        {
+          "at": 8000,
+          "command": "suivant"
+        },
+        {
+          "at": 8000,
+          "command": "demarrer"
+        },
+        {
+          "at": 9000,
+          "command": "soumettre 3*3+7"
+        },
+        {
+          "at": 9000,
+          "command": "suivant"
+        },
+        {
+          "at": 9000,
+          "command": "choisir 0"
+        },
+        {
+          "at": 9000,
+          "command": "demarrer"
+        },
+        {
+          "at": 10000,
+          "command": "soumettre 5*5*5+7"
+        },
+        {
+          "at": 10000,
+          "command": "suivant"
+        },
+        {
+          "at": 10000,
+          "command": "demarrer"
+        },
+        {
+          "at": 12000,
+          "command": "temps"
+        },
+        {
+          "at": 13000,
+          "command": "soumettre 3+3*7*7"
+        },
+        {
+          "at": 13000,
+          "command": "suivant"
+        },
+        {
+          "at": 13000,
+          "command": "demarrer"
+        },
+        {
+          "at": 14000,
+          "command": "soumettre 5*5*5-3+7"
+        },
+        {
+          "at": 14000,
+          "command": "suivant"
+        },
+        {
+          "at": 14000,
+          "command": "choisir 0"
+        },
+        {
+          "at": 14000,
+          "command": "demarrer"
+        },
+        {
+          "at": 15000,
+          "command": "soumettre 5+5*7"
+        },
+        {
+          "at": 15000,
+          "command": "suivant"
+        },
+        {
+          "at": 15000,
+          "command": "demarrer"
+        },
+        {
+          "at": 16000,
+          "command": "soumettre 3*5*7-7-7"
+        },
+        {
+          "at": 16000,
+          "command": "suivant"
+        },
+        {
+          "at": 16000,
+          "command": "choisir 0"
+        },
+        {
+          "at": 16000,
+          "command": "demarrer"
+        },
+        {
+          "at": 17000,
+          "command": "soumettre 3*5+7"
+        },
+        {
+          "at": 17000,
+          "command": "suivant"
+        },
+        {
+          "at": 17000,
+          "command": "demarrer"
+        },
+        {
+          "at": 18000,
+          "command": "soumettre 3+3*7-7"
+        },
+        {
+          "at": 18000,
+          "command": "suivant"
+        },
+        {
+          "at": 18000,
+          "command": "demarrer"
+        },
+        {
+          "at": 19000,
+          "command": "soumettre 3+3+3+3*5*7"
+        },
+        {
+          "at": 19000,
+          "command": "suivant"
+        },
+        {
+          "at": 19000,
+          "command": "choisir 0"
+        },
+        {
+          "at": 19000,
+          "command": "demarrer"
+        },
+        {
+          "at": 20000,
+          "command": "soumettre 3-5+7*7"
+        },
+        {
+          "at": 20000,
+          "command": "suivant"
+        },
+        {
+          "at": 20000,
+          "command": "demarrer"
+        },
+        {
+          "at": 21000,
+          "command": "soumettre 5+7*7+7"
+        },
+        {
+          "at": 21000,
+          "command": "suivant"
+        },
+        {
+          "at": 21000,
+          "command": "choisir 0"
+        },
+        {
+          "at": 21000,
+          "command": "demarrer"
+        },
+        {
+          "at": 22000,
+          "command": "soumettre 3*3*7-3+5"
+        },
+        {
+          "at": 22000,
+          "command": "suivant"
+        },
+        {
+          "at": 22000,
+          "command": "demarrer"
+        },
+        {
+          "at": 23000,
+          "command": "soumettre 3*5+3*5*5"
+        },
+        {
+          "at": 23000,
+          "command": "suivant"
+        },
+        {
+          "at": 23000,
+          "command": "demarrer"
+        },
+        {
+          "at": 24000,
+          "command": "soumettre 3*3*7-3+5"
+        },
+        {
+          "at": 24000,
+          "command": "suivant"
+        },
+        {
+          "at": 24000,
+          "command": "demarrer"
+        },
+        {
+          "at": 25000,
+          "command": "soumettre 3*5*5+7+7"
+        },
+        {
+          "at": 25000,
+          "command": "suivant"
+        },
+        {
+          "at": 25000,
+          "command": "terminer"
+        }
+      ],
+      "checkpoint": {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "ended",
+        "stage": 16,
+        "phase": {
+          "act": 4,
+          "boss": false,
+          "index": 0,
+          "difficulty": 5,
+          "survival": 1
+        },
+        "seedState": 1193880016,
+        "lives": 3,
+        "hints": 2,
+        "score": 4885,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [
+          1,
+          2,
+          3
+        ],
+        "officialVictory": true,
+        "progress": 16,
+        "endCause": "victory-finished",
+        "nextSeconds": 0,
+        "puzzle": null,
+        "elapsed": 1,
+        "attempt": {
+          "expression": "3*5*5+7+7",
+          "value": 89,
+          "stars": 3,
+          "outcome": "success",
+          "cause": null,
+          "points": 900,
+          "hints": []
+        }
+      }
+    }
+  },
+  "future": {
+    "preparation": [
+      {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 1,
+        "phase": {
+          "act": 1,
+          "boss": false,
+          "index": 1,
+          "difficulty": 1,
+          "survival": 0
+        },
+        "seedState": 378494188,
+        "lives": 3,
+        "hints": 3,
+        "score": 100,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [],
+        "officialVictory": false,
+        "progress": 1,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 16,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 95,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      },
+      {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 2,
+        "phase": {
+          "act": 1,
+          "boss": false,
+          "index": 2,
+          "difficulty": 1,
+          "survival": 0
+        },
+        "seedState": 508781842,
+        "lives": 3,
+        "hints": 3,
+        "score": 200,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [],
+        "officialVictory": false,
+        "progress": 2,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 22,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 95,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      },
+      {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 3,
+        "phase": {
+          "act": 1,
+          "boss": true,
+          "index": 0,
+          "difficulty": 2,
+          "survival": 0
+        },
+        "seedState": 3753001289,
+        "lives": 3,
+        "hints": 3,
+        "score": 300,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [],
+        "officialVictory": false,
+        "progress": 3,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 133,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {
+              "3": 1
+            },
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 105,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      }
+    ],
+    "playing": [
+      {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 1,
+        "phase": {
+          "act": 1,
+          "boss": false,
+          "index": 1,
+          "difficulty": 1,
+          "survival": 0
+        },
+        "seedState": 378494188,
+        "lives": 3,
+        "hints": 2,
+        "score": 85,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [],
+        "officialVictory": false,
+        "progress": 1,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 16,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 95,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      },
+      {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 2,
+        "phase": {
+          "act": 1,
+          "boss": false,
+          "index": 2,
+          "difficulty": 1,
+          "survival": 0
+        },
+        "seedState": 3753001289,
+        "lives": 3,
+        "hints": 2,
+        "score": 185,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [],
+        "officialVictory": false,
+        "progress": 2,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 132,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 95,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      },
+      {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 3,
+        "phase": {
+          "act": 1,
+          "boss": true,
+          "index": 0,
+          "difficulty": 2,
+          "survival": 0
+        },
+        "seedState": 4271921684,
+        "lives": 3,
+        "hints": 2,
+        "score": 285,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [],
+        "officialVictory": false,
+        "progress": 3,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 150,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {
+              "3": 1
+            },
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 105,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      }
+    ],
+    "bossPreparation": [
+      {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 4,
+        "phase": {
+          "act": 1,
+          "boss": true,
+          "index": 1,
+          "difficulty": 2,
+          "survival": 0
+        },
+        "seedState": 3664477795,
+        "lives": 3,
+        "hints": 2,
+        "score": 485,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [],
+        "officialVictory": false,
+        "progress": 4,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 129,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {
+              "5": 1
+            },
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 113,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      },
+      {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 5,
+        "phase": {
+          "act": 2,
+          "boss": false,
+          "index": 0,
+          "difficulty": 2,
+          "survival": 0
+        },
+        "seedState": 775312688,
+        "lives": 3,
+        "hints": 2,
+        "score": 835,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [
+          1
+        ],
+        "officialVictory": false,
+        "progress": 5,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 40,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 105,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      },
+      {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 6,
+        "phase": {
+          "act": 2,
+          "boss": false,
+          "index": 1,
+          "difficulty": 2,
+          "survival": 0
+        },
+        "seedState": 2362599119,
+        "lives": 3,
+        "hints": 2,
+        "score": 1035,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [
+          1
+        ],
+        "officialVictory": false,
+        "progress": 6,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 91,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 105,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      }
+    ],
+    "bossPlaying": [
+      {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 4,
+        "phase": {
+          "act": 1,
+          "boss": true,
+          "index": 1,
+          "difficulty": 2,
+          "survival": 0
+        },
+        "seedState": 3664477795,
+        "lives": 3,
+        "hints": 2,
+        "score": 485,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [],
+        "officialVictory": false,
+        "progress": 4,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 129,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {
+              "5": 1
+            },
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 113,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      },
+      {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 5,
+        "phase": {
+          "act": 2,
+          "boss": false,
+          "index": 0,
+          "difficulty": 2,
+          "survival": 0
+        },
+        "seedState": 775312688,
+        "lives": 3,
+        "hints": 2,
+        "score": 835,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [
+          1
+        ],
+        "officialVictory": false,
+        "progress": 5,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 40,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 105,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      },
+      {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 6,
+        "phase": {
+          "act": 2,
+          "boss": false,
+          "index": 1,
+          "difficulty": 2,
+          "survival": 0
+        },
+        "seedState": 2362599119,
+        "lives": 3,
+        "hints": 2,
+        "score": 1035,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [
+          1
+        ],
+        "officialVictory": false,
+        "progress": 6,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 91,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 105,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      }
+    ],
+    "victory": [
+      {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 16,
+        "phase": {
+          "act": 4,
+          "boss": false,
+          "index": 0,
+          "difficulty": 5,
+          "survival": 1
+        },
+        "seedState": 1434383087,
+        "lives": 3,
+        "hints": 2,
+        "score": 4885,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [
+          1,
+          2,
+          3
+        ],
+        "officialVictory": true,
+        "progress": 16,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 106,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 135,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      },
+      {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 17,
+        "phase": {
+          "act": 4,
+          "boss": false,
+          "index": 1,
+          "difficulty": 5,
+          "survival": 2
+        },
+        "seedState": 3791881090,
+        "lives": 3,
+        "hints": 2,
+        "score": 5385,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [
+          1,
+          2,
+          3
+        ],
+        "officialVictory": true,
+        "progress": 17,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 148,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 133,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      },
+      {
+        "configuration": {
+          "lives": 3,
+          "hints": 3,
+          "ordinaryPerAct": 3,
+          "bossPhases": [
+            2,
+            2,
+            3
+          ],
+          "seconds": [
+            95,
+            105,
+            115,
+            125,
+            135
+          ],
+          "minimumSeconds": 60,
+          "maximumSeconds": 180,
+          "maxLengthInflation": 2,
+          "minimumTargets": 2,
+          "scoreBase": 100,
+          "bossRewards": [
+            150,
+            250,
+            500
+          ],
+          "hintPenalty": 0.15,
+          "scoreBounds": [
+            0.5,
+            2.5
+          ],
+          "search": {
+            "maxOperands": 6,
+            "magnitude": 500,
+            "maxTarget": 150,
+            "maxStates": 350000
+          },
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          }
+        },
+        "screen": "preparation",
+        "stage": 18,
+        "phase": {
+          "act": 4,
+          "boss": false,
+          "index": 2,
+          "difficulty": 5,
+          "survival": 3
+        },
+        "seedState": 4105465081,
+        "lives": 3,
+        "hints": 2,
+        "score": 5885,
+        "effects": [],
+        "offers": [],
+        "purchases": {},
+        "defeatedBosses": [
+          1,
+          2,
+          3
+        ],
+        "officialVictory": true,
+        "progress": 18,
+        "endCause": null,
+        "nextSeconds": 0,
+        "puzzle": {
+          "target": 136,
+          "rules": {
+            "numbers": [
+              3,
+              5,
+              7
+            ],
+            "operations": [
+              "+",
+              "-",
+              "*"
+            ],
+            "minimumOccurrences": {},
+            "requireSubtraction": false,
+            "maxMultiplications": null
+          },
+          "seconds": 131,
+          "minimumStars": 1
+        },
+        "elapsed": 0,
+        "attempt": {
+          "expression": null,
+          "value": null,
+          "stars": 0,
+          "outcome": "prepared",
+          "cause": null,
+          "points": 0,
+          "hints": []
+        }
+      }
+    ],
+    "ended": []
+  }
+}

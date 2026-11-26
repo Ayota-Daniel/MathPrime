@@ -1,28 +1,45 @@
-import { useEffect } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { useEffect, useState } from 'react';
+import { View, ScrollView } from 'react-native';
+import { Delete, Check, RotateCcw, Lightbulb } from 'lucide-react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { Mode, Session } from '@shortest/engine';
+import { exprTokens, hintStarCeiling } from '@shortest/engine';
 import type { RootStack } from '../../App';
-import type { Mode } from '@shortest/engine';
-import { evaluate, operandCount, exprTokens } from '@shortest/engine';
 import { useGame } from '../store';
 import { loadTable } from '../data';
 import { audio } from '../audio';
-import { TopBar } from '../components/TopBar';
-import { Card, Button, Tile, Chip } from '../components/ui';
+import { C, num, fmt, Screen, Button, Key, StreakPill, Pill, Highlight, BackButton, Text } from '../components/ui';
 import { TimerBar } from '../components/TimerBar';
-import { ConditionBanner } from '../components/ConditionBanner';
-import { FeedbackSheet } from '../components/FeedbackSheet';
+import { ExpressionCells, ExpressionStatus, sym, say, isOp } from '../components/Expression';
+import { FeedbackSheet, MODE_LABEL } from '../components/FeedbackSheet';
 
-const sym = (o: string) => (o === '*' ? '×' : o === '-' ? '−' : '+');
-const liveValue = (input: string): string => { try { return /[+\-*]$|^$/.test(input) ? '—' : String(evaluate(input)); } catch { return '—'; } };
+const OP_NAME: Record<string, string> = { '+': 'plus', '-': 'moins', '*': 'fois' };
+
+function subtitle(mode: Mode, s: Session): string {
+  if (mode === 'classic') return `niveau ${s.index + 1} sur 100`;
+  if (mode === 'daily') {
+    const day = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    return s.dailyTraining ? `${day}, entraînement` : day;
+  }
+  if (mode === 'freeskill') return `difficulté ${s.level} sur 5, elle s'adapte`;
+  return `puzzle ${s.index + 1}, points ×1,25`;
+}
 
 export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'Play'>) {
   const mode = route.params.mode as Mode;
-  const { session, start, press, del, clear, submit, next, tick, hint, chooseModifier, clearSoftFeedback, quit } = useGame();
+  const niveau = route.params.niveau;
+  const { session, start, press, del, clear, submit, next, tick, hint, clearSoftFeedback, quit } = useGame();
+  // Élément touché dans l'expression : valable tant que l'expression n'a pas changé.
+  const [pick, setPick] = useState<{ at: number; input: string } | null>(null);
+  useEffect(() => setPick(null), [session?.input, session?.index]);
 
-  useEffect(() => { start(mode, loadTable(mode)); void audio.switchMusic(mode === 'rogue' ? 'rogue' : 'main'); }, [mode, start]);
+  useEffect(() => {
+    if (mode === 'rogue') { navigation.replace('Rogue'); return; }
+    start(mode, loadTable(mode), niveau === undefined ? undefined : niveau - 1);
+    void audio.switchMusic('main');
+  }, [mode, niveau, start, navigation]);
 
-  // timer Free Skill + bip "tick" sous 5 s
+  // chrono Free Skill + bip sous 5 s
   useEffect(() => {
     if (mode !== 'freeskill') return;
     const id = setInterval(() => {
@@ -33,100 +50,93 @@ export function Play({ route, navigation }: NativeStackScreenProps<RootStack, 'P
     return () => clearInterval(id);
   }, [mode, tick]);
 
-  if (!session) return null;
+  if (!session || session.mode !== mode || mode === 'rogue') return <Screen><View /></Screen>;
   const s = session; const p = s.puzzle;
+  const leave = () => { quit(); navigation.goBack(); };
 
-  if (s.rogue?.over) {
-    return (
-      <View className="flex-1 bg-bg">
-        <TopBar streakMode="rogue" />
-        <View className="flex-1 items-center justify-center p-[18px] gap-[6px]">
-          <Text className="font-bold text-[22px]">Run terminé</Text>
-          <Text className="text-mut">Survécu à {s.rogue.solved} puzzles.</Text>
-          <Text className="font-bold text-[60px] text-gold">{s.rogue.score}</Text>
-          <View className="w-[220px] mt-[18px]"><Button variant="primary" label="Rejouer" onPress={() => start('rogue', loadTable('rogue'))} /></View>
-          <Pressable className="mt-[10px]" onPress={() => { quit(); navigation.goBack(); }}><Text className="text-pri font-semibold">Menu</Text></Pressable>
-        </View>
-      </View>
-    );
-  }
+  const total = exprTokens(p.expr).length;
+  const ceiling = hintStarCeiling(s.hintsUsed, total);
+  const score = s.score;
+  const isBig = mode.startsWith('big');
+  const allowHint = mode !== 'freeskill';
+  const tokens = exprTokens(s.input);
+  const sel = pick && pick.input === s.input && pick.at < tokens.length ? pick.at : null;
+  const selOp = sel !== null && isOp(tokens[sel]);
+  const select = (at: number) => setPick(sel === at ? null : { at, input: s.input });
 
-  if (s.draft) {
-    return (
-      <View className="flex-1 bg-bg">
-        <TopBar streakMode="rogue" />
-        <ScrollView contentContainerStyle={{ padding: 18, gap: 12 }}>
-          <Text className="font-bold text-[22px]">Choisis une contrainte</Text>
-          <Text className="text-mut text-[13.5px]">Elle s'applique à la suite. Les malus rapportent plus.</Text>
-          {s.draft.map((m) => (
-            <Pressable key={m.id} onPress={() => { void audio.play('select'); chooseModifier(m); }}
-              className="border border-line rounded-[16px] p-[16px] flex-row items-center gap-[12px] active:opacity-80">
-              <View className="w-[38px] h-[38px] rounded-[11px] items-center justify-center" style={{ backgroundColor: m.kind === 'boon' ? '#179C6B' : '#E5484D' }}>
-                <Text className="text-white font-bold">{m.kind === 'boon' ? '+' : '×'}</Text>
-              </View>
-              <View className="flex-1">
-                <Text className="font-semibold">{m.label}</Text>
-                <Text className="text-mut text-[12px]">{m.kind === 'boon' ? 'Avantage' : 'Malus'} · score ×{m.scoreMult}</Text>
-              </View>
-            </Pressable>
-          ))}
-        </ScrollView>
-      </View>
-    );
-  }
-
-  const fb = s.feedback;
   return (
-    <View className="flex-1 bg-bg">
-      <TopBar streakMode={mode} />
-      <ScrollView contentContainerStyle={{ padding: 18, gap: 12 }}>
-        <Pressable onPress={() => { quit(); navigation.goBack(); }}><Text className="text-mut font-semibold">‹ Quitter</Text></Pressable>
+    <Screen>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingTop: 14, paddingBottom: 6 }}>
+        <BackButton label="Quitter la partie" onPress={leave} />
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text style={{ fontSize: 17, fontWeight: '800', color: C.graphite }}>{MODE_LABEL[mode]}</Text>
+          <Text numberOfLines={1} style={{ color: C.mine, fontSize: 13.5 }}>{subtitle(mode, s)}</Text>
+        </View>
+        {s.streak > 0 && <StreakPill value={s.streak} />}
+        <Pill><Text style={[num, { fontWeight: '700', fontSize: 14, color: C.graphite }]}>{fmt(score)} pts</Text></Pill>
+      </View>
 
-        <ConditionBanner mode={mode} rules={s.rules} lives={s.rogue?.lives} mods={s.rogue?.mods} />
-        {mode === 'freeskill' && <TimerBar secondsLeft={s.secondsLeft} maxSeconds={s.maxSeconds} />}
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingBottom: 18 }}>
+        {mode === 'freeskill' && <View style={{ paddingTop: 12 }}><TimerBar secondsLeft={s.secondsLeft} maxSeconds={s.maxSeconds} /></View>}
 
-        <Card>
-          <View className="items-center gap-[4px] pb-[14px] pt-[8px]">
-            <Text className="text-mut text-[12px] font-semibold">CIBLE</Text>
-            <Text className="font-bold text-[60px]">{p.target}</Text>
-            <View className="flex-row gap-[6px] mt-[4px]">
-              <Chip>Niveau {p.difficulty}</Chip>
-              <Chip bg="#FBEFE0" color="#B5651d">optimal · {s.optimalOperands}</Chip>
+        <View style={{ alignItems: 'center', paddingTop: 14 }}>
+          <Text style={{ color: C.mine, fontSize: 14, fontWeight: '600' }}>Cible</Text>
+          <View style={{ marginTop: 4 }} accessibilityLiveRegion="polite">
+            <Highlight style={[num, { fontSize: 88, fontWeight: '900', color: C.graphite, letterSpacing: -3 }]}>{p.target}</Highlight>
+          </View>
+          {mode === 'classic' && (
+            <View style={{ marginTop: 10 }}><Pill><Text style={{ fontWeight: '700', fontSize: 13, color: C.graphite }}>Atteins la cible avec le moins de chiffres possible</Text></Pill></View>
+          )}
+          {isBig && s.rules.required.length > 0 && (
+            <View style={{ marginTop: 12, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 2.5, borderColor: C.pen, borderRadius: 6, transform: [{ rotate: '-2.5deg' }] }}>
+              <Text style={{ color: C.pen, fontSize: 18, fontWeight: '800' }}>Doit contenir un {s.rules.required.join(' et un ')}</Text>
             </View>
-          </View>
+          )}
+          <Text style={{ marginTop: 10, color: C.mine, fontSize: 13 }}>Sans parenthèses : × se calcule avant + et −.</Text>
+        </View>
 
-          <View className="min-h-[40px] items-center justify-center border-b border-dashed border-line py-[6px]">
-            <Text className="font-bold text-[24px]">{s.input || <Text className="text-[#AEBccB] text-[15px]">touche les tuiles…</Text>}</Text>
-          </View>
-          <View className="flex-row justify-between mt-[8px]">
-            <Text className="text-[13px] text-mut">vaut <Text className="text-ink font-bold">{liveValue(s.input)}</Text></Text>
-            <Text className="text-[13px] text-mut">{s.input ? `${operandCount(s.input)} chiffre(s)` : ''}</Text>
-          </View>
-
-          <View className="flex-row gap-[10px] mt-[14px]">
-            {s.rules.numbers.map((n) => <Tile key={n} label={String(n)} kind="num" onPress={() => press(String(n))} />)}
-          </View>
-          <View className="flex-row gap-[10px] mt-[10px]">
-            {s.rules.operations.map((o) => <Tile key={o} label={sym(o)} kind="op" onPress={() => press(o)} />)}
-          </View>
-
-          {s.hintsUsed > 0 && (
-            <Text className="mt-[10px] text-center text-[13px] text-mut">
-              indice : <Text className="font-bold text-ink">{exprTokens(s.puzzle.expr).slice(0, s.hintsUsed).join('')}…</Text>
+        <View style={{ marginTop: 8 }}>
+          <ExpressionCells input={s.input} optimal={s.optimalOperands} selected={sel} onSelect={select} />
+          <ExpressionStatus input={s.input} target={p.target} optimal={s.optimalOperands} required={s.rules.required} />
+          {sel !== null && (
+            <Text accessibilityLiveRegion="polite" style={{ marginTop: 8, fontSize: 14, color: C.ink, fontWeight: '700' }}>
+              {selOp ? `Touche un opérateur pour remplacer le ${sym(tokens[sel])}` : `Touche un chiffre pour remplacer le ${tokens[sel]}`}, ou Effacer pour le retirer.
             </Text>
           )}
-          <View className="flex-row gap-[10px] mt-[10px]">
-            <View className="flex-1"><Button label="Effacer" onPress={del} /></View>
-            <View className="flex-1"><Button label="Vider" onPress={clear} /></View>
-            <View className="flex-1"><Button label="Indice" onPress={hint} disabled={s.hintsUsed >= exprTokens(s.puzzle.expr).length} /></View>
-          </View>
-          <View className="mt-[10px]"><Button variant="primary" label="Valider" onPress={submit} disabled={!s.input} /></View>
-        </Card>
+          {s.hintsUsed > 0 && (
+            <Text style={{ marginTop: 8, fontSize: 14, color: C.graphite }}>
+              <Text style={{ fontWeight: '700', color: C.pen }}>Indice : </Text>
+              <Text style={[num, { fontWeight: '800' }]}>{exprTokens(p.expr).slice(0, s.hintsUsed).map(say).join('')}…</Text>
+              <Text style={{ color: C.mine }}> ({ceiling} étoile{ceiling > 1 ? 's' : ''} au mieux)</Text>
+            </Text>
+          )}
+        </View>
 
-        <Text className="text-center text-mut text-[13px]">Score : <Text className="text-ink font-bold">{s.rogue ? s.rogue.score + s.score : s.score}</Text>{mode === 'freeskill' ? ` · niveau ${s.level}` : ''}</Text>
+        <View style={{ marginTop: 'auto', paddingTop: 20, gap: 12 }}>
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            {s.rules.numbers.map((n) => {
+              const req = s.rules.required.includes(n);
+              return <Key key={n} label={String(n)} kind="num" required={req} aria={req ? `${n}, chiffre obligatoire` : undefined} disabled={selOp} onPress={() => press(String(n), sel ?? undefined)} />;
+            })}
+          </View>
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            {s.rules.operations.map((o) => <Key key={o} label={sym(o)} aria={OP_NAME[o]} kind="op" disabled={sel !== null && !selOp} onPress={() => press(o, sel ?? undefined)} />)}
+          </View>
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            {allowHint && <Button label="Indice" height={48} style={{ flex: 1 }} icon={<Lightbulb size={18} color={C.graphite} />} onPress={hint} disabled={s.hintsUsed >= total} />}
+            <Button label="Effacer" height={48} style={{ flex: 1 }} icon={<Delete size={18} color={C.graphite} />} onPress={() => del(sel ?? undefined)} />
+            <Button label="Vider" height={48} style={{ flex: 1 }} icon={<RotateCcw size={17} color={C.graphite} />} onPress={clear} />
+          </View>
+          <Button variant="ink" label={s.dailySaving ? 'Enregistrement…' : 'Valider'} height={58} icon={<Check size={20} strokeWidth={2.6} color={C.white} />} onPress={submit} disabled={!s.input || s.dailySaving} />
+          {!allowHint && <Text style={{ textAlign: 'center', color: C.mine, fontSize: 12.5 }}>En chrono, pas d'indice : chaque seconde compte.</Text>}
+          {mode === 'daily' && s.dailyTraining && <Text style={{ textAlign: 'center', color: C.mine, fontSize: 12.5 }}>Entraînement : le défi du jour est déjà récompensé.</Text>}
+        </View>
       </ScrollView>
 
-      {fb && <FeedbackSheet fb={fb} input={s.input} onContinue={next} onRetry={clearSoftFeedback} />}
-    </View>
+      {s.feedback && (
+        <FeedbackSheet fb={s.feedback} input={s.input} mode={mode} difficulty={p.difficulty} streak={s.streak} level={s.index}
+          onContinue={next} onRetry={clearSoftFeedback} onMenu={leave} />
+      )}
+    </Screen>
   );
 }

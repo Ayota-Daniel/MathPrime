@@ -1,0 +1,5 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": { "noEmit": true, "allowImportingTsExtensions": true, "lib": ["ES2020", "DOM"], "types": [] },
+  "include": ["functions/_shared/**/*.ts"]
+}

@@ -1,15 +1,12 @@
 {
   "expo": {
-    "name": "Shortest",
+    "name": "MathPrime",
     "slug": "shortest",
     "scheme": "shortest",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "icon": "./assets/icon.png",
-    "splash": {
-      "backgroundColor": "#5B5BD6"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -21,15 +18,15 @@
       "package": "com.shortest.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#5B5BD6"
+        "backgroundColor": "#12346C"
       }
     },
     "web": {
       "favicon": "./assets/icon.png"
     },
-    "newArchEnabled": true,
     "plugins": [
-      "expo-audio"
+      "expo-audio",
+      "expo-status-bar"
     ]
   }
 }

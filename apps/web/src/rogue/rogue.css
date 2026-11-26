@@ -1,0 +1,1405 @@
+.rogue-shell {
+  max-width: none;
+}
+.rogue-web {
+  --surface: var(--r-ivory);
+  --ink: var(--r-aubergine);
+  --secondary: var(--r-mutedLight);
+  --line: #decbd0;
+  --focus: var(--r-aubergine);
+  min-height: 100vh;
+  width: 100%;
+  color: var(--ink);
+  background-color: var(--r-ivory);
+  background-image: var(--paper-art);
+  font-family: Recursive, system-ui, sans-serif;
+}
+.rogue-in-run,
+.rogue-dark-surface {
+  --surface: var(--r-panel);
+  --ink: var(--r-ivory);
+  --secondary: var(--r-muted);
+  --line: var(--r-border);
+  --focus: var(--r-focus);
+}
+.rogue-in-run {
+  background-color: var(--r-night);
+  background-image: var(--night-art);
+}
+.rogue-web * {
+  box-sizing: border-box;
+}
+.rogue-web h1,
+.rogue-web h2,
+.rogue-web h3 {
+  font-family: inherit;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.rogue-web h1 {
+  font-size: clamp(26px, 3vw, 36px);
+  margin: 12px 0;
+}
+.rogue-web h2 {
+  font-size: 22px;
+}
+.rogue-web h3 {
+  font-size: 20px;
+}
+.rogue-web h1:focus {
+  outline: none;
+}
+.rogue-web p {
+  line-height: 1.5;
+}
+.rogue-web button,
+.rogue-web input,
+.rogue-web select,
+.rogue-web summary,
+.rogue-web a {
+  -webkit-tap-highlight-color: transparent;
+}
+.rogue-web button {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  min-height: 44px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-controlRadius);
+  padding: 10px 16px;
+  transition:
+    opacity var(--r-motion),
+    box-shadow var(--r-motion);
+}
+.rogue-web button:hover:not(:disabled) {
+  box-shadow: 0 0 0 2px var(--r-gold);
+}
+.rogue-web button:disabled {
+  opacity: 1;
+  color: var(--secondary);
+  background: var(--surface);
+  border-style: dashed;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.rogue-web button.bg-pri {
+  background: var(--r-coral);
+  border-color: var(--r-coralPressed);
+  color: var(--r-coralInk);
+  box-shadow: 3px 3px 0 var(--r-aubergine);
+  font-size: 19px;
+  font-weight: 800;
+}
+.rogue-web button.bg-pri:disabled {
+  color: var(--secondary);
+  background: var(--surface);
+  border-color: var(--line);
+  box-shadow: none;
+}
+.rogue-web :is(button, input, summary, select, a):focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+.rogue-web input,
+.rogue-web select {
+  font-family: inherit;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px;
+  background: var(--surface);
+}
+.rogue-header {
+  max-width: clamp(940px, 81vw, 1320px);
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 28px;
+  gap: 16px;
+}
+.rogue-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+  font-weight: 800;
+}
+.rogue-brand-symbol {
+  display: grid;
+  place-items: center;
+  color: var(--r-coral);
+}
+.rogue-in-run .rogue-brand-symbol {
+  color: var(--ink);
+}
+.rogue-at-home .rogue-header {
+  border-bottom: 1px solid var(--line);
+}
+.rogue-exit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  min-height: 44px;
+  font-weight: 700;
+}
+.rogue-main {
+  max-width: clamp(940px, 81vw, 1320px);
+  margin: auto;
+  padding: 12px 28px 28px;
+}
+.rogue-kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--secondary);
+}
+.rogue-in-run .rogue-kicker,
+.rogue-dark-surface .rogue-kicker {
+  color: var(--r-gold);
+}
+.rogue-intro {
+  max-width: 720px;
+  margin: 14px 6% 34px;
+}
+.rogue-intro h1 {
+  margin: 12px 0;
+  font-size: clamp(36px, 4vw, 58px);
+  line-height: 1.04;
+}
+.rogue-intro h1 em {
+  font-style: normal;
+}
+.rogue-intro > p {
+  color: var(--secondary);
+  max-width: 510px;
+}
+.rogue-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: clamp(24px, 3vw, 40px);
+  background: var(--r-panel);
+  border: 1px solid var(--r-border);
+  border-radius: 26px;
+  color: var(--ink);
+}
+.rogue-journey h2 {
+  font-size: 28px;
+}
+.rogue-hero-facts,
+.rogue-start-row,
+.rogue-resume {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.rogue-hero-facts {
+  margin-top: 10px;
+}
+.rogue-hero-facts > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.rogue-hero-facts svg {
+  color: var(--r-gold);
+}
+.rogue-start-row {
+  align-items: end;
+}
+.rogue-start-row label {
+  color: var(--secondary);
+  font-size: 13px;
+}
+.rogue-start-row input {
+  display: block;
+  width: 7em;
+  margin-top: 4px;
+}
+.rogue-home-tools {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+.rogue-home-tools button,
+.rogue-reading .rogue-back {
+  background: transparent;
+  border-color: transparent;
+}
+.rogue-reading {
+  max-width: 680px;
+  margin: 0 auto 32px;
+}
+.rogue-lesson {
+  max-width: 440px;
+  margin: auto;
+  text-align: center;
+}
+.rogue-lesson h1 {
+  font-size: clamp(30px, 4vw, 42px);
+  margin-bottom: 4px;
+}
+.rogue-lesson-count,
+.rogue-lesson-footer {
+  color: var(--secondary);
+  font-size: 14px;
+}
+.rogue-lesson progress {
+  display: block;
+  width: 120px;
+  height: 7px;
+  margin: 8px auto 24px;
+  appearance: none;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f0d7cb;
+}
+.rogue-lesson progress::-webkit-progress-bar {
+  background: #f0d7cb;
+}
+.rogue-lesson progress::-webkit-progress-value {
+  background: var(--r-coralPressed);
+}
+.rogue-lesson progress::-moz-progress-bar {
+  background: var(--r-coralPressed);
+}
+.rogue-lesson-instruction {
+  padding: 16px 24px;
+  background: #fbe5cf;
+  color: var(--ink);
+  border-radius: 16px;
+  font-size: 20px;
+  font-weight: 800;
+  text-wrap: balance;
+}
+.rogue-lesson .rogue-keypad {
+  margin-bottom: 16px;
+}
+.rogue-lesson-footer {
+  margin-top: 20px;
+}
+.rogue-lesson-footer button {
+  margin: 4px auto 0;
+  border-color: transparent;
+  background: transparent;
+}
+.rogue-how {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin: 28px 0;
+}
+.rogue-how b {
+  color: var(--r-mutedLight);
+}
+.rogue-how h2 {
+  margin: 8px 0;
+}
+.rogue-how p {
+  color: var(--secondary);
+}
+.rogue-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.rogue-section-heading span {
+  color: var(--secondary);
+  font-size: 13px;
+}
+.rogue-draft-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+.rogue-card {
+  --card-accent: var(--r-operator);
+  display: flex;
+  flex-direction: column;
+  background: var(--r-panel);
+  color: var(--r-ivory);
+  border: 1px solid var(--r-border);
+  border-top: 4px solid var(--card-accent);
+  border-radius: 24px;
+  padding: 22px;
+  min-width: 0;
+}
+.rogue-card-tempo {
+  --card-accent: var(--r-gold);
+}
+.rogue-card-pact {
+  --card-accent: var(--r-error);
+}
+.rogue-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.rogue-card-icon {
+  color: var(--card-accent);
+}
+.rogue-eyebrow,
+.rogue-operation {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--card-accent);
+}
+.rogue-card h3 {
+  margin: 8px 0 12px;
+}
+.rogue-card-gain {
+  display: flex;
+  align-items: start;
+  gap: 5px;
+  color: var(--r-success);
+  font-weight: 700;
+  margin: 10px 0;
+}
+.rogue-card-gain svg {
+  flex-shrink: 0;
+}
+.rogue-card-cost {
+  color: var(--r-muted);
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+.rogue-card-duration {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--r-muted);
+  font-size: 13px;
+  margin-top: auto;
+  padding-top: 12px;
+}
+.rogue-card details {
+  margin-bottom: 12px;
+  color: var(--r-muted);
+  font-size: 14px;
+}
+.rogue-card summary {
+  color: var(--r-gold);
+  cursor: pointer;
+  padding: 10px 0;
+  min-height: 44px;
+}
+.rogue-level {
+  color: var(--r-gold);
+}
+.rogue-catalog {
+  margin: 24px 0;
+}
+.rogue-catalog summary {
+  padding: 12px 0;
+  cursor: pointer;
+  font-weight: 700;
+}
+.rogue-footnote,
+.rogue-muted {
+  color: var(--secondary);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 12px;
+}
+.rogue-hud {
+  color: var(--ink);
+  margin: 0 auto 16px;
+}
+.rogue-game-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  gap: 24px;
+  align-items: start;
+}
+.rogue-main-panel {
+  min-width: 0;
+}
+.rogue-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.rogue-effects {
+  background: var(--r-panel);
+  padding: 18px;
+  border: 1px solid var(--r-border);
+  border-radius: 24px;
+}
+.rogue-effects h2 {
+  font-size: 20px;
+}
+.rogue-active-card {
+  padding: 10px 0;
+  border-top: 1px solid var(--r-border);
+}
+.rogue-active-card summary {
+  cursor: pointer;
+  display: flex;
+  align-items: start;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 0;
+  color: var(--r-gold);
+}
+.rogue-active-card summary svg {
+  flex-shrink: 0;
+}
+.rogue-active-card summary span {
+  font-size: 14px;
+  font-weight: 700;
+}
+.rogue-active-card small {
+  display: block;
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--r-muted);
+  margin-top: 4px;
+}
+.rogue-active-card p {
+  font-size: 14px;
+  margin: 8px 0;
+}
+.rogue-side-note {
+  color: var(--secondary);
+  padding: 10px;
+  font-size: 13px;
+}
+.rogue-side-note span {
+  font-weight: 800;
+  color: var(--ink);
+}
+.rogue-puzzle-panel,
+.rogue-result,
+.rogue-summary,
+.rogue-victory {
+  padding: 28px;
+  border: 1px solid var(--r-border);
+  border-radius: 24px;
+  background: var(--r-panel);
+}
+.rogue-puzzle-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.rogue-puzzle-heading h1 {
+  font-size: 24px;
+}
+.rogue-timer-label {
+  color: var(--r-muted);
+  font-size: 13px;
+}
+.rogue-boss-panel {
+  border-top: 4px solid var(--r-gold);
+}
+.rogue-boss-copy {
+  color: var(--r-muted);
+}
+.rogue-hidden-target {
+  color: var(--r-muted);
+  margin: 20px 0;
+}
+.rogue-rules {
+  border-radius: 14px;
+  background: var(--r-raised);
+  color: var(--r-ivory);
+  padding: 12px 16px;
+}
+.rogue-rules > p {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+.rogue-rules > p strong {
+  font-size: 20px;
+  font-weight: 800;
+}
+.rogue-rules details {
+  font-size: 13px;
+}
+.rogue-rules summary {
+  cursor: pointer;
+  padding: 8px 0;
+}
+.rogue-constraints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-top: 1px solid var(--r-border);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+.rogue-constraints li {
+  display: flex;
+  gap: 5px;
+  color: var(--r-gold);
+  font-weight: 700;
+  font-size: 13px;
+}
+.rogue-constraints li svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.rogue-prepare {
+  margin-top: 24px;
+  text-align: center;
+}
+.rogue-prepare > p {
+  margin-bottom: 18px;
+}
+.rogue-live {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+.rogue-entry-live {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  grid-template-areas: "math keys" "effects keys";
+  grid-template-rows: auto 1fr;
+  gap: 6px clamp(24px, 4vw, 64px);
+  align-items: start;
+}
+.rogue-calculation,
+.rogue-controls {
+  min-width: 0;
+}
+.rogue-entry-live .rogue-calculation {
+  grid-area: math;
+}
+.rogue-entry-live .rogue-controls {
+  grid-area: keys;
+}
+.rogue-entry-live .rogue-input-tools {
+  display: flex;
+}
+.rogue-entry-live .rogue-active-card {
+  border: 1px solid var(--line);
+  background: var(--r-panel);
+  border-radius: 14px;
+  padding: 0 12px;
+  margin-top: 8px;
+}
+.rogue-entry-live .rogue-active-card summary {
+  align-items: center;
+}
+.rogue-entry-live .rogue-effects {
+  grid-area: effects;
+  padding: 10px 0;
+  background: transparent;
+  border: 0;
+}
+.rogue-calculation > label {
+  display: block;
+  color: var(--secondary);
+  margin: 14px 0 4px;
+  font-size: 13px;
+}
+.rogue-calculation > input {
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 4px solid var(--r-coral);
+  background: transparent;
+  padding: 10px 0;
+  font-size: clamp(24px, 3vw, 40px);
+  font-weight: 800;
+  text-align: center;
+}
+.rogue-calculation > input:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: 0 2px 0 var(--focus);
+}
+.rogue-entry-live .rogue-calculation > input {
+  letter-spacing: 0.05em;
+}
+.rogue-calculation > input::placeholder {
+  font-size: 20px;
+  color: var(--secondary);
+  font-weight: 400;
+}
+.rogue-input-help {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--secondary);
+  margin: 10px 0;
+}
+.rogue-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.rogue-keypad button {
+  color: var(--r-aubergine);
+  background: var(--r-ivory);
+  border: 1px solid var(--r-ivory);
+  border-radius: 16px;
+  font-size: clamp(32px, 3.2vw, 48px);
+  font-weight: 800;
+  line-height: 1;
+  padding: 6px;
+  min-height: 72px;
+}
+.rogue-keypad button.rogue-operator {
+  background: var(--r-operator);
+  border-color: var(--r-operator);
+  color: var(--r-night);
+}
+.rogue-lesson .rogue-keypad button {
+  background: #fbe5cf;
+  border-color: #e5bda3;
+  color: var(--r-aubergine);
+  min-height: 52px;
+}
+.rogue-lesson .rogue-keypad .rogue-operator {
+  background: #f4d6be;
+}
+.rogue-edit-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin: 8px 0;
+}
+.rogue-edit-row button:not(:disabled),
+.rogue-entry-live .rogue-input-tools button:not(:disabled) {
+  background: transparent;
+  border-color: transparent;
+}
+.rogue-edit-row svg {
+  flex-shrink: 0;
+}
+.rogue-edit-row button:last-child svg {
+  color: var(--r-gold);
+}
+.rogue-input-tools {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 16px 0;
+}
+.rogue-hints {
+  margin: 16px 0;
+}
+.rogue-hints small {
+  display: block;
+  font-size: 12px;
+  color: var(--r-muted);
+  margin-top: 8px;
+}
+.rogue-hints li {
+  padding: 10px;
+  border: 1px solid var(--r-border);
+  border-radius: 12px;
+  color: var(--r-gold);
+  margin-top: 8px;
+}
+.rogue-playing-layout,
+.rogue-draft-layout {
+  grid-template-columns: 1fr;
+}
+.rogue-draft-layout {
+  max-width: 780px;
+  margin: auto;
+  gap: 16px;
+}
+.rogue-draft-layout .rogue-sidebar {
+  grid-row: 1;
+}
+.rogue-draft-layout .rogue-effects {
+  padding: 8px 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+}
+.rogue-effects .rogue-section-heading {
+  margin: 0;
+}
+.rogue-rewards {
+  max-width: 640px;
+  margin: auto;
+  text-align: center;
+}
+.rogue-rewards .rogue-kicker {
+  justify-content: center;
+}
+.rogue-rewards h1 {
+  margin: 4px 0;
+}
+.rogue-lead {
+  color: var(--secondary);
+}
+.rogue-offers {
+  display: grid;
+  gap: 10px;
+  margin: 20px 0;
+  text-align: left;
+}
+.rogue-offer {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 24px;
+  gap: 2px 12px;
+  align-content: center;
+  padding: 14px 18px;
+  border: 2px solid var(--r-border);
+  border-radius: 17px;
+}
+.rogue-offer:has(input:checked) {
+  border-color: var(--r-coral);
+  background: var(--r-night);
+}
+.rogue-offer:has(input:focus-visible) {
+  outline: 3px solid var(--r-gold);
+  outline-offset: 3px;
+}
+.rogue-offer .rogue-card-top {
+  grid-column: 1;
+  grid-row: 1 / span 4;
+  justify-content: center;
+  align-self: center;
+  margin: 0;
+}
+.rogue-offer .rogue-card-icon svg {
+  width: 32px;
+  height: 32px;
+}
+.rogue-offer h3,
+.rogue-offer > p,
+.rogue-offer > details {
+  grid-column: 2;
+  margin: 0;
+  padding: 0;
+}
+.rogue-offer h3 {
+  grid-row: 1;
+}
+.rogue-offer > p,
+.rogue-offer > details {
+  grid-column: 2 / -1;
+}
+.rogue-offer .rogue-operation {
+  font-size: 12px;
+}
+.rogue-offer .rogue-card-gain {
+  color: var(--r-gold);
+}
+.rogue-offer .rogue-card-gain svg {
+  display: none;
+}
+.rogue-offer label::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+.rogue-offer details {
+  position: relative;
+  z-index: 1;
+}
+.rogue-offer summary {
+  display: list-item;
+  width: fit-content;
+}
+.rogue-offer input[type="radio"] {
+  position: relative;
+  z-index: 1;
+  grid-column: 3;
+  grid-row: 1;
+  width: 20px;
+  height: 20px;
+  accent-color: var(--r-coral);
+  justify-self: end;
+}
+.rogue-rewards > button {
+  width: 100%;
+  margin-top: 10px;
+}
+.rogue-rewards > button:not(.bg-pri) {
+  background: transparent;
+}
+.rogue-result,
+.rogue-summary,
+.rogue-victory {
+  text-align: center;
+}
+.rogue-result .rogue-kicker,
+.rogue-summary .rogue-kicker,
+.rogue-victory .rogue-kicker {
+  justify-content: center;
+}
+.rogue-result > p,
+.rogue-summary > p,
+.rogue-victory > p {
+  color: var(--r-muted);
+  margin: 14px 0;
+}
+.rogue-result-symbol,
+.rogue-victory-icon {
+  display: grid;
+  place-items: center;
+  color: var(--r-gold);
+  margin: 12px auto 20px;
+}
+.rogue-failure .rogue-result-symbol {
+  color: var(--r-error);
+}
+.rogue-result-expression {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border-radius: 18px;
+  background: var(--r-night);
+  overflow-wrap: anywhere;
+  margin: 20px 0;
+}
+.rogue-result-expression strong {
+  font-size: 28px;
+  font-weight: 800;
+}
+.rogue-result-expression span,
+.rogue-result-expression small {
+  color: var(--r-muted);
+}
+.rogue-stars {
+  display: flex;
+  justify-content: center;
+  margin: 18px 0;
+}
+.rogue-result-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 24px 0;
+}
+.rogue-result-stats dt {
+  color: var(--r-muted);
+  font-size: 13px;
+}
+.rogue-result-stats dd {
+  margin-top: 8px;
+  font-size: 22px;
+  font-weight: 800;
+}
+.rogue-result .rogue-boss-reward {
+  color: var(--r-gold);
+  border: 1px solid var(--r-border);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.rogue-result > button,
+.rogue-summary > button,
+.rogue-victory > button {
+  width: 100%;
+  margin-top: 14px;
+}
+.rogue-victory {
+  border-color: var(--r-gold);
+}
+.rogue-final-score {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 24px 0;
+}
+.rogue-final-score strong {
+  font-size: 72px;
+  line-height: 1.2;
+  font-weight: 800;
+  color: var(--r-ivory);
+}
+.rogue-final-score span {
+  color: var(--r-muted);
+}
+.rogue-web .rogue-official {
+  color: var(--r-success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.rogue-boss-list {
+  padding: 12px 0;
+  margin: 20px 0;
+  border-top: 1px solid var(--r-border);
+  text-align: left;
+}
+.rogue-boss-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--r-muted);
+  margin: 10px 0;
+}
+.rogue-boss-list li.complete {
+  color: var(--r-success);
+}
+.rogue-loading {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: var(--r-panel);
+  color: var(--r-ivory);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rogue-error {
+  color: var(--r-error);
+  background: var(--r-errorSurface);
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+.rogue-footer {
+  text-align: center;
+  color: var(--secondary);
+  font-size: 12px;
+  padding: 12px 20px 24px;
+}
+.rogue-dialog {
+  color: var(--r-ivory);
+  background: var(--r-panel);
+  border: 1.5px solid var(--r-border);
+  border-radius: var(--r-heroRadius, 10px);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  padding: 22px 20px 20px;
+  max-width: 400px;
+  width: calc(100% - 48px);
+}
+.rogue-dialog::backdrop {
+  background: rgba(5, 7, 10, 0.72);
+}
+.rogue-dialog h2 {
+  margin: 12px 0 0;
+}
+.rogue-dialog p {
+  color: var(--r-muted);
+  margin: 10px 0 16px;
+}
+.rogue-dialog-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1.5px solid var(--r-border);
+  background: var(--r-raised);
+}
+.rogue-dialog-icon.danger {
+  color: var(--r-dangerText);
+  border-color: var(--r-danger);
+  background: var(--r-dangerSurface);
+}
+.rogue-dialog-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.rogue-web .rogue-dialog-actions button {
+  width: 100%;
+  min-height: 50px;
+}
+.rogue-web button.rogue-danger-solid {
+  background: var(--r-dangerSolid);
+  border-color: var(--r-dangerSolid);
+  color: #fff;
+  font-weight: 900;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
+}
+.rogue-web .rogue-exit.rogue-danger {
+  color: var(--r-dangerText);
+  border: 1.5px solid var(--r-danger);
+  background: var(--r-dangerSurface);
+  border-radius: var(--r-controlRadius);
+}
+.rogue-extras [role="alertdialog"] {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.rogue-web :is(h1, input) {
+  scroll-margin-top: 180px;
+}
+@media (max-width: 920px) {
+  .rogue-game-grid:not(.rogue-playing-layout):not(.rogue-draft-layout) {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 700px) {
+  .rogue-header {
+    padding: 8px 16px;
+  }
+  .rogue-main {
+    padding: 8px 16px 24px;
+  }
+  .rogue-home-tools {
+    justify-content: center;
+  }
+  .rogue-intro {
+    margin: 16px auto 24px;
+  }
+  .rogue-how,
+  .rogue-draft-grid {
+    grid-template-columns: 1fr;
+  }
+  .rogue-how {
+    gap: 14px;
+  }
+  .rogue-hero {
+    gap: 14px;
+  }
+  .rogue-hud-live {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    padding: 6px 0;
+    background: var(--r-night);
+    margin-bottom: 8px;
+  }
+  .rogue-entry-live {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "math" "keys" "effects";
+    gap: 8px;
+  }
+  .rogue-puzzle-heading {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .rogue-puzzle-heading h1 {
+    font-size: 20px;
+  }
+  .rogue-calculation > label {
+    margin-top: 6px;
+  }
+  .rogue-calculation > input {
+    padding: 6px;
+    font-size: 28px;
+  }
+  .rogue-input-tools,
+  .rogue-input-help {
+    margin: 4px 0;
+  }
+  .rogue-keypad {
+    gap: 8px;
+  }
+  .rogue-keypad button {
+    min-height: 48px;
+  }
+  .rogue-offer {
+    grid-template-columns: 30px minmax(0, 1fr) 20px;
+    padding: 12px;
+    gap: 2px 8px;
+  }
+  .rogue-offers {
+    margin: 12px 0;
+    gap: 8px;
+  }
+  .rogue-draft-layout {
+    gap: 8px;
+  }
+  .rogue-offer h3 {
+    font-size: 18px;
+  }
+  .rogue-result-stats dd {
+    font-size: 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rogue-web *,
+  .rogue-web *::before,
+  .rogue-web *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.rogue-calculation > input {
+  caret-color: var(--r-coral);
+}
+
+/* Mixed puzzle layout (validated board "Puzzle retenu"): counters in tiles,
+   act segments, target card with a time bar, rule chips, then the keypad. */
+.rogue-counters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.rogue-counters > div {
+  min-height: 64px;
+  border-radius: 8px;
+  background: var(--r-raised);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.rogue-counters b {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 26px;
+  color: var(--r-ivory);
+  font-variant-numeric: tabular-nums;
+}
+.rogue-counters small {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--r-muted);
+}
+.rogue-counters .rogue-heart {
+  color: var(--r-danger);
+  fill: currentColor;
+}
+.rogue-counters .rogue-bulb {
+  color: var(--r-gold);
+}
+.rogue-counters .rogue-score {
+  color: var(--r-coral);
+}
+.rogue-stage {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-top: 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--r-muted);
+}
+.rogue-segments {
+  display: flex;
+  gap: 6px;
+}
+.rogue-segments > span {
+  width: 22px;
+  height: 6px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--r-border);
+}
+.rogue-segments > span.done {
+  background: var(--r-coral);
+  border-color: var(--r-coral);
+}
+.rogue-segments > span.current {
+  background: var(--r-ivory);
+  border-color: var(--r-ivory);
+}
+.rogue-stage-count {
+  margin-left: auto;
+}
+.rogue-target-card {
+  padding: 14px 18px 16px;
+  border-radius: 10px;
+  background: var(--r-panel);
+  border: 1.5px solid var(--r-border);
+}
+.rogue-target-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--r-muted);
+}
+.rogue-target-number {
+  display: block;
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 68px;
+  letter-spacing: -2px;
+  font-variant-numeric: tabular-nums;
+}
+.rogue-time {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  color: var(--r-gold);
+}
+.rogue-time.critical {
+  color: var(--r-error);
+}
+.rogue-time-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--r-raised);
+  overflow: hidden;
+}
+.rogue-time-track > span {
+  display: block;
+  height: 100%;
+  background: currentColor;
+  transition: width 1s linear;
+}
+.rogue-time b {
+  font-size: 15px;
+  font-weight: 900;
+  min-width: 3.2em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.rogue-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.rogue-chips li {
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 14px;
+  border: 1px solid var(--r-border);
+  display: flex;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--r-muted);
+}
+.rogue-chips li.rule {
+  border: 1.5px solid var(--r-gold);
+  color: var(--r-gold);
+  font-weight: 800;
+}
+.rogue-entry-live .rogue-calculation > label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.rogue-entry-live .rogue-calculation > input {
+  margin-top: 14px;
+  height: 56px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: var(--r-raised);
+  border-bottom: 3px solid var(--r-coral);
+  font-size: 26px;
+  letter-spacing: 1px;
+}
+.rogue-entry-live .rogue-calculation > input::placeholder {
+  font-size: 18px;
+}
+.rogue-entry-live .rogue-input-help {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  color: var(--r-muted);
+}
+.rogue-entry-live .rogue-input-help strong {
+  color: var(--r-ivory);
+}
+.rogue-entry-live .rogue-keypad {
+  gap: 10px;
+}
+.rogue-entry-live .rogue-keypad button {
+  min-height: 60px;
+  border-radius: 8px;
+  font-size: 28px;
+  padding: 0;
+}
+.rogue-entry-live .rogue-keypad button.rogue-operator {
+  min-height: 52px;
+  font-size: 24px;
+}
+.rogue-entry-live .rogue-edit-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 10px 0;
+}
+.rogue-web .rogue-entry-live .rogue-edit-row button {
+  min-height: 44px;
+  padding: 0 8px;
+  gap: 6px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.rogue-web .rogue-entry-live .rogue-edit-row button:not(:disabled) {
+  border: 1px solid var(--r-border);
+  color: var(--r-ivory);
+}
+.rogue-web .rogue-entry-live .rogue-edit-row .rogue-hint-button:not(:disabled) {
+  border-color: var(--r-gold);
+  color: var(--r-gold);
+  font-weight: 800;
+}
+.rogue-web .rogue-entry-live .rogue-controls > button[type="submit"] {
+  min-height: 56px;
+  border-radius: 6px;
+  border: 0;
+  font-size: 18px;
+  font-weight: 900;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+}
+.rogue-web .rogue-entry-live .rogue-controls > button[type="submit"]:disabled {
+  border: 1px dashed var(--line);
+  box-shadow: none;
+}
+@media (min-width: 701px) {
+  .rogue-hud {
+    margin-bottom: 24px;
+  }
+  .rogue-target-number {
+    font-size: clamp(64px, 6vw, 96px);
+    line-height: 1.05;
+  }
+  .rogue-entry-live .rogue-calculation > input {
+    height: 68px;
+    font-size: clamp(28px, 2.6vw, 40px);
+  }
+}
+@media (min-width: 1200px) {
+  .rogue-entry-live .rogue-keypad button {
+    min-height: 76px;
+    font-size: 36px;
+  }
+  .rogue-entry-live .rogue-keypad button.rogue-operator {
+    min-height: 64px;
+    font-size: 30px;
+  }
+}
+@media (max-width: 700px) {
+  .rogue-hud-live {
+    padding: 6px 0 10px;
+  }
+  .rogue-entry-live .rogue-calculation > input {
+    padding: 0 12px;
+  }
+}

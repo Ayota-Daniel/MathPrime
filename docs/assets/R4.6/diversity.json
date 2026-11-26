@@ -1,0 +1,8 @@
+{
+  "independentStores": 3,
+  "runsPerStore": 10,
+  "uniqueSeeds": 30,
+  "uniqueOpeningTargets": 28,
+  "uniqueOpeningPairs": 30,
+  "uniqueUnorderedFirstDrafts": 16
+}

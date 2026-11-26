@@ -1,0 +1,28 @@
+--------- beginning of crash
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: FATAL EXCEPTION: main
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: Process: com.shortest.app, PID: 22904
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: java.lang.IllegalStateException: Unable to find parentView for tag 1930
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at com.facebook.react.fabric.mounting.SurfaceMountingManager.removeViewAt(SurfaceMountingManager.kt:428)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at com.facebook.react.fabric.mounting.mountitems.IntBufferBatchMountItem.execute(IntBufferBatchMountItem.kt:125)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at com.facebook.react.fabric.mounting.MountItemDispatcher.executeOrEnqueue(MountItemDispatcher.kt:379)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at com.facebook.react.fabric.mounting.MountItemDispatcher.dispatchMountItems$lambda$7$lambda$6(MountItemDispatcher.kt:269)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at com.facebook.react.fabric.mounting.MountItemDispatcher$$ExternalSyntheticLambda4.invoke(D8$$SyntheticClass:0)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at com.facebook.react.internal.tracing.PerformanceTracer.trace(PerformanceTracer.kt:46)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at com.facebook.react.internal.tracing.PerformanceTracer.trace(PerformanceTracer.kt:35)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at com.facebook.react.fabric.mounting.MountItemDispatcher.dispatchMountItems(MountItemDispatcher.kt:250)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at com.facebook.react.fabric.mounting.MountItemDispatcher.tryDispatchMountItems(MountItemDispatcher.kt:94)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at com.facebook.react.fabric.FabricUIManager$DispatchUIFrameCallback.doFrameGuarded(FabricUIManager.java:1660)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at com.facebook.react.uimanager.GuardedFrameCallback.doFrame(GuardedFrameCallback.kt:42)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at com.facebook.react.modules.core.ReactChoreographer.frameCallback$lambda$1(ReactChoreographer.kt:58)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at com.facebook.react.modules.core.ReactChoreographer$$ExternalSyntheticLambda0.doFrame(D8$$SyntheticClass:0)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at android.view.Choreographer$CallbackRecord.run(Choreographer.java:970)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at android.view.Choreographer.doCallbacks(Choreographer.java:796)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at android.view.Choreographer.doFrame(Choreographer.java:727)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at android.view.Choreographer$FrameDisplayEventReceiver.run(Choreographer.java:957)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:938)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:99)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:223)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:7656)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+11-14 01:17:08.597 22904 22904 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)

@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - modernization
+      - main
+  push:
+    branches:
+      - modernization
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: CI monorepo
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v7
+
+      - name: Installer Node.js 26
+        uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Tester le moteur
+        run: npm test
+
+      - name: Vérifier les types du moteur
+        run: npm run typecheck --workspace=@shortest/engine
+
+      - name: Vérifier les types du web
+        run: npm run typecheck --workspace=@shortest/web
+
+      - name: Vérifier les types du mobile
+        run: npm run typecheck --workspace=@shortest/mobile
+
+      - name: Construire le web
+        run: npm run build --workspace=@shortest/web
